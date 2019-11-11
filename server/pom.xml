@@ -41,5 +41,10 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.ow2.authzforce</groupId>
+      <artifactId>authzforce-ce-core-pdp-engine</artifactId>
+      <version>14.0.0</version>
+    </dependency>
   </dependencies>
 </project>
