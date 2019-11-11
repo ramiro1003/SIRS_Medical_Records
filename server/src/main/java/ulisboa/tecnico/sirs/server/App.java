@@ -26,21 +26,22 @@ public class App
 			e.printStackTrace();
 		}
 	}
-	
-	class ServerThread extends Thread {
-		private Socket socket = null;
-		ObjectOutputStream outStream;
-		ObjectInputStream inStream;
-		private String currUser;
 
-		public ServerThread(Socket clientSocket) {
-			socket = clientSocket;
-			System.out.println("thread created for a new client");
-		}
-		
-		public void run() {
-			
-		}
+
+}
+
+class ServerThread extends Thread {
+	private Socket socket = null;
+	ObjectOutputStream outStream;
+	ObjectInputStream inStream;
+	private String currUser;
+
+	public ServerThread(Socket clientSocket) {
+		socket = clientSocket;
+		System.out.println("thread created for a new client");
+	}
+
+	public void run() {
 
 	}
 
