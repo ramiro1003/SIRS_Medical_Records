@@ -29,7 +29,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>ulisboa.tecnico.sirs.server.App</mainClass>
+					<mainClass>ulisboa.tecnico.sirs.server.ServerEntryPoint</mainClass>
 				</configuration>
 			</plugin>
 			<plugin>
