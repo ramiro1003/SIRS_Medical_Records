@@ -1,7 +1,0 @@
-CREATE TABLE User (
-	Nif INT,
-	Name VARCHAR(150),
-	Type VARCHAR(100),
-	PRIMARY KEY (Nif),
-	CONSTRAINT chk_Type CHECK (Type IN ('Patient', 'Doctor', 'Staff', 'Admin'))
-)

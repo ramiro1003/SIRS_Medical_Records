@@ -118,7 +118,8 @@ public class App
 	private static void listMDClient(String[] split) {
 		try {
 			outStream.writeObject("-l");
-		} catch (IOException e) {
+			System.out.println(inStream.readObject());
+		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

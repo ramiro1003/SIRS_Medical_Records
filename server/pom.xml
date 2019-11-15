@@ -34,13 +34,13 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-          		<artifactId>maven-compiler-plugin</artifactId>
-          		<version>2.3.2</version>
-          		<configuration>
-            		<source>1.7</source>
-            		<target>1.7</target>
-          		</configuration>
-        	</plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -60,6 +60,11 @@
 			<groupId>org.ow2.authzforce</groupId>
 			<artifactId>authzforce-ce-core-pdp-engine</artifactId>
 			<version>14.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>3.4.5</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -69,15 +69,17 @@ class ServerThread extends Thread {
 	public void run() {
 
 		try {
-			System.out.println(socket);
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 			inStream = new ObjectInputStream(socket.getInputStream());
 
 			String cmd = null;
 
-
+			//authhentication
 			try {
+				//look for the client
 				currUser = (String) inStream.readObject();
+				//decript password
+				//compare
 				outStream.writeObject(true);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
