@@ -6,19 +6,18 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.List;
 
+import ulisboa.tecnico.sirs.domain.User;
 import ulisboa.tecnico.sirs.server.database.DBGateway;
-import ulisboa.tecnico.sirs.server.database.DBManager;
 
 public class ServerEntryPoint 
 {
-	
-	private static DBGateway gateway;
-	
+		
 	public static void main( String[] args )
 	{
 		
-		gateway = new DBGateway();
+		DBGateway gateway = new DBGateway();
 
 		//receive clients
 		ServerSocket ss = null;
@@ -27,7 +26,7 @@ public class ServerEntryPoint
 			while(true) {
 				try {
 					Socket inSoc = ss.accept();
-					ServerThread newServerThread = new ServerThread(inSoc);
+					ServerThread newServerThread = new ServerThread(inSoc, gateway);
 					newServerThread.start();
 				} catch(IOException e) {
 					e.printStackTrace();
@@ -36,7 +35,7 @@ public class ServerEntryPoint
 		} catch (IOException e) {
 			e.printStackTrace();
 			try {
-				manager.closeConnection();
+				gateway.close();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
@@ -51,9 +50,11 @@ class ServerThread extends Thread {
 	ObjectOutputStream outStream;
 	ObjectInputStream inStream;
 	private String currUser;
+	private DBGateway gateway;
 
-	public ServerThread(Socket clientSocket) {
+	public ServerThread(Socket clientSocket, DBGateway gateway) {
 		socket = clientSocket;
+		this.gateway = gateway;
 		System.out.println("thread created for a new client");
 	}
 
@@ -69,9 +70,17 @@ class ServerThread extends Thread {
 			try {
 				//look for the client
 				currUser = (String) inStream.readObject();
+				List<User> listUsers = gateway.getUsers(); 
+				boolean found = false;
+				for(User u : listUsers) {
+					System.out.println(u.getName());
+					if(u.getName().equals(currUser)) {
+						found = true;
+					}
+				}
+				outStream.writeObject(found);
 				//decript password
 				//compare
-				outStream.writeObject(true);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}

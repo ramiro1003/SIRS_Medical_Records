@@ -1,20 +1,13 @@
 package ulisboa.tecnico.sirs.server.database;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Scanner;
 import org.apache.ibatis.jdbc.ScriptRunner;
-
 
 public class DBManager {
 
@@ -22,7 +15,9 @@ public class DBManager {
 	private String url;
 	private String username;
 	private String password;
+
 	private static final String DB_SETUP_SCRIPT = "setupscript.sql";
+
 
 	public void setProperties(String url, String username, String password) {
 		this.url = url;
@@ -66,7 +61,4 @@ public class DBManager {
 		sr.runScript(reader);
 	}
 
-	public ResultSet getUsers() {
-		
-	}
 }

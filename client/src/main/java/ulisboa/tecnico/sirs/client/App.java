@@ -40,6 +40,7 @@ public class App
 
 			Boolean loginResult = (Boolean) inStream.readObject();
 			if (!loginResult) {
+				System.out.println("User not found!");
 				System.exit(0);
 			} else {
 				System.out.println("Welcome " + username + "!");

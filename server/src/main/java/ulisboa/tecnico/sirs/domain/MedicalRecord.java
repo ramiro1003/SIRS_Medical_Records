@@ -1,4 +1,4 @@
-package ulisboa.tecnico.sirs.library.domain;
+package ulisboa.tecnico.sirs.domain;
 
 import java.util.ArrayList;
 import java.util.List;
