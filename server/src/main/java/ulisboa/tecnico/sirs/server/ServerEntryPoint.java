@@ -15,11 +15,18 @@ public class ServerEntryPoint
 	{
 		//Connection to database
 		DBManager manager = new DBManager();
-		manager.setProperties("jdbc:mariadb://localhost/", "root", "admin");
+		manager.setProperties("jdbc:mariadb://localhost:3306/sirs", "root", "admin");
 		try {
 			manager.createConnection();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e1) {
 			System.out.println("Error connection to database");
+		}
+		
+		try {
+			manager.createDefaultDB();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
 		}
 
 		//receive clients
@@ -71,6 +78,7 @@ class ServerThread extends Thread {
 
 			try {
 				currUser = (String) inStream.readObject();
+				outStream.writeObject(true);
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -78,7 +86,6 @@ class ServerThread extends Thread {
 			try{
 				while(true){
 					cmd = (String) inStream.readObject();
-					//para cada instrucao vai realizar uma funcao especifica
 					switch(cmd) {
 					case "-l":
 						listMDServer();
