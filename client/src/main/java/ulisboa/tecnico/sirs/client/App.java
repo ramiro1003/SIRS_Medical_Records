@@ -20,41 +20,57 @@ public class App
 	@SuppressWarnings("resource")
 	public static void main( String[] args )
 	{
-		scanner = new Scanner(System.in);
-		username = args[1];
+		if (args.length != 1) { //FIXME pode haver outras cenas a toa que sejam válidas para printar esta mensagem de erro
+			System.out.println("System usage: {serverIp}:{serverPort}");
+			System.exit(0);
+		}
 		String[] serverLocation = args[0].split(":");
-		ip = serverLocation[0];
+		if (serverLocation[0].matches("^(?:(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])$")) { //FIXME NAO TESTEI O REGEX, É SACADO
+			ip = serverLocation[0];
+		} else {
+			System.out.println("Invalid IPv4 format");
+			System.exit(0);
+		}
 		port = Integer.parseInt(serverLocation[1]);
 		try {
 			
+			scanner = new Scanner(System.in);
 			Socket socket = new Socket(ip, port);
 
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 			inStream = new ObjectInputStream(socket.getInputStream());
-
-			outStream.writeObject(username);
-
-			Boolean loginResult = (Boolean) inStream.readObject();
-			if (!loginResult) {
-				System.out.println("User not found!");
-				System.exit(0);
-			} else {
-				System.out.println("Welcome " + username + "!");
-			}
 
 
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			System.out.println("Unable to connect to host :(");
+			System.exit(0);
 		}
 		run();
 	}
 
 	private static void run() {
 
+		System.out.print("Hi! Welcome to SIRS Medical Record assistant.\nPlease insert your username:\n>> "); //FIXME NOT SANITIZING USER INPUT
+		username = scanner.nextLine().split(" ")[0];
+		
+		try {
+			outStream.writeObject(username);
+			Boolean loginResult = (Boolean) inStream.readObject();
+			if (!loginResult) {
+				System.out.println("User not found!");
+				System.exit(0);
+			} else {
+				System.out.println("Hello " + username + "!");
+			}
+		} catch (IOException | ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		// User logged in, now running application
 		String inputOption;
 		Boolean quit = false;
 		while (!quit) {
