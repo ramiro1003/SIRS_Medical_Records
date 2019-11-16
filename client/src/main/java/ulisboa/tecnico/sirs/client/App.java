@@ -7,14 +7,10 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-/**
- * Hello world!
- *
- */
 public class App 
 {
 	
-	private static Scanner sc;
+	private static Scanner scanner;
 	private static String username;
 	private static String ip;
 	private static int port;
@@ -24,11 +20,11 @@ public class App
 	@SuppressWarnings("resource")
 	public static void main( String[] args )
 	{
-		sc = new Scanner(System.in);
+		scanner = new Scanner(System.in);
 		username = args[1];
-		String[] st = args[0].split(":");
-		ip = st[0];
-		port = Integer.parseInt(st[1]);
+		String[] serverLocation = args[0].split(":");
+		ip = serverLocation[0];
+		port = Integer.parseInt(serverLocation[1]);
 		try {
 			
 			Socket socket = new Socket(ip, port);
@@ -59,25 +55,28 @@ public class App
 
 	private static void run() {
 
-		String line;
-		String[] split;
+		String inputOption;
 		Boolean quit = false;
-		System.out.print(">>");
 		while (!quit) {
-			line = sc.nextLine();
-			split = line.split(" ");
+			System.out.print("\nPlease choose the number of what you want to perform and press enter:\n"
+							+ "1) List Medical Records\n"
+							+ "2) Read a Medical Record\n"
+							+ "0) Quit\n"
+							+ ">> ");
+			
+			inputOption = scanner.nextLine().split(" ")[0];
 
-			switch (split[0]) {
-			case "-l":
-				listMDClient(split);
+			switch(inputOption) {
+			case "1":
+				listMDClient();
 				break;
-			case "-r":
-				readMDClient(split);
+			case "2":
+				readMDClient();
 				break;
-			case "quit":
-				System.out.print("Sure you want to quit? (Y = Yes, N = No)");
-				String conf = sc.nextLine();
-				if (conf.equals("Y")) {
+			case "0":
+				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
+				String conf = scanner.nextLine();
+				if (conf.equals("Y") || conf.contentEquals("y")) {
 					quit = true;
 					quitClient(username);
 					System.exit(0);
@@ -86,8 +85,6 @@ public class App
 			default:
 				System.out.println("Invalid instruction!");
 			}
-
-			System.out.print(">>");
 		}
 		try {
 			outStream.close();
@@ -97,26 +94,7 @@ public class App
 		}
 	}
 
-	private static void quitClient(String username2) {
-		try {
-			outStream.writeObject("quit");
-			outStream.writeObject(username);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}		
-	}
-
-	private static void readMDClient(String[] split) {
-		try {
-			outStream.writeObject("-r");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-
-	private static void listMDClient(String[] split) {
+	private static void listMDClient() {
 		try {
 			outStream.writeObject("-l");
 			System.out.println(inStream.readObject());
@@ -124,6 +102,25 @@ public class App
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
+	
+	private static void readMDClient() {
+		try {
+			outStream.writeObject("-r");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static void quitClient(String username2) {
+		try {
+			outStream.writeObject("quit");
+			outStream.writeObject(username);
+			System.out.println("Bye " + username + "!");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+	}
+	
 }

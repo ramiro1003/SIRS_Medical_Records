@@ -66,7 +66,7 @@ class ServerThread extends Thread {
 
 			String cmd = null;
 
-			//authhentication
+			//authentication
 			try {
 				//look for the client
 				currUser = (String) inStream.readObject();
@@ -79,7 +79,7 @@ class ServerThread extends Thread {
 					}
 				}
 				outStream.writeObject(found);
-				//decript password
+				//decipher password
 				//compare
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();

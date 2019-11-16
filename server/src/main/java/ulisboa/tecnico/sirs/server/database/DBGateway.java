@@ -12,7 +12,7 @@ import  ulisboa.tecnico.sirs.domain.*;
 public class DBGateway {
 
 	private DBManager manager;
-	private static final String SQL_SELECT_USERS = "SELECT * FROM USER";
+	private static final String SQL_SELECT_USERS = "SELECT * FROM User";
 
 
 	public DBGateway() {

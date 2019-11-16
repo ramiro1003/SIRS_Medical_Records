@@ -13,3 +13,6 @@ CREATE OR REPLACE TABLE MedicalRecord (
 
 INSERT INTO User (Name, Type)
 VALUES ('João', 'Patient');
+
+INSERT INTO User (Name, Type)
+VALUES ('Miguel', 'Patient');
