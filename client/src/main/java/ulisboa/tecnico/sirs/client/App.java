@@ -52,9 +52,91 @@ public class App
 	}
 
 	private static void run() {
+		
+		System.out.println("Hi! Welcome to SIRS Medical Record System.");
+		
+		String inputOption;
+		Boolean exitSwitch = false;
+		// First loop to check if user is registered or not and then executes login or register, respectively
+		while (!exitSwitch) {
+			System.out.print("Are you a registred user?: (Y = Yes, N = No)\n>> ");
+			inputOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			switch(inputOption) {
+				case "Y":
+					loginUser();
+					exitSwitch = true;
+					break;
+				case "y":
+					loginUser();
+					exitSwitch = true;
+					break;
+				case "N":
+					System.out.println("Cannot register yet! Try next time!");
+					System.exit(0);
+					registerUser(); //FIXME Must implement method
+					exitSwitch = true;
+					break;
+				case "n":
+					System.out.println("Cannot register yet! Try next time!");
+					System.exit(0);
+					registerUser();
+					exitSwitch = true;
+					break;
+				default:
+					System.out.println("Invalid instruction!");
+			}
+		}
+		
+		// User logged in, now running application
+		Boolean quit = false;
+		while (!quit) {
+			System.out.print("Please choose the number of what you want to perform and press enter:\n"
+							+ "1) List Medical Records\n"
+							+ "2) Read a Medical Record\n"
+							+ "0) Quit\n"
+							+ ">> ");
+			
+			inputOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 
-		System.out.print("Hi! Welcome to SIRS Medical Record assistant.\nPlease insert your username:\n>> "); //FIXME NOT SANITIZING USER INPUT
-		username = scanner.nextLine().split(" ")[0];
+			switch(inputOption) {
+			case "1":
+				listMDClient();
+				break;
+			case "2":
+				readMDClient();
+				break;
+			case "0":
+				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
+				String conf = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+				switch(conf) {
+					case "Y":
+						quit = true;
+						quitClient(username);
+						System.exit(0);
+						break;
+					case "y":
+						quit = true;
+						quitClient(username);
+						System.exit(0);
+						break;
+					default:
+				}				
+				break;
+			default:
+				System.out.println("Invalid instruction!");
+			}
+		}
+		try {
+			outStream.close();
+			inStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void loginUser() {	
+		System.out.print("What's your username (email)?\n>> ");
+		username = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 		
 		try {
 			outStream.writeObject(username);
@@ -68,46 +150,12 @@ public class App
 		} catch (IOException | ClassNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
-		
-		// User logged in, now running application
-		String inputOption;
-		Boolean quit = false;
-		while (!quit) {
-			System.out.print("\nPlease choose the number of what you want to perform and press enter:\n"
-							+ "1) List Medical Records\n"
-							+ "2) Read a Medical Record\n"
-							+ "0) Quit\n"
-							+ ">> ");
-			
-			inputOption = scanner.nextLine().split(" ")[0];
+		}	
+	}
 
-			switch(inputOption) {
-			case "1":
-				listMDClient();
-				break;
-			case "2":
-				readMDClient();
-				break;
-			case "0":
-				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
-				String conf = scanner.nextLine();
-				if (conf.equals("Y") || conf.contentEquals("y")) {
-					quit = true;
-					quitClient(username);
-					System.exit(0);
-				}
-				break;
-			default:
-				System.out.println("Invalid instruction!");
-			}
-		}
-		try {
-			outStream.close();
-			inStream.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private static void registerUser() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private static void listMDClient() {
