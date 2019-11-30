@@ -1,5 +1,7 @@
 package ulisboa.tecnico.sirs.server.database;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,11 +19,17 @@ public class DBGateway {
 	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE Email=?";
 	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (Email, HashedPass) VALUES (?, ?)";
 
+	private String db;
+	private String password;
+	
 
 	public DBGateway() {
+		
+		getDatabaseCredentials();
+		
 		//Connection to database
 		manager = new DBManager();
-		manager.setProperties("jdbc:mariadb://localhost:3306/sirs", "seed", "admin");
+		manager.setProperties("jdbc:mariadb://localhost:3306/sirs", db, password);
 		try {
 			manager.createConnection();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e1) {
@@ -34,6 +42,28 @@ public class DBGateway {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
+	}
+	
+	public void getDatabaseCredentials() {
+		// Read local database credentials
+		String path = "dbconfig.txt";
+		
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String dbName = reader.readLine();
+			String dbPwd = reader.readLine();
+			reader.close();
+			
+			this.db = dbName.split("=")[1];
+			this.password = dbPwd.split("=")[1];
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Exception: Could not read database credentials.");
+			e.printStackTrace();
+		}
+		
+		
 	}
 
 	public List<User> getUsers(){
