@@ -14,6 +14,7 @@ public class DBGateway {
 	private DBManager manager;
 	private static final String SQL_SELECT_USERS = "SELECT * FROM User";
 	private static final String SQL_INSERT_USER = "INSERT INTO User (Email, Name, Type) VALUES (?, ?, ?)";
+	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE Email=?";
 	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (Email, HashedPass) VALUES (?, ?)";
 
 
@@ -36,17 +37,15 @@ public class DBGateway {
 	}
 
 	public List<User> getUsers(){
-
+		
 		List<User> result = new ArrayList<>();
-
 		ResultSet resultSet = null; 
+		
+		try {
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_SELECT_USERS);
+			resultSet = stmt.executeQuery();
 
-		try(PreparedStatement preparedStatement = 
-				this.manager.getConnection().prepareStatement(SQL_SELECT_USERS)){
-
-			resultSet = preparedStatement.executeQuery();
-
-			while (resultSet.next()) {
+			while(resultSet.next()) {
 				String email = resultSet.getString("Email");
 				String name = resultSet.getString("Name");
 				String type = resultSet.getString("Type");
@@ -72,9 +71,25 @@ public class DBGateway {
 			e.printStackTrace();
 		}
 
-
 		return result;
-
+	}
+	
+	public String getHashedPassword(String email) {
+		
+		String hashedPass = null;
+		ResultSet resultSet = null; 
+		
+		try {
+			// Get hashed password
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_SELECT_AUTH);
+			stmt.setString(1, email);
+			resultSet = stmt.executeQuery();
+			resultSet.next();
+			hashedPass = resultSet.getString("HashedPass");
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		}
+		return hashedPass;
 	}
 	
 	public void registerUser(String email, String name, String type, String hashedPass) {

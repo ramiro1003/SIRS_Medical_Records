@@ -14,7 +14,7 @@ public class App
 {
 	
 	private static Scanner scanner;
-	private static String username;
+	private static String user;
 	private static String ip;
 	private static int port;
 	private static ObjectInputStream inStream;
@@ -23,13 +23,14 @@ public class App
 	@SuppressWarnings("resource")
 	public static void main( String[] args )
 	{
-		if (args.length != 1) { //FIXME pode haver outras cenas a toa que sejam válidas para printar esta mensagem de erro
+		// Check if application is being properly run
+		if(args.length != 1) {
 			System.out.println("System usage: -Dexec.args=\"{serverIp}:{serverPort}\"");
 			System.exit(0);
 		}
 		String[] serverLocation = args[0].split(":");
 		// Check if IP format is valid
-		if (serverLocation[0].matches("^(?:(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])$")) { //FIXME NAO TESTEI O REGEX, É SACADO
+		if(serverLocation[0].matches("^(?:(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])$")) { //FIXME Regex sacado
 			ip = serverLocation[0];
 		} else {
 			System.out.println("Invalid IPv4 format");
@@ -52,38 +53,37 @@ public class App
 			System.out.println("Unable to connect to host :(");
 			System.exit(0);
 		}
+		// Run Application
 		run();
 	}
 
 	private static void run() {
-		
+		// Welcome message
 		System.out.println("Hi! Welcome to SIRS Medical Record System.");
-		
-		String inputOption;
-		Boolean exitSwitch = false;
+		// Variable used to store user input
+		String userInput;
 		// First loop to check if user is registered or not and then executes login or register, respectively
-		while (!exitSwitch) {
+		Boolean exitSwitch = false;
+		while(!exitSwitch) {
 			System.out.print("Are you a registered user?: (Y = Yes, N = No)\n>> ");
-			inputOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
-			switch(inputOption) {
+			userInput = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+			switch(userInput) {
 				case "Y":
-					loginUser();
-					exitSwitch = true;
-					break;
 				case "y":
-					loginUser();
-					exitSwitch = true;
-					break;
-				case "N":
+				case "yes":
+				case "Yes":
 					try {
-						registerUser();
-					} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
+						loginUser();
+					} catch (NoSuchAlgorithmException | ClassNotFoundException | IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					exitSwitch = true;
 					break;
+				case "N":
 				case "n":
+				case "No":
+				case "no":
 					try {
 						registerUser();
 					} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
@@ -96,19 +96,18 @@ public class App
 					System.out.println("Invalid instruction!");
 			}
 		}
-		
 		// User logged in, now running application
 		Boolean quit = false;
-		while (!quit) {
+		while(!quit) {
 			System.out.print("Please choose the number of what you want to perform and press enter:\n"
 							+ "1) List Medical Records\n"
 							+ "2) Read a Medical Record\n"
 							+ "0) Quit\n"
 							+ ">> ");
 			
-			inputOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
-
-			switch(inputOption) {
+			userInput = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+			
+			switch(userInput) {
 			case "1":
 				listMDClient();
 				break;
@@ -117,13 +116,12 @@ public class App
 				break;
 			case "0":
 				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
-				String conf = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+				String conf = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
 				switch(conf) {
 					case "Y":
-						quit = true;
-						quitClient();
-						break;
 					case "y":
+					case "yes":
+					case "Yes":
 						quit = true;
 						quitClient();
 						break;
@@ -140,38 +138,57 @@ public class App
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.exit(0);
 	}
 	
-	private static void loginUser() {	
+	private static void loginUser() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+		// Ask user e-mail
 		System.out.print("What's your username (e-mail)?\n>> ");
-		username = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
-		
-		try {
-			outStream.writeObject(username);
-			Boolean loginResult = (Boolean) inStream.readObject();
-			if (!loginResult) {
-				System.out.println("User not found!");
-				System.exit(0);
-			} else {
-				System.out.println("Hello " + username + "!");
-			}
-		} catch (IOException | ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}	
+		String email = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+		// Ask user password
+		System.out.print("Enter your password:\n>> ");
+		String password = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+		// Hash password + salt(email)
+		String saltedPass = password + email;
+		MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+		byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+		String hashedPass = new String(hashedPassBytes);
+		// Check login result
+		if(loginRequest(email, hashedPass)) {
+			user = email;
+			System.out.println("Hello " + user + "!");
+		} else {
+			System.out.println("Wrong credentials.");
+			System.exit(0);
+		}
+	}
+	
+	private static Boolean loginRequest(String email, String hashedPass) throws ClassNotFoundException, IOException {
+		// Send login request
+		outStream.writeObject("-loginUser");
+		// Send email
+		outStream.writeObject(email);
+		// Send hash of password + salt(email)
+		outStream.writeObject(hashedPass);
+		// Check login result
+		String loginResult = (String) inStream.readObject();
+		if(loginResult.equals("Successful login")) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private static void registerUser() throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
-		// FIXME bue simples fecha sempre quando ha falhas tipo email ja existe ou password nao é igual à confirmação
 		// Pedir o tipo de utilizador
 		String type = null;
 		Boolean exitSwitch = false;
-		while (!exitSwitch) {
+		while(!exitSwitch) {
 			System.out.print("Are you a doctor, patient or staff?\n"
 							+ "1) Patient\n"
 							+ "2) Staff\n"
 							+ "3) Doctor\n"
-							+">> ");
+							+ ">> ");
 			String typeOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 			switch(typeOption) {
 			case "1":
@@ -203,23 +220,31 @@ public class App
 		System.out.print("Confirm your password by reentering it:\n>> ");
 		String confirmPassword = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 		// If passwords match, ask server to make the user registration
-		if (password.equals(confirmPassword)) {
+		if(password.equals(confirmPassword)) {
 			// Send registration request
-			outStream.writeObject("RegisterUser");
+			outStream.writeObject("-registerUser");
 			// Send user e-mail
 			outStream.writeObject(email);
-			if (inStream.readObject().equals("New email")) {
+			if(inStream.readObject().equals("New email")) {
 				// Send username
 				outStream.writeObject(username);
 				// Send user type
 				outStream.writeObject(type);
+				// Hash password + salt(email) and send
 				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
 				String saltedPass = password + email;
 				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
 				String hashedPass = new String(hashedPassBytes);
-		        // Send hashed password
 		        outStream.writeObject(hashedPass);
-		        System.out.println("You are now registered in SIRS Medical Records Systems");
+		        // Login
+				if(loginRequest(email, hashedPass)) {
+					user = email;
+					System.out.println("You are now registered in SIRS Medical Records Systems.");
+					System.out.println("Hello " + user + "!");
+				} else {
+					System.out.println("Something went wrong with your registration");
+					System.exit(0);
+				}
 			}
 			else {
 				System.out.println("User with such e-mail already exists");
@@ -235,7 +260,7 @@ public class App
 
 	private static void listMDClient() {
 		try {
-			outStream.writeObject("-l");
+			outStream.writeObject("-listMD");
 			System.out.println(inStream.readObject());
 		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -245,7 +270,7 @@ public class App
 	
 	private static void readMDClient() {
 		try {
-			outStream.writeObject("-r");
+			outStream.writeObject("-readMD");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -254,10 +279,9 @@ public class App
 	
 	private static void quitClient() {
 		try {
-			outStream.writeObject("quit");
-			outStream.writeObject(username);
-			System.out.println("Bye " + username + "!");
-			System.exit(0);
+			outStream.writeObject("-quit");
+			outStream.writeObject(user);
+			System.out.println("Bye " + user + "!");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		

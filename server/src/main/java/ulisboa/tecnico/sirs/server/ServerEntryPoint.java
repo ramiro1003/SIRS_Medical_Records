@@ -42,9 +42,10 @@ public class ServerEntryPoint
 		}
 	}
 
-
 }
 
+
+// Class that is instantiated when a user connects to the server
 class ServerThread extends Thread {
 	
 	private Socket socket = null;
@@ -56,7 +57,6 @@ class ServerThread extends Thread {
 	public ServerThread(Socket clientSocket, DBGateway gateway) {
 		socket = clientSocket;
 		this.gateway = gateway;
-		System.out.println("thread created for a new client");
 	}
 
 	public void run() {
@@ -67,63 +67,67 @@ class ServerThread extends Thread {
 
 			String cmd = null;
 
-			try{
-				while(true){
+			try {
+				while(true) {
 					cmd = (String) inStream.readObject();
 					switch(cmd) {
-						case "RegisterUser":
-							registerUser();
-						case "-l":
+						case "-listMD":
 							listMD();
 							break;
-						case "-r":
+						case "-loginUser":
+							loginUser();
+							break;
+						case "-quit":
+							quitUser();
+							break;
+						case "-readMD":
 							readMD();
 							break;
-						case "quit":
-							quitUser();
+						case "-registerUser":
+							registerUser();
 							break;
 						}
 				}
 			}catch (Exception e) {
 				e.printStackTrace();
 			}
-
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
-	private void registerUser() throws ClassNotFoundException, IOException {
-		String email = (String) inStream.readObject();
-		List<User> listUsers = gateway.getUsers(); 
-		boolean found = false;
-		for(User u : listUsers) {
-			if(u.getName().equals(email)) {
-				found = true;
-			}
-		}
-		if(!found) {
-			outStream.writeObject("New email");
-			String name = (String) inStream.readObject();
-			String type = (String) inStream.readObject();
-			String hashedPass = (String) inStream.readObject();
-			gateway.registerUser(email, name, type, hashedPass);
-		}
-		else {
-			outStream.writeObject("User Already Exists");
-		}
-	}
-
-	private void readMD() {
-		// TODO Auto-generated method stub
-
-	}
-
+	
 	private void listMD() {
 		// TODO Auto-generated method stub
 
 	}
 
+	private void loginUser() throws ClassNotFoundException, IOException {
+		String email = (String) inStream.readObject();
+		String hashedPass = (String) inStream.readObject();
+		// First checks if user exists
+		List<User> users = gateway.getUsers(); 
+		boolean found = false;
+		for(User user : users) {
+			if(user.getEmail().equals(email)) {
+				found = true;
+				break;
+			}
+		}
+		// If user exists, checks if hashed password matches with the one stored on the database
+		if(found) {
+			if(hashedPass.equals(gateway.getHashedPassword(email))) {
+				outStream.writeObject("Successful login");
+				currUser = email;
+			}
+			else {
+				outStream.writeObject("Bad login");
+			}
+		}
+		else {
+			outStream.writeObject("Bad login");
+		}			
+	}
+	
 	private void quitUser() {
 		try {
 			String user = (String) inStream.readObject();
@@ -132,4 +136,35 @@ class ServerThread extends Thread {
 			e.printStackTrace();
 		}
 	}
+	
+	private void readMD() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void registerUser() throws ClassNotFoundException, IOException {
+		// First checks if user already exists
+		String email = (String) inStream.readObject();
+		List<User> users = gateway.getUsers(); 
+		boolean found = false;
+		for(User user : users) {
+			if(user.getName().equals(email)) {
+				found = true;
+				break;
+			}
+		}
+		// If user does not exist, creates a new user
+		if(!found) {
+			outStream.writeObject("New email");
+			String name = (String) inStream.readObject();
+			String type = (String) inStream.readObject();
+			String hashedPass = (String) inStream.readObject();
+			gateway.registerUser(email, name, type, hashedPass);
+		} 
+		else {
+			outStream.writeObject("User Already Exists");
+		}
+	}
+
+
 }
