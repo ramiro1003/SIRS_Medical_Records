@@ -20,13 +20,13 @@ public class ServerEntryPoint
 		DBGateway gateway = new DBGateway();
 
 		//receive clients
-		ServerSocket ss = null;
+		ServerSocket serverSocket = null;
 		try {
-			ss = new ServerSocket(Integer.parseInt(args[0]));
+			serverSocket = new ServerSocket(Integer.parseInt(args[0]));
 			while(true) {
 				try {
-					Socket inSoc = ss.accept();
-					ServerThread newServerThread = new ServerThread(inSoc, gateway);
+					Socket inSocket = serverSocket.accept();
+					ServerThread newServerThread = new ServerThread(inSocket, gateway);
 					newServerThread.start();
 				} catch(IOException e) {
 					e.printStackTrace();
@@ -46,6 +46,7 @@ public class ServerEntryPoint
 }
 
 class ServerThread extends Thread {
+	
 	private Socket socket = null;
 	ObjectOutputStream outStream;
 	ObjectInputStream inStream;
@@ -66,60 +67,64 @@ class ServerThread extends Thread {
 
 			String cmd = null;
 
-			//authentication
-			try {
-				//look for the client
-				currUser = (String) inStream.readObject();
-				List<User> listUsers = gateway.getUsers(); 
-				boolean found = false;
-				for(User u : listUsers) {
-					System.out.println(u.getName());
-					if(u.getName().equals(currUser)) {
-						found = true;
-					}
-				}
-				outStream.writeObject(found);
-				//decipher password
-				//compare
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-
 			try{
 				while(true){
 					cmd = (String) inStream.readObject();
 					switch(cmd) {
-					case "-l":
-						listMDServer();
-						break;
-					case "-r":
-						readMDServer();
-						break;
-					case "quit":
-						quitUserServer();
-						break;
-					}
+						case "RegisterUser":
+							registerUser();
+						case "-l":
+							listMD();
+							break;
+						case "-r":
+							readMD();
+							break;
+						case "quit":
+							quitUser();
+							break;
+						}
 				}
 			}catch (Exception e) {
-				
+				e.printStackTrace();
 			}
 
 		}catch (Exception e) {
-			
+			e.printStackTrace();
 		}
 	}
 
-	private void readMDServer() {
+	private void registerUser() throws ClassNotFoundException, IOException {
+		String email = (String) inStream.readObject();
+		List<User> listUsers = gateway.getUsers(); 
+		boolean found = false;
+		for(User u : listUsers) {
+			if(u.getName().equals(email)) {
+				found = true;
+			}
+		}
+		if(!found) {
+			outStream.writeObject("New email");
+			String name = (String) inStream.readObject();
+			String type = (String) inStream.readObject();
+			String hashedPass = (String) inStream.readObject();
+			gateway.registerUser(email, name, type, hashedPass);
+		}
+		else {
+			outStream.writeObject("User Already Exists");
+		}
+	}
+
+	private void readMD() {
 		// TODO Auto-generated method stub
 
 	}
 
-	private void listMDServer() {
+	private void listMD() {
 		// TODO Auto-generated method stub
 
 	}
 
-	private void quitUserServer() {
+	private void quitUser() {
 		try {
 			String user = (String) inStream.readObject();
 			System.out.println("User " + user + " disconnected.");

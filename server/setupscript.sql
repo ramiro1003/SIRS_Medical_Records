@@ -1,18 +1,26 @@
-CREATE OR REPLACE TABLE User (
-	Id INT NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS Auth;
+DROP TABLE IF EXISTS User;
+DROP TABLE IF EXISTS MedicalRecord;
+
+
+CREATE TABLE User (
+	Email VARCHAR(150),
 	Name VARCHAR(150),
 	Type VARCHAR(100),
-	PRIMARY KEY (Id),
+	PRIMARY KEY (Email),
 	CONSTRAINT chk_Type CHECK (Type IN ('Patient', 'Doctor', 'Staff', 'Admin'))
 );
 
-CREATE OR REPLACE TABLE MedicalRecord (
+CREATE TABLE MedicalRecord (
 	Id INT NOT NULL AUTO_INCREMENT,
 	PRIMARY KEY (Id)
 );
 
-INSERT INTO User (Name, Type)
-VALUES ('João', 'Patient');
 
-INSERT INTO User (Name, Type)
-VALUES ('Miguel', 'Patient');
+CREATE TABLE Auth (
+	Email VARCHAR(150),
+	HashedPass VARCHAR(64),
+	PRIMARY KEY (Email),
+	FOREIGN KEY (Email) REFERENCES User(Email) ON UPDATE CASCADE,
+	FOREIGN KEY (Email) REFERENCES User(Email) ON DELETE CASCADE
+);

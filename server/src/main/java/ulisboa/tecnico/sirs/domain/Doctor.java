@@ -2,8 +2,8 @@ package ulisboa.tecnico.sirs.domain;
 
 public class Doctor extends User{
 
-	public Doctor(int id, String name) {
-		super(id, name);
+	public Doctor(String email, String name) {
+		super(email, name);
 	}
 
 }

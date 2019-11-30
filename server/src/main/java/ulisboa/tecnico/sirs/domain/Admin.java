@@ -2,8 +2,8 @@ package ulisboa.tecnico.sirs.domain;
 
 public class Admin extends User{
 
-	public Admin(int id, String name) {
-		super(id, name);
+	public Admin(String email, String name) {
+		super(email, name);
 	}
 
 }

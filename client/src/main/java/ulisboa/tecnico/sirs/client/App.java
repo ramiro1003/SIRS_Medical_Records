@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 
 public class App 
 {
@@ -21,10 +24,11 @@ public class App
 	public static void main( String[] args )
 	{
 		if (args.length != 1) { //FIXME pode haver outras cenas a toa que sejam válidas para printar esta mensagem de erro
-			System.out.println("System usage: {serverIp}:{serverPort}");
+			System.out.println("System usage: -Dexec.args=\"{serverIp}:{serverPort}\"");
 			System.exit(0);
 		}
 		String[] serverLocation = args[0].split(":");
+		// Check if IP format is valid
 		if (serverLocation[0].matches("^(?:(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])$")) { //FIXME NAO TESTEI O REGEX, É SACADO
 			ip = serverLocation[0];
 		} else {
@@ -59,7 +63,7 @@ public class App
 		Boolean exitSwitch = false;
 		// First loop to check if user is registered or not and then executes login or register, respectively
 		while (!exitSwitch) {
-			System.out.print("Are you a registred user?: (Y = Yes, N = No)\n>> ");
+			System.out.print("Are you a registered user?: (Y = Yes, N = No)\n>> ");
 			inputOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 			switch(inputOption) {
 				case "Y":
@@ -71,15 +75,21 @@ public class App
 					exitSwitch = true;
 					break;
 				case "N":
-					System.out.println("Cannot register yet! Try next time!");
-					System.exit(0);
-					registerUser(); //FIXME Must implement method
+					try {
+						registerUser();
+					} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					exitSwitch = true;
 					break;
 				case "n":
-					System.out.println("Cannot register yet! Try next time!");
-					System.exit(0);
-					registerUser();
+					try {
+						registerUser();
+					} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					exitSwitch = true;
 					break;
 				default:
@@ -111,13 +121,11 @@ public class App
 				switch(conf) {
 					case "Y":
 						quit = true;
-						quitClient(username);
-						System.exit(0);
+						quitClient();
 						break;
 					case "y":
 						quit = true;
-						quitClient(username);
-						System.exit(0);
+						quitClient();
 						break;
 					default:
 				}				
@@ -135,8 +143,8 @@ public class App
 	}
 	
 	private static void loginUser() {	
-		System.out.print("What's your username (email)?\n>> ");
-		username = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		System.out.print("What's your username (e-mail)?\n>> ");
+		username = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
 		
 		try {
 			outStream.writeObject(username);
@@ -153,8 +161,75 @@ public class App
 		}	
 	}
 
-	private static void registerUser() {
-		// TODO Auto-generated method stub
+	private static void registerUser() throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
+		// FIXME bue simples fecha sempre quando ha falhas tipo email ja existe ou password nao é igual à confirmação
+		// Pedir o tipo de utilizador
+		String type = null;
+		Boolean exitSwitch = false;
+		while (!exitSwitch) {
+			System.out.print("Are you a doctor, patient or staff?\n"
+							+ "1) Patient\n"
+							+ "2) Staff\n"
+							+ "3) Doctor\n"
+							+">> ");
+			String typeOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			switch(typeOption) {
+			case "1":
+				type = "Patient";
+				exitSwitch = true;
+				break;
+			case "2":
+				type = "Staff";
+				exitSwitch = true;
+				break;
+			case "3":
+				type = "Doctor";
+				exitSwitch = true;
+				break;
+			default:
+				System.out.println("Invalid instruction!");
+			}
+		}
+		// Ask user name
+		System.out.print("What's your name?\n>> ");
+		String username = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		// Ask user e-mail
+		System.out.print("Enter your e-mail:\n>> ");
+		String email = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		// Ask password
+		System.out.print("Enter a password:\n>> ");
+		String password = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		// Confirm password
+		System.out.print("Confirm your password by reentering it:\n>> ");
+		String confirmPassword = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		// If passwords match, ask server to make the user registration
+		if (password.equals(confirmPassword)) {
+			// Send registration request
+			outStream.writeObject("RegisterUser");
+			// Send user e-mail
+			outStream.writeObject(email);
+			if (inStream.readObject().equals("New email")) {
+				// Send username
+				outStream.writeObject(username);
+				// Send user type
+				outStream.writeObject(type);
+				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+				String saltedPass = password + email;
+				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+				String hashedPass = new String(hashedPassBytes);
+		        // Send hashed password
+		        outStream.writeObject(hashedPass);
+		        System.out.println("You are now registered in SIRS Medical Records Systems");
+			}
+			else {
+				System.out.println("User with such e-mail already exists");
+				System.exit(0);
+			}
+		}
+		else {
+			System.out.println("Passwords don't match.");
+			System.exit(0);
+		}
 		
 	}
 
@@ -177,11 +252,12 @@ public class App
 		}
 	}
 	
-	private static void quitClient(String username2) {
+	private static void quitClient() {
 		try {
 			outStream.writeObject("quit");
 			outStream.writeObject(username);
 			System.out.println("Bye " + username + "!");
+			System.exit(0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
