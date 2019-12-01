@@ -6,6 +6,11 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -19,6 +24,7 @@ public class App
 	private static int port;
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
+	private static final String KEYSTORE_PATH = "client.keyStore";
 	
 	@SuppressWarnings("resource")
 	public static void main( String[] args )
@@ -37,11 +43,17 @@ public class App
 			System.exit(0);
 		}
 		port = Integer.parseInt(serverLocation[1]);
+		
+		System.setProperty("javax.net.ssl.trustStore", KEYSTORE_PATH);
+		System.setProperty("javax.net.ssl.trustStorePassword", "sirssirs");
+		
 		try {
 			
 			scanner = new Scanner(System.in);
-			Socket socket = new Socket(ip, port);
 
+			SocketFactory sf = SSLSocketFactory.getDefault();
+			SSLSocket socket = (SSLSocket) sf.createSocket(ip, port);
+			
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 			inStream = new ObjectInputStream(socket.getInputStream());
 

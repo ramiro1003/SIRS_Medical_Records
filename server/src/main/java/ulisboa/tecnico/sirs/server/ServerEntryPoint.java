@@ -8,24 +8,35 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.net.ssl.SSLServerSocketFactory;
+
 import ulisboa.tecnico.sirs.domain.User;
 import ulisboa.tecnico.sirs.server.database.DBGateway;
 
 public class ServerEntryPoint 
 {
-		
+	private static final String KEYSTORE_PATH = "sirs.keyStore";
+	
 	public static void main( String[] args )
 	{
 		
 		DBGateway gateway = new DBGateway();
 
 		//receive clients
-		ServerSocket serverSocket = null;
+		SSLServerSocketFactory ssf;
+		ServerSocket socket = null; 
+		int port = 16000;
+		
 		try {
-			serverSocket = new ServerSocket(Integer.parseInt(args[0]));
+			System.setProperty("javax.net.ssl.keyStore", KEYSTORE_PATH);
+			System.setProperty("javax.net.ssl.keyStorePassword", "sirssirs");
+			ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+			socket = ssf.createServerSocket(port);
+			
+			
 			while(true) {
 				try {
-					Socket inSocket = serverSocket.accept();
+					Socket inSocket = socket.accept();
 					ServerThread newServerThread = new ServerThread(inSocket, gateway);
 					newServerThread.start();
 				} catch(IOException e) {
