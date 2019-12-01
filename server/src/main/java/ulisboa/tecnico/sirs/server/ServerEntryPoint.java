@@ -143,7 +143,7 @@ class ServerThread extends Thread {
 	}
 
 	private void registerUser() throws ClassNotFoundException, IOException {
-		// First checks if user already exists
+		// Checks if user already exists
 		String email = (String) inStream.readObject();
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
@@ -153,7 +153,7 @@ class ServerThread extends Thread {
 				break;
 			}
 		}
-		// If user does not exist, creates a new user
+		// Creates a new user
 		if(!found) {
 			outStream.writeObject("New email");
 			String name = (String) inStream.readObject();

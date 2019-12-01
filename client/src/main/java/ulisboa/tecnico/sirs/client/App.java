@@ -213,9 +213,18 @@ public class App
 		// Ask user e-mail
 		System.out.print("Enter your e-mail:\n>> ");
 		String email = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		if(!email.matches("^([a-z0-9_-]+\\.)*[a-z0-9_-]+@[a-z0-9_-]+(\\.[a-z0-9_-]+)*\\.[a-z]{2,6}$")) {
+			System.out.println("Wrong e-mail format.");
+			System.exit(0);
+		}
 		// Ask password
 		System.out.print("Enter a password:\n>> ");
 		String password = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+        if(password.length() < 12) {
+        	System.out.print("Your password must follow these requirements:\n"
+        						+ "\t-- Must have a minimum of 12 characters\n");
+        	System.exit(0);
+        }
 		// Confirm password
 		System.out.print("Confirm your password by reentering it:\n>> ");
 		String confirmPassword = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
