@@ -12,6 +12,7 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 import ulisboa.tecnico.sirs.domain.User;
 import ulisboa.tecnico.sirs.server.database.DBGateway;
+import ulisboa.tecnico.sirs.server.logging.LoggingManager;
 
 public class ServerEntryPoint 
 {
@@ -64,10 +65,12 @@ class ServerThread extends Thread {
 	ObjectInputStream inStream;
 	private String currUser;
 	private DBGateway gateway;
+	private LoggingManager logMan;
 
-	public ServerThread(Socket clientSocket, DBGateway gateway) {
+	public ServerThread(Socket clientSocket, DBGateway gateway) throws IOException {
 		socket = clientSocket;
 		this.gateway = gateway;
+		this.logMan = new LoggingManager();
 	}
 
 	public void run() {
@@ -77,10 +80,10 @@ class ServerThread extends Thread {
 			inStream = new ObjectInputStream(socket.getInputStream());
 
 			String cmd = null;
-
 			try {
 				while(true) {
 					cmd = (String) inStream.readObject();
+					logMan.writeLog(cmd, currUser);
 					switch(cmd) {
 						case "-listMD":
 							listMD();
@@ -114,7 +117,9 @@ class ServerThread extends Thread {
 
 	private void loginUser() throws ClassNotFoundException, IOException {
 		String email = (String) inStream.readObject();
+		logMan.writeLog(email, currUser);
 		String hashedPass = (String) inStream.readObject();
+		logMan.writeLog(hashedPass, currUser);
 		// First checks if user exists
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
@@ -142,6 +147,7 @@ class ServerThread extends Thread {
 	private void quitUser() {
 		try {
 			String user = (String) inStream.readObject();
+			logMan.writeLog(user, currUser);
 			System.out.println("User " + user + " disconnected.");
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
@@ -156,6 +162,7 @@ class ServerThread extends Thread {
 	private void registerUser() throws ClassNotFoundException, IOException {
 		// Checks if user already exists
 		String email = (String) inStream.readObject();
+		logMan.writeLog(email, currUser);
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
@@ -168,8 +175,11 @@ class ServerThread extends Thread {
 		if(!found) {
 			outStream.writeObject("New email");
 			String name = (String) inStream.readObject();
+			logMan.writeLog(name, currUser);
 			String type = (String) inStream.readObject();
+			logMan.writeLog(type, currUser);
 			String hashedPass = (String) inStream.readObject();
+			logMan.writeLog(hashedPass, currUser);
 			gateway.registerUser(email, name, type, hashedPass);
 		} 
 		else {
