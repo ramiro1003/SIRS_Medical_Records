@@ -1,0 +1,196 @@
+namespace institution {
+	import System.*
+	import Attributes.*
+	import attributes.*
+	
+	
+	/* Policies for reading and writing medical records
+	 * 
+	 * subjectRole      = role of requester
+	 * subjectId        = identifier of requester
+	 * assignedDoctorId = identifier of currently assigned doctor
+	 * assignedStaffId  = identifier of currently assigned staff member
+	 * emergencyContext = whether or not the patient is in the ER
+	 * 
+	 */
+	
+	
+	policyset policies {
+		apply firstApplicable
+	
+		
+		/* Policy set for reading medical records */
+		policyset read {
+			target clause Attributes.actionId == "read"
+			apply firstApplicable
+			
+			
+			/* ********* ADMIN ********* */
+			/* when an admin wants to read */
+			policy admin {
+				target clause attributes.subjectRole == "admin"
+				apply firstApplicable
+				
+				/* An admin can read any medical record */
+				rule adminCanReadAllMedicalRecord {
+					/* Not sure if this is a reasonable policy */
+					permit
+				}
+				
+				rule noFurtherArminReads {
+					deny
+				}
+			}
+			
+			
+			/* ********* DOCTOR ********* */
+			/* when a doctor wants to read */
+			policy doctor {
+				target clause attributes.subjectRole == "doctor"
+				apply firstApplicable
+				
+				/* A doctor can read medical records of patients that are assigned to him/her */
+				rule doctorCanReadAssignedPatientsMedicalRecord {
+					condition Attributes.subjectId == attributes.assignedDoctorId
+					permit
+				}
+				
+				/* A doctor can read medical records of patients that are not assigned to him/her 
+				 * if in the context of a medical emergency */
+				rule doctorCanReadMedicalRecordEmergency {
+					condition attributes.emergencyContext == true
+					permit
+				}
+				
+				rule noFurtherDoctorReads {
+					deny
+				}
+				
+			}
+			
+			/* ********* STAFF ********* */
+			/* when a medical staff member wants to read */
+			policy staff {
+				target clause attributes.subjectRole == "staff"
+				apply firstApplicable
+				
+				/* A staff member can read medical records of patients that are assigned to him/her */
+				rule staffCanReadAssignedPatientsMedicalRecord {
+					condition Attributes.subjectId == attributes.assignedStaffId
+					permit
+				}
+				
+				/* A staff member can read medical records of a patient in an emergency */
+				rule staffCanReadMedicalRecordEmergency {
+					target clause attributes.emergencyContext == true
+					permit
+				}
+				
+				rule noFurtherStaffReads {
+					deny
+				}
+			}
+			
+			/* ********* PATIENT ********* */
+			/* when a patient wants to read */
+			policy patient {
+				apply firstApplicable
+				
+				/* A patient can read his own medical record */
+				rule patientCanReadOwnRecord {
+					target clause attributes.subjectRole == "patient"
+					/* COMO FAZER ESTE? */
+					permit
+				}
+				
+				rule noFurtherPatientReads {
+					deny
+				}
+			}
+			
+		}
+		
+		
+		
+		/* Policy set for writing medical records */
+		policyset write {
+			target clause Attributes.actionId == "write"
+			apply firstApplicable
+			
+			/* ********* ADMIN ********* */
+			/* when an admin wants to write */
+			policy admin {
+				target clause attributes.subjectRole == "admin"
+				apply firstApplicable
+				
+				/* admin has no permission to write to a medical record */
+				rule adminCannotWrite {
+					deny
+				}
+				
+			}
+			
+			/* ********* DOCTOR ********* */
+			/* when a doctor wants to write */
+			policy doctor {
+				target clause attributes.subjectRole == "doctor"
+				apply firstApplicable
+				
+				
+				/* A doctor can write medical records of patients that are assigned to him/her */
+				rule doctorCanWriteAssignedPatientsMedicalRecords {
+					condition Attributes.subjectId == attributes.assignedDoctorId
+					permit
+				}
+				
+				/* A doctor can write medical records of patients that are not assigned to him/her 
+				 * if in the context of a medical emergency */
+				rule doctorCanWriteMedicalRecordEmergency {
+					target clause attributes.emergencyContext == true
+					permit
+				}
+				
+				rule noFurtherDoctorWrites {
+					deny
+				}
+				
+			}
+			
+			/* ********* STAFF ********* */
+			/* when a medical staff member wants to write */
+			policy staff {
+				target clause attributes.subjectRole == "staff"
+				apply firstApplicable
+				
+				/* A staff member can write medical records of patients that are assigned to him/her */
+				rule staffCanWriteAssignedPatientsMedicalRecord {
+					condition Attributes.subjectId == attributes.assignedStaffId
+					permit
+				}
+				
+				/* A staff member can read medical records of a patient in an emergency */
+				rule staffCanWriteMedicalRecordEmergency {
+					condition attributes.emergencyContext == true
+					permit
+				}
+				
+				rule noFurtherStaffWrites {
+					deny
+				}
+			}
+			
+			/* ********* PATIENT ********* */
+			/* when a patient wants to write to his medical record */
+			policy patient {
+				target clause attributes.subjectRole == "patient"
+				apply firstApplicable
+				
+				/* A patient can read his own medical record */
+				rule patientCanWriteOwnRecord {
+					deny
+				}
+			}
+		}
+	}
+	
+}

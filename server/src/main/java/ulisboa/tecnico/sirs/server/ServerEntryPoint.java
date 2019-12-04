@@ -22,7 +22,7 @@ public class ServerEntryPoint
 	{
 		
 		DBGateway gateway = new DBGateway();
-
+		
 		//receive clients
 		SSLServerSocketFactory ssf;
 		ServerSocket socket = null; 

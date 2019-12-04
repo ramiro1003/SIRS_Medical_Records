@@ -18,7 +18,7 @@ public class PolicyEnforcementPoint
 	private final BasePdpEngine pdp;
 
 	public PolicyEnforcementPoint() throws IllegalArgumentException, IOException {
-		this.pdpEngineConf = PdpEngineConfiguration.getInstance("pdpconfig.xml");
+		this.pdpEngineConf = PdpEngineConfiguration.getInstance("resources/pdpconfig.xml");
 		this.pdp = new BasePdpEngine(pdpEngineConf);
 	}
 	
