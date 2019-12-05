@@ -13,6 +13,11 @@ CREATE TABLE User (
 
 CREATE TABLE MedicalRecord (
 	Id INT NOT NULL AUTO_INCREMENT,
+	PatientId INT,
+	PatientName VARCHAR(150), 
+	Age INT,
+	Weight INT,
+	Height INT,
 	PRIMARY KEY (Id)
 );
 
@@ -24,3 +29,6 @@ CREATE TABLE Auth (
 	FOREIGN KEY (Email) REFERENCES User(Email) ON UPDATE CASCADE,
 	FOREIGN KEY (Email) REFERENCES User(Email) ON DELETE CASCADE
 );
+
+INSERT INTO MedicalRecord (PatientId, PatientName, Age, Height, Weight)
+VALUES ("14237841", "Miguel Grilo", 21, 198, 87);
