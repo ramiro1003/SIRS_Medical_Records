@@ -5,6 +5,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -25,12 +27,12 @@ public class ServerEntryPoint
 	{
 		
 		gateway = new DBGateway();
-		try {
+		/*try {
 			pep = new PolicyEnforcementPoint();
 		} catch (IllegalArgumentException | IOException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
-		}
+		}*/
 		
 		//receive clients
 		SSLServerSocketFactory ssf;
@@ -95,7 +97,6 @@ class ServerThread extends Thread {
 		try {
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 			inStream = new ObjectInputStream(socket.getInputStream());
-
 			String cmd = null;
 			try {
 				while(true) {
@@ -117,7 +118,7 @@ class ServerThread extends Thread {
 						case "-registerUser":
 							registerUser();
 							break;
-						}
+					}
 				}
 			}catch (Exception e) {
 				e.printStackTrace();
@@ -135,7 +136,7 @@ class ServerThread extends Thread {
 	private void loginUser() throws ClassNotFoundException, IOException {
 		String email = (String) inStream.readObject();
 		//logMan.writeLog(email, currUser);
-		String hashedPass = (String) inStream.readObject();
+		String password = (String) inStream.readObject();
 		//logMan.writeLog(hashedPass, currUser);
 		// First checks if user exists
 		List<User> users = gateway.getUsers(); 
@@ -149,11 +150,21 @@ class ServerThread extends Thread {
 		}
 		// If user exists, checks if hashed password matches with the one stored on the database
 		if(found) {
-			if(hashedPass.equals(gateway.getHashedPassword(email))) {
-				outStream.writeObject("Successful login");
-			}
-			else {
-				outStream.writeObject("Bad login");
+			try {
+				// Hash password + salt(email)
+				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+				String saltedPass = password + email;
+				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+				String hashedPass = new String(hashedPassBytes);
+				if(hashedPass.equals(gateway.getHashedPassword(email))) {
+					outStream.writeObject("Successful login");
+				}
+				else {
+					outStream.writeObject("Bad login");
+				}
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		else {
@@ -204,9 +215,19 @@ class ServerThread extends Thread {
 			//logMan.writeLog(name, currUser);
 			String type = (String) inStream.readObject();
 			//logMan.writeLog(type, currUser);
-			String hashedPass = (String) inStream.readObject();
-			//logMan.writeLog(hashedPass, currUser);
-			gateway.registerUser(userId, email, name, type, hashedPass);
+			String password = (String) inStream.readObject();
+			// Hash password + salt(email)
+			try {
+				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+				String saltedPass = password + email;
+				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+				String hashedPass = new String(hashedPassBytes);
+				//logMan.writeLog(hashedPass, currUser);
+				gateway.registerUser(userId, email, name, type, hashedPass);
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} 
 		else {
 			outStream.writeObject("User Already Exists");

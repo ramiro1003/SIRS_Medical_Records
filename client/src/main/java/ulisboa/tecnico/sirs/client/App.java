@@ -113,7 +113,7 @@ public class App
 					System.out.println("Invalid instruction!");
 			}
 		}
-		System.exit(0);
+		quitClient();
 	}
 	
 	private static void loginUser() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
@@ -123,30 +123,25 @@ public class App
 		// Ask user password
 		System.out.print("Enter your password:\n>> ");
 		String password = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
-		// Hash password + salt(email)
-		String saltedPass = password + email;
-		MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-		byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
-		String hashedPass = new String(hashedPassBytes);
 		// Check login result
-		if(loginRequest(email, hashedPass)) {
-			 user = email;
+		if(loginRequest(email, password)) {
+			user = email;
 			System.out.println("Hello " + user + "!");
 			AppDoctor.runApp(inStream, outStream, scanner);
 			quitClient();
 		} else {
 			System.out.println("Wrong credentials.");
-			System.exit(0);
+			quitClient();
 		}
 	}
 	
-	private static Boolean loginRequest(String email, String hashedPass) throws ClassNotFoundException, IOException {
+	private static Boolean loginRequest(String email, String password) throws ClassNotFoundException, IOException {
 		// Send login request
 		outStream.writeObject("-loginUser");
 		// Send email
 		outStream.writeObject(email);
 		// Send hash of password + salt(email)
-		outStream.writeObject(hashedPass);
+		outStream.writeObject(password);
 		// Check login result
 		String loginResult = (String) inStream.readObject();
 		if(loginResult.equals("Successful login")) {
@@ -193,18 +188,13 @@ public class App
 		// Ask user e-mail
 		System.out.print("Enter your e-mail:\n>> ");
 		String email = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
-		if(!email.matches("^([a-z0-9_-]+\\.)*[a-z0-9_-]+@[a-z0-9_-]+(\\.[a-z0-9_-]+)*\\.[a-z]{2,6}$")) {
+		if(!email.matches("^([a-z0-9_-]+\\.)*[a-z0-9_-]+@[a-z0-9_-]+(\\.[a-z0-9_-]+)*\\.[a-z]{2,6}$")) { //FIXME regex sacado
 			System.out.println("Wrong e-mail format.");
-			System.exit(0);
+			quitClient();
 		}
 		// Ask password
 		System.out.print("Enter a password:\n>> ");
 		String password = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
-        if(password.length() < 12) {
-        	System.out.print("Your password must follow these requirements:\n"
-        						+ "  -- Must have a minimum of 12 characters\n");
-        	System.exit(0);
-        }
 		// Confirm password
 		System.out.print("Confirm your password by reentering it:\n>> ");
 		String confirmPassword = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
@@ -221,30 +211,26 @@ public class App
 				outStream.writeObject(username);
 				// Send user type
 				outStream.writeObject(type);
-				// Hash password + salt(email) and send
-				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-				String saltedPass = password + email;
-				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
-				String hashedPass = new String(hashedPassBytes);
-		        outStream.writeObject(hashedPass);
+				// Send plain text password
+				outStream.writeObject(password);
 		        // Login
-				if(loginRequest(email, hashedPass)) {
+				if(loginRequest(email, password)) {
 					user = email;
 					System.out.println("You are now registered in SIRS Medical Records Systems.");
 					System.out.println("Hello " + user + "!");
 				} else {
 					System.out.println("Something went wrong with your registration");
-					System.exit(0);
+					quitClient();
 				}
 			}
 			else {
 				System.out.println("User with such e-mail already exists");
-				System.exit(0);
+				quitClient();
 			}
 		}
 		else {
 			System.out.println("Passwords don't match.");
-			System.exit(0);
+			quitClient();
 		}
 		
 	}
@@ -254,12 +240,13 @@ public class App
 		try {
 			outStream.writeObject("-quit");
 			outStream.writeObject(user);
-			System.out.println("Bye " + user + "!");
 			outStream.close();
 			inStream.close();
+			System.exit(0);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(0);;
 		}
 	}
 	
