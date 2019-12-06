@@ -173,8 +173,14 @@ class ServerThread extends Thread {
 	
 	private void readMD() {
 		// Get patient Id
-		String patientId = (String) inStream.readObject();
-		pep.authorize("read", currUser.getUserId(), currUser.getRole(), patientId, false);
+		String patientId;
+		try {
+			patientId = (String) inStream.readObject();
+			pep.authorize("read", currUser.getUserId(), currUser.getRole(), patientId, false);
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

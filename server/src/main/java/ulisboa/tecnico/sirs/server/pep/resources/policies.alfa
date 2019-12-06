@@ -4,17 +4,6 @@ namespace institution {
 	import attributes.*
 	
 	
-	/* Policies for reading and writing medical records
-	 * 
-	 * subjectRole      = role of requester
-	 * subjectId        = identifier of requester
-	 * assignedDoctorId = identifier of currently assigned doctor
-	 * assignedStaffId  = identifier of currently assigned staff member
-	 * emergencyContext = whether or not the patient is in the ER
-	 * 
-	 */
-	
-	
 	policyset policies {
 		apply firstApplicable
 	
