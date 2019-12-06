@@ -5,27 +5,27 @@ import java.util.List;
 
 public class MedicalRecord {
 	
-	private Patient patient;
-	private Doctor doctor;
+	private User patient;
+	private User doctor;
 	private List<String> history;
 	
-	public MedicalRecord(Patient p, Doctor d, List<String> history) {
-		this.patient = p;
-		this.doctor = d;
+	public MedicalRecord(User patient, User doctor, List<String> history) {
+		this.patient = patient;
+		this.doctor = doctor;
 		this.history = history;
 	}
 	
-	public MedicalRecord(Patient p, Doctor d) {
-		this.patient = p;
-		this.doctor = d;
+	public MedicalRecord(User patient, User doctor) {
+		this.patient = patient;
+		this.doctor = doctor;
 		this.history = new ArrayList<String>();
 	}
 
-	public Patient getPatient() {
+	public User getPatient() {
 		return patient;
 	}
 
-	public Doctor getDoctor() {
+	public User getDoctor() {
 		return doctor;
 	}
 
