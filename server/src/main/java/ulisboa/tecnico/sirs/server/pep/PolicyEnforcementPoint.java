@@ -14,7 +14,8 @@ import org.ow2.authzforce.xacml.identifiers.XacmlAttributeId;
 
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.DecisionType;
 
-import org.ow2.authzforce.core.pdp.api.AttributeFqn;
+import org.casbin.jcasbin.main.Enforcer;
+/*import org.ow2.authzforce.core.pdp.api.AttributeFqn;
 import org.ow2.authzforce.core.pdp.api.AttributeFqns;
 import org.ow2.authzforce.core.pdp.api.DecisionRequest;
 import org.ow2.authzforce.core.pdp.api.DecisionRequestBuilder;
@@ -25,19 +26,36 @@ import org.ow2.authzforce.core.pdp.api.value.Bags;
 import org.ow2.authzforce.core.pdp.api.value.BooleanValue;
 import org.ow2.authzforce.core.pdp.api.value.StandardDatatypes;
 import org.ow2.authzforce.core.pdp.api.value.StringValue;
+import org.springframework.core.io.ClassPathResource;*/
 
 public class PolicyEnforcementPoint
 {
-	private final PdpEngineConfiguration pdpEngineConf; 
-	private final BasePdpEngine pdp;
+	//private final PdpEngineConfiguration pdpEngineConf; 
+	//private final BasePdpEngine pdp;
+	private final Enforcer enforcer;
 
 	public PolicyEnforcementPoint() throws IllegalArgumentException, IOException {
-		this.pdpEngineConf = PdpEngineConfiguration.getInstance("pdpconfig.xml");
-		this.pdp = new BasePdpEngine(pdpEngineConf);
 		
+		//ClassPathResource url = new ClassPathResource("data/employees.dat", this.getClass().getClassLoader());
+		
+		//this.pdpEngineConf = PdpEngineConfiguration.getInstance(url.getFile().getAbsolutePath());
+		
+		//this.pdpEngineConf = PdpEngineConfiguration.getInstance("pdpconfig.xml", "pdp");
+		
+		//this.pdp = new BasePdpEngine(pdpEngineConf);
+		
+		this.enforcer = new Enforcer("abac_model.conf");
 		
 	}
 	
+	
+	public boolean enforce(String action, String subjectId, String subjectRole, String patientId, Boolean emergencyContext) {
+		return this.enforcer.enforce(subjectId, patientId, action);
+	}
+	
+	
+	
+	/*
 	public boolean authorize(String action, String subjectId, String subjectRole, String patientId, Boolean emergencyContext) {
 		// Create the request to be made to the PDP
 		final DecisionRequest request = createRequest(action, subjectId, subjectRole, patientId, emergencyContext);
@@ -99,6 +117,7 @@ public class PolicyEnforcementPoint
 		final AttributeBag<?> emergencyContextAttributeValues = Bags.singletonAttributeBag(StandardDatatypes.BOOLEAN, new BooleanValue(attribute));
 		requestBuilder.putNamedAttributeIfAbsent(emergencyContextAttributeId, emergencyContextAttributeValues);
 	}
+	*/
 		
 }
 

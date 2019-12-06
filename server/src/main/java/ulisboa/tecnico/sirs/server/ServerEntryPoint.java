@@ -187,7 +187,7 @@ class ServerThread extends Thread {
 		String patientId;
 		try {
 			patientId = (String) inStream.readObject();
-			pep.authorize("read", currUser.getUserId(), currUser.getRole(), patientId, false);
+			pep.enforce("read", currUser.getUserId(), currUser.getRole(), patientId, false);
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
