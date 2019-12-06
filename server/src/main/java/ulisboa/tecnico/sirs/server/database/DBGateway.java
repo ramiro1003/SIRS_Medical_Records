@@ -46,7 +46,7 @@ public class DBGateway {
 	
 	public void getDatabaseCredentials() {
 		// Read local database credentials
-		String path = "dbconfig.txt";
+		String path = "resources/dbconfig.txt";
 		
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(path));

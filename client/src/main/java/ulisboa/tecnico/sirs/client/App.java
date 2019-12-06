@@ -24,7 +24,7 @@ public class App
 	private static int port;
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
-	private static final String KEYSTORE_PATH = "client.keyStore";
+	private static final String KEYSTORE_PATH = "resources/client.keyStore";
 	
 	@SuppressWarnings("resource")
 	public static void main( String[] args ) {

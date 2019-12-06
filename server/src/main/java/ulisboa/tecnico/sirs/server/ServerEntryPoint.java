@@ -20,19 +20,19 @@ public class ServerEntryPoint
 {
 	private static DBGateway gateway = null;
 	private static PolicyEnforcementPoint pep = null;
-	private static final String KEYSTORE_PATH = "sirs.keyStore";
+	private static final String KEYSTORE_PATH = "resources/sirs.keyStore";
 	private static int port;
 	
 	public static void main( String[] args )
 	{
 		
 		gateway = new DBGateway();
-		/*try {
+		try {
 			pep = new PolicyEnforcementPoint();
 		} catch (IllegalArgumentException | IOException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
-		}*/
+		}
 		
 		//receive clients
 		SSLServerSocketFactory ssf;

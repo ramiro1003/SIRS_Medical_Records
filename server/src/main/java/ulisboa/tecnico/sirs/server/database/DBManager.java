@@ -16,7 +16,7 @@ public class DBManager {
 	private String username;
 	private String password;
 
-	private static final String DB_SETUP_SCRIPT = "setupscript.sql";
+	private static final String DB_SETUP_SCRIPT = "resources/setupscript.sql";
 
 
 	public void setProperties(String url, String username, String password) {
