@@ -27,37 +27,42 @@ public class App
 	private static final String KEYSTORE_PATH = "client.keyStore";
 	
 	@SuppressWarnings("resource")
-	public static void main( String[] args )
-	{
-		// Check if application is being properly run
+	public static void main( String[] args ) {
+		// Check if application is being properly run with mvn exec
 		if(args.length != 1) {
-			System.out.println("System usage: -Dexec.args=\"{serverIp}:{serverPort}\"");
+			System.out.println("System usage: mvn exec:java -Dexec.args=\"{serverIp}:{serverPort}\"");
 			System.exit(0);
 		}
+		// Get "server location": server IP and port
 		String[] serverLocation = args[0].split(":");
 		// Check if IP format is valid
 		if(serverLocation[0].matches("^(?:(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])$")) { //FIXME Regex sacado
 			ip = serverLocation[0];
-		} else {
+		}
+		else {
 			System.out.println("Invalid IPv4 format");
 			System.exit(0);
 		}
-		port = Integer.parseInt(serverLocation[1]);
-		
+		// Check if port is valid
+		try {
+			port = Integer.parseInt(serverLocation[1]);
+		} catch (NumberFormatException e) {
+			System.out.println("Port must be an integer");
+			System.exit(0);
+		}
+		// Set system keystore
 		System.setProperty("javax.net.ssl.trustStore", KEYSTORE_PATH);
 		System.setProperty("javax.net.ssl.trustStorePassword", "sirssirs");
 		
 		try {
-			
+			// Instantiate scanner to get user input
 			scanner = new Scanner(System.in);
-
+			// Create a socket for TLS connection with the server
 			SocketFactory sf = SSLSocketFactory.getDefault();
 			SSLSocket socket = (SSLSocket) sf.createSocket(ip, port);
-			
+			// Connection streams
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 			inStream = new ObjectInputStream(socket.getInputStream());
-
-
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -108,48 +113,6 @@ public class App
 					System.out.println("Invalid instruction!");
 			}
 		}
-		// User logged in, now running application
-		Boolean quit = false;
-		while(!quit) {
-			System.out.print("Please choose the number of what you want to perform and press enter:\n"
-							+ "1) List Medical Records\n"
-							+ "2) Read a Medical Record\n"
-							+ "0) Quit\n"
-							+ ">> ");
-			
-			userInput = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
-			
-			switch(userInput) {
-			case "1":
-				listMDClient();
-				break;
-			case "2":
-				readMDClient();
-				break;
-			case "0":
-				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
-				String conf = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
-				switch(conf) {
-					case "Y":
-					case "y":
-					case "yes":
-					case "Yes":
-						quit = true;
-						quitClient();
-						break;
-					default:
-				}				
-				break;
-			default:
-				System.out.println("Invalid instruction!");
-			}
-		}
-		try {
-			outStream.close();
-			inStream.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		System.exit(0);
 	}
 	
@@ -167,8 +130,10 @@ public class App
 		String hashedPass = new String(hashedPassBytes);
 		// Check login result
 		if(loginRequest(email, hashedPass)) {
-			user = email;
+			 user = email;
 			System.out.println("Hello " + user + "!");
+			AppDoctor.runApp(inStream, outStream, scanner);
+			quitClient();
 		} else {
 			System.out.println("Wrong credentials.");
 			System.exit(0);
@@ -222,6 +187,9 @@ public class App
 		// Ask user name
 		System.out.print("What's your name?\n>> ");
 		String username = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		// Ask user citizen Id
+		System.out.print("What's your citizen Id?\n>> ");
+		String userId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 		// Ask user e-mail
 		System.out.print("Enter your e-mail:\n>> ");
 		String email = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
@@ -234,7 +202,7 @@ public class App
 		String password = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
         if(password.length() < 12) {
         	System.out.print("Your password must follow these requirements:\n"
-        						+ "\t-- Must have a minimum of 12 characters\n");
+        						+ "  -- Must have a minimum of 12 characters\n");
         	System.exit(0);
         }
 		// Confirm password
@@ -245,8 +213,10 @@ public class App
 			// Send registration request
 			outStream.writeObject("-registerUser");
 			// Send user e-mail
-			outStream.writeObject(email);
-			if(inStream.readObject().equals("New email")) {
+			outStream.writeObject(userId);
+			if(inStream.readObject().equals("New user")) {
+				// Send user e-mail
+				outStream.writeObject(email);
 				// Send username
 				outStream.writeObject(username);
 				// Send user type
@@ -279,33 +249,18 @@ public class App
 		
 	}
 
-	private static void listMDClient() {
-		try {
-			outStream.writeObject("-listMD");
-			System.out.println(inStream.readObject());
-		} catch (IOException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private static void readMDClient() {
-		try {
-			outStream.writeObject("-readMD");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	
 	private static void quitClient() {
 		try {
 			outStream.writeObject("-quit");
 			outStream.writeObject(user);
 			System.out.println("Bye " + user + "!");
+			outStream.close();
+			inStream.close();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
 	}
 	
 }

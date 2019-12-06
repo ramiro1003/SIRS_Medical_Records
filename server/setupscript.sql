@@ -4,21 +4,24 @@ DROP TABLE IF EXISTS MedicalRecord;
 
 
 CREATE TABLE User (
-	Email VARCHAR(150),
+	UserId INT,
+	Email VARCHAR(150) UNIQUE,
 	Name VARCHAR(150),
 	Type VARCHAR(100),
-	PRIMARY KEY (Email),
-	CONSTRAINT chk_Type CHECK (Type IN ('Patient', 'Doctor', 'Staff', 'Admin'))
+	PRIMARY KEY (UserId),
+	CONSTRAINT chk_Type CHECK (Type IN ("Patient", "Doctor", "Staff", "Admin"))
 );
 
 CREATE TABLE MedicalRecord (
-	Id INT NOT NULL AUTO_INCREMENT,
-	PatientId INT,
+	RecordId INT NOT NULL AUTO_INCREMENT,
+	UserId INT,
 	PatientName VARCHAR(150), 
 	Age INT,
 	Weight INT,
 	Height INT,
-	PRIMARY KEY (Id)
+	PRIMARY KEY (RecordId),
+	FOREIGN KEY (UserId) REFERENCES User(UserId) ON UPDATE CASCADE,
+	FOREIGN KEY (UserId) REFERENCES User(UserId) ON DELETE CASCADE
 );
 
 
@@ -30,5 +33,8 @@ CREATE TABLE Auth (
 	FOREIGN KEY (Email) REFERENCES User(Email) ON DELETE CASCADE
 );
 
-INSERT INTO MedicalRecord (PatientId, PatientName, Age, Height, Weight)
+INSERT INTO User (UserId, Email, Name, Type)
+VALUES ("14237841", "miguel.grilo@gmail.com", "Miguel Grilo", "Patient");
+
+INSERT INTO MedicalRecord (UserId, PatientName, Age, Height, Weight)
 VALUES ("14237841", "Miguel Grilo", 21, 198, 87);

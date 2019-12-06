@@ -12,21 +12,36 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 import ulisboa.tecnico.sirs.domain.User;
 import ulisboa.tecnico.sirs.server.database.DBGateway;
-import ulisboa.tecnico.sirs.server.logging.LoggingManager;
+import ulisboa.tecnico.sirs.server.pep.PolicyEnforcementPoint;
 
 public class ServerEntryPoint 
 {
+	private static DBGateway gateway = null;
+	private static PolicyEnforcementPoint pep = null;
 	private static final String KEYSTORE_PATH = "sirs.keyStore";
+	private static int port;
 	
 	public static void main( String[] args )
 	{
 		
-		DBGateway gateway = new DBGateway();
+		gateway = new DBGateway();
+		try {
+			pep = new PolicyEnforcementPoint();
+		} catch (IllegalArgumentException | IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		
 		//receive clients
 		SSLServerSocketFactory ssf;
-		ServerSocket socket = null; 
-		int port = Integer.parseInt(args[0]);
+		ServerSocket socket = null;
+		// Check if port is valid
+		try {
+			port = Integer.parseInt(args[0]);
+		} catch (NumberFormatException e) {
+			System.out.println("Port must be an integer");
+			System.exit(0);
+		}
 		
 		try {
 			System.setProperty("javax.net.ssl.keyStore", KEYSTORE_PATH);
@@ -38,7 +53,7 @@ public class ServerEntryPoint
 			while(true) {
 				try {
 					Socket inSocket = socket.accept();
-					ServerThread newServerThread = new ServerThread(inSocket, gateway);
+					ServerThread newServerThread = new ServerThread(inSocket, gateway, pep);
 					newServerThread.start();
 				} catch(IOException e) {
 					e.printStackTrace();
@@ -63,13 +78,15 @@ class ServerThread extends Thread {
 	private Socket socket = null;
 	ObjectOutputStream outStream;
 	ObjectInputStream inStream;
-	private String currUser;
+	private User currUser;
 	private DBGateway gateway;
+	private PolicyEnforcementPoint pep;
 	//private LoggingManager logMan;
 
-	public ServerThread(Socket clientSocket, DBGateway gateway) throws IOException {
-		socket = clientSocket;
+	public ServerThread(Socket clientSocket, DBGateway gateway, PolicyEnforcementPoint pep) throws IOException {
+		this.socket = clientSocket;
 		this.gateway = gateway;
+		this.pep = pep;
 		//this.logMan = new LoggingManager();
 	}
 
@@ -126,6 +143,7 @@ class ServerThread extends Thread {
 		for(User user : users) {
 			if(user.getEmail().equals(email)) {
 				found = true;
+				currUser = user;
 				break;
 			}
 		}
@@ -133,7 +151,6 @@ class ServerThread extends Thread {
 		if(found) {
 			if(hashedPass.equals(gateway.getHashedPassword(email))) {
 				outStream.writeObject("Successful login");
-				currUser = email;
 			}
 			else {
 				outStream.writeObject("Bad login");
@@ -155,32 +172,35 @@ class ServerThread extends Thread {
 	}
 	
 	private void readMD() {
-		// TODO Auto-generated method stub
+		// Get patient Id
+		String patientId = (String) inStream.readObject();
+		pep.authorize("read", currUser.getUserId(), currUser.getRole(), patientId, false);
 
 	}
 
 	private void registerUser() throws ClassNotFoundException, IOException {
 		// Checks if user already exists
-		String email = (String) inStream.readObject();
+		String userId = (String) inStream.readObject();
 		//logMan.writeLog(email, currUser);
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
-			if(user.getName().equals(email)) {
+			if(user.getUserId().equals(userId)) {
 				found = true;
 				break;
 			}
 		}
 		// Creates a new user
 		if(!found) {
-			outStream.writeObject("New email");
+			outStream.writeObject("New user");
+			String email = (String) inStream.readObject();
 			String name = (String) inStream.readObject();
 			//logMan.writeLog(name, currUser);
 			String type = (String) inStream.readObject();
 			//logMan.writeLog(type, currUser);
 			String hashedPass = (String) inStream.readObject();
 			//logMan.writeLog(hashedPass, currUser);
-			gateway.registerUser(email, name, type, hashedPass);
+			gateway.registerUser(userId, email, name, type, hashedPass);
 		} 
 		else {
 			outStream.writeObject("User Already Exists");
