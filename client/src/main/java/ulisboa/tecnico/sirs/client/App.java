@@ -94,7 +94,7 @@ public class App
 				case "Yes":
 					try {
 						loginUser();
-						AppDoctor.runApp(inStream, outStream, scanner, (DoctorView) user);
+						user.runApp(inStream, outStream, scanner);
 					} catch (NoSuchAlgorithmException | ClassNotFoundException | IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -107,7 +107,7 @@ public class App
 				case "no":
 					try {
 						if(registerUser()) {
-							AppDoctor.runApp(inStream, outStream, scanner, (DoctorView) user);
+							user.runApp(inStream, outStream, scanner);
 						}
 						else {
 							quitClient();
@@ -124,7 +124,7 @@ public class App
 		}
 		quitClient();
 	}
-	
+
 	private static void loginUser() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
 		// Ask user e-mail
 		System.out.print("What's your username (e-mail)?\n>> ");
@@ -250,7 +250,6 @@ public class App
 		}
 		
 	}
-
 	
 	private static void quitClient() {
 		try {
