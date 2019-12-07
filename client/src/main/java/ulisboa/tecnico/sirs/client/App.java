@@ -235,7 +235,11 @@ public class App
 				else {
 					System.out.println("Your password doesn't meet at least one of the following requirements:\n"
 										+ "  - Must have a minimum of 12 characters\n"
-										+ "  - Must contain letters and numbers");
+										+ "  - Must contain at least 1 upper case letter\n"
+										+ "  - Must contain at least 1 lower case letter\n"
+										+ "  - Must contain at least 1 number\n"
+										+ "  - Can't contain any name of yours\n"
+										+ "  - Can't contain words that appear in your email");
 					return false;
 				}
 			}
@@ -254,7 +258,6 @@ public class App
 	private static void quitClient() {
 		try {
 			outStream.writeObject("-quit");
-			outStream.writeObject(user);
 			outStream.close();
 			inStream.close();
 			System.exit(0);

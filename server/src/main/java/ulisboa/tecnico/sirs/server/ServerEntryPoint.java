@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.SSLServerSocketFactory;
@@ -170,11 +171,30 @@ class ServerThread extends Thread {
 		}			
 	}
 
-	private boolean checkPasswordStrength(String password) {
+	private boolean checkPasswordStrength(String password, String name, String email) {
+		// Get lower case password so we can make easier comparisons
+		String lowerCasePass = password.toLowerCase();
+		// Check if password contains at least one name of full user name. If so, password is considered weak
+		String[] nameSplit = name.split(" ");
+		for(String word : nameSplit) {
+			if(lowerCasePass.contains(word.toLowerCase())) {
+				return false;
+			}
+		}
+		// Check if password contains at least one word of user email. If so, password is considered weak
+		String[] emailSplit = email.split("[._@]");
+		emailSplit = Arrays.copyOf(emailSplit, emailSplit.length - 1);
+		for(String word : emailSplit) {
+			if(lowerCasePass.contains(word.toLowerCase())) {
+				return false;
+			}
+		}
+		// Check if password as less than 12 characters. If so, password is considered weak
 		if(password.length() < 12) {
 			return false;
 		}
-		else if(!password.matches(".*\\d.*")) {
+		// Check if password does not have at least 1 number, 1 upper case letter and 1 lower case letter. If so, password is considered weak
+		else if(!password.matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\\d]{12,}$")) { //FIXME Regex sacado
 			return false;
 		}
 		else {
@@ -202,13 +222,8 @@ class ServerThread extends Thread {
 	}
 
 	private void quitUser() {
-		try {
-			String user = (String) inStream.readObject();
-			//logMan.writeLog(user, currUser);
-			System.out.println("User " + user + " disconnected.");
-		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
-		}
+		//logMan.writeLog(user, currUser);
+		System.out.println("User " + currUser.getName() + " disconnected.");
 	}
 	
 	private void readMD() {
@@ -251,7 +266,7 @@ class ServerThread extends Thread {
 			//logMan.writeLog(type, currUser);
 			String password = (String) inStream.readObject();
 			// Check passsword strength
-			if(checkPasswordStrength(password)) {
+			if(checkPasswordStrength(password, name, email)) {
 				// Hash password + salt(email)
 				try {
 					outStream.writeObject("Strong password");
