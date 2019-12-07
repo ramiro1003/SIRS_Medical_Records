@@ -213,14 +213,23 @@ public class App
 				outStream.writeObject(type);
 				// Send plain text password
 				outStream.writeObject(password);
-		        // Login
-				if(loginRequest(email, password)) {
-					user = email;
-					System.out.println("You are now registered in SIRS Medical Records Systems.");
-					System.out.println("Hello " + user + "!");
-				} else {
-					System.out.println("Something went wrong with your registration");
-					quitClient();
+				// Checks if server accepts our password (strength-wise)
+				String passStrength = (String) inStream.readObject();
+				if(passStrength.equals("Strong password")) {
+			        // Login
+					if(loginRequest(email, password)) {
+						user = email;
+						System.out.println("You are now registered in SIRS Medical Records Systems.");
+						System.out.println("Hello " + user + "!");
+					} else {
+						System.out.println("Something went wrong with your registration");
+						quitClient();
+					}
+				}
+				else {
+					System.out.println("Your password doesn't meet at least one of the following requirements:\n"
+										+ "  - Must have a minimum of 12 characters\n"
+										+ "  - Must contain letters and numbers");
 				}
 			}
 			else {

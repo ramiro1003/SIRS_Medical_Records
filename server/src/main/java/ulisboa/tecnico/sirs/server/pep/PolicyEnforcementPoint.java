@@ -24,7 +24,6 @@ public class PolicyEnforcementPoint
 		
 		
 		Path currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath();
-		System.out.println(currentWorkingDirectory);
 		this.enforcer = new Enforcer(currentWorkingDirectory + "/resources/abac_model.conf");
 		
 	}
