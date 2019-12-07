@@ -15,8 +15,8 @@ public class PolicyEnforcementPoint
 	public PolicyEnforcementPoint() throws IllegalArgumentException, IOException {
 		
 		Path currentWorkingDirectory = FileSystems.getDefault().getPath("").toAbsolutePath();
-		System.out.println(currentWorkingDirectory);
 		this.enforcer = new Enforcer(currentWorkingDirectory + "/resources/abac_model.conf", currentWorkingDirectory + "/resources/policy.csv");
+
 		
 	}
 	

@@ -168,6 +168,18 @@ class ServerThread extends Thread {
 		}			
 	}
 	
+	private boolean checkPasswordStrength(String password) {
+		if(password.length() < 12) {
+			return false;
+		}
+		else if(!password.matches(".*\\d.*")) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
 	private void quitUser() {
 		try {
 			String user = (String) inStream.readObject();
@@ -218,17 +230,24 @@ class ServerThread extends Thread {
 			String type = (String) inStream.readObject();
 			//logMan.writeLog(type, currUser);
 			String password = (String) inStream.readObject();
-			// Hash password + salt(email)
-			try {
-				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-				String saltedPass = password + email;
-				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
-				String hashedPass = new String(hashedPassBytes);
-				//logMan.writeLog(hashedPass, currUser);
-				gateway.registerUser(userId, email, name, type, hashedPass);
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			// Check passsword strength
+			if(checkPasswordStrength(password)) {
+				// Hash password + salt(email)
+				try {
+					outStream.writeObject("Strong password");
+					MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+					String saltedPass = password + email;
+					byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+					String hashedPass = new String(hashedPassBytes);
+					//logMan.writeLog(hashedPass, currUser);
+					gateway.registerUser(userId, email, name, type, hashedPass);
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else {
+				outStream.writeObject("Weak password");
 			}
 		} 
 		else {
