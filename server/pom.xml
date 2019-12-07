@@ -71,5 +71,10 @@
 			<artifactId>jcasbin</artifactId>
 			<version>1.4.0</version>
 		</dependency>
+		<dependency>
+			<groupId>ulisboa.tecnico.sirs</groupId>
+			<artifactId>library</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>

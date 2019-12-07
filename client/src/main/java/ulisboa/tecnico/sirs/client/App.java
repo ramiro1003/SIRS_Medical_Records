@@ -11,6 +11,9 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import ulisboa.tecnico.sirs.library.domain.DoctorView;
+import ulisboa.tecnico.sirs.library.domain.UserView;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -19,7 +22,7 @@ public class App
 {
 	
 	private static Scanner scanner;
-	private static String user;
+	private static UserView user;
 	private static String ip;
 	private static int port;
 	private static ObjectInputStream inStream;
@@ -91,6 +94,7 @@ public class App
 				case "Yes":
 					try {
 						loginUser();
+						AppDoctor.runApp(inStream, outStream, scanner, (DoctorView) user);
 					} catch (NoSuchAlgorithmException | ClassNotFoundException | IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -102,7 +106,12 @@ public class App
 				case "No":
 				case "no":
 					try {
-						registerUser();
+						if(registerUser()) {
+							AppDoctor.runApp(inStream, outStream, scanner, (DoctorView) user);
+						}
+						else {
+							quitClient();
+						}
 					} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -124,18 +133,17 @@ public class App
 		System.out.print("Enter your password:\n>> ");
 		String password = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
 		// Check login result
-		if(loginRequest(email, password)) {
-			user = email;
-			System.out.println("Hello " + user + "!");
-			AppDoctor.runApp(inStream, outStream, scanner);
-			quitClient();
+		UserView loginResult = loginRequest(email, password);
+		if(!loginResult.equals(null)) {
+			user = loginResult;
+			System.out.println("Hello " + user.getName() + "!");
 		} else {
 			System.out.println("Wrong credentials.");
 			quitClient();
 		}
 	}
 	
-	private static Boolean loginRequest(String email, String password) throws ClassNotFoundException, IOException {
+	private static UserView loginRequest(String email, String password) throws ClassNotFoundException, IOException {
 		// Send login request
 		outStream.writeObject("-loginUser");
 		// Send email
@@ -143,15 +151,11 @@ public class App
 		// Send hash of password + salt(email)
 		outStream.writeObject(password);
 		// Check login result
-		String loginResult = (String) inStream.readObject();
-		if(loginResult.equals("Successful login")) {
-			return true;
-		} else {
-			return false;
-		}
+		UserView loginResult = (UserView) inStream.readObject();
+		return loginResult;
 	}
 
-	private static void registerUser() throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
+	private static Boolean registerUser() throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
 		// Pedir o tipo de utilizador
 		String type = null;
 		Boolean exitSwitch = false;
@@ -190,7 +194,7 @@ public class App
 		String email = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 		if(!email.matches("^([a-z0-9_-]+\\.)*[a-z0-9_-]+@[a-z0-9_-]+(\\.[a-z0-9_-]+)*\\.[a-z]{2,6}$")) { //FIXME regex sacado
 			System.out.println("Wrong e-mail format.");
-			quitClient();
+			return false;
 		}
 		// Ask password
 		System.out.print("Enter a password:\n>> ");
@@ -217,29 +221,32 @@ public class App
 				String passStrength = (String) inStream.readObject();
 				if(passStrength.equals("Strong password")) {
 			        // Login
-					if(loginRequest(email, password)) {
-						user = email;
+					UserView loginResult = loginRequest(email, password);
+					if(!loginResult.equals(null)) {
+						user = loginResult;
 						System.out.println("You are now registered in SIRS Medical Records Systems.");
-						System.out.println("Hello " + user + "!");
+						System.out.println("Hello " + user.getName() + "!");
+						return true;
 					} else {
 						System.out.println("Something went wrong with your registration");
-						quitClient();
+						return false;
 					}
 				}
 				else {
 					System.out.println("Your password doesn't meet at least one of the following requirements:\n"
 										+ "  - Must have a minimum of 12 characters\n"
 										+ "  - Must contain letters and numbers");
+					return false;
 				}
 			}
 			else {
 				System.out.println("User with such e-mail already exists");
-				quitClient();
+				return false;
 			}
 		}
 		else {
 			System.out.println("Passwords don't match.");
-			quitClient();
+			return false;
 		}
 		
 	}

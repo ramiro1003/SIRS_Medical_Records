@@ -18,11 +18,12 @@ public class AppDoctor {
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
 	
-	public static void runApp(ObjectInputStream appInStream, ObjectOutputStream appOutStream, Scanner appScanner) {
+	public static void runApp(ObjectInputStream appInStream, ObjectOutputStream appOutStream, Scanner appScanner, DoctorView doctorView) {
 		// Get socket from 'main App'
 		inStream = appInStream;
 		outStream = appOutStream;
 		scanner = appScanner;
+		user = doctorView;
 		// Variable used to store user input
 		String userInput;
 		// User logged in, now running application
@@ -89,8 +90,7 @@ public class AppDoctor {
 	private static void quitClient() {
 		try {
 			outStream.writeObject("-quit");
-			outStream.writeObject(user);
-			System.out.println("Bye " + user + "!");
+			outStream.writeObject(user.getName());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		

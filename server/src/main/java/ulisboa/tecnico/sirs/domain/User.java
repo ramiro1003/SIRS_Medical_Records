@@ -27,7 +27,7 @@ public class User {
 		return name;
 	}
 	
-	public String getRole() {
+	public String getType() {
 		return type;
 	}
 }

@@ -13,6 +13,7 @@ import java.util.List;
 import javax.net.ssl.SSLServerSocketFactory;
 
 import ulisboa.tecnico.sirs.domain.User;
+import ulisboa.tecnico.sirs.library.domain.*;
 import ulisboa.tecnico.sirs.server.database.DBGateway;
 import ulisboa.tecnico.sirs.server.pep.PolicyEnforcementPoint;
 
@@ -94,8 +95,9 @@ class ServerThread extends Thread {
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 			inStream = new ObjectInputStream(socket.getInputStream());
 			String cmd = null;
+			Boolean quit = false;
 			try {
-				while(true) {
+				while(!quit) {
 					cmd = (String) inStream.readObject();
 					//logMan.writeLog(cmd, currUser);
 					switch(cmd) {
@@ -107,6 +109,7 @@ class ServerThread extends Thread {
 							break;
 						case "-quit":
 							quitUser();
+							quit = true;
 							break;
 						case "-readMD":
 							readMD();
@@ -153,10 +156,10 @@ class ServerThread extends Thread {
 				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
 				String hashedPass = new String(hashedPassBytes);
 				if(hashedPass.equals(gateway.getHashedPassword(email))) {
-					outStream.writeObject("Successful login");
+					outStream.writeObject(createUserView());
 				}
 				else {
-					outStream.writeObject("Bad login");
+					outStream.writeObject(null);
 				}
 			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
@@ -167,7 +170,7 @@ class ServerThread extends Thread {
 			outStream.writeObject("Bad login");
 		}			
 	}
-	
+
 	private boolean checkPasswordStrength(String password) {
 		if(password.length() < 12) {
 			return false;
@@ -178,6 +181,25 @@ class ServerThread extends Thread {
 		else {
 			return true;
 		}
+	}
+	
+	private UserView createUserView() {
+		String type = currUser.getType();
+		UserView userView = null;
+		// Create UserView based on user type/role
+		switch(type) {
+			case "Patient":
+				userView = new PatientView(currUser.getEmail(), currUser.getName());
+				break;
+			case "Staff":
+				userView = new StaffView(currUser.getEmail(), currUser.getName());
+				break;
+			case "Doctor":
+				userView = new DoctorView(currUser.getEmail(), currUser.getName());
+				break;
+		}
+		
+		return userView;
 	}
 
 	private void quitUser() {

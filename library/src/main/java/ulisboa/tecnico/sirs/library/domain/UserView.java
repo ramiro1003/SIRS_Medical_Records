@@ -1,7 +1,10 @@
 package ulisboa.tecnico.sirs.library.domain;
 
-public class UserView {
+import java.io.Serializable;
+
+public class UserView implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	private String email;
 	private String name;
 
