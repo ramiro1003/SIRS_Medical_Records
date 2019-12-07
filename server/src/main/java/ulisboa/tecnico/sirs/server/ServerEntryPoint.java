@@ -19,7 +19,6 @@ import ulisboa.tecnico.sirs.server.pep.PolicyEnforcementPoint;
 public class ServerEntryPoint 
 {
 	private static DBGateway gateway = null;
-	private static PolicyEnforcementPoint pep = null;
 	private static final String KEYSTORE_PATH = "resources/sirs.keyStore";
 	private static int port;
 	
@@ -27,12 +26,6 @@ public class ServerEntryPoint
 	{
 		
 		gateway = new DBGateway();
-		try {
-			pep = new PolicyEnforcementPoint();
-		} catch (IllegalArgumentException | IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
 		
 		//receive clients
 		SSLServerSocketFactory ssf;
@@ -55,7 +48,7 @@ public class ServerEntryPoint
 			while(true) {
 				try {
 					Socket inSocket = socket.accept();
-					ServerThread newServerThread = new ServerThread(inSocket, gateway, pep);
+					ServerThread newServerThread = new ServerThread(inSocket, gateway);
 					newServerThread.start();
 				} catch(IOException e) {
 					e.printStackTrace();
@@ -85,16 +78,19 @@ class ServerThread extends Thread {
 	private PolicyEnforcementPoint pep;
 	//private LoggingManager logMan;
 
-	public ServerThread(Socket clientSocket, DBGateway gateway, PolicyEnforcementPoint pep) throws IOException {
+	public ServerThread(Socket clientSocket, DBGateway gateway) throws IOException {
 		this.socket = clientSocket;
 		this.gateway = gateway;
-		this.pep = pep;
+		
 		//this.logMan = new LoggingManager();
 	}
 
 	public void run() {
 
 		try {
+			// instantiate pep for thread
+			this.pep = new PolicyEnforcementPoint();
+			
 			outStream = new ObjectOutputStream(socket.getOutputStream());
 			inStream = new ObjectInputStream(socket.getInputStream());
 			String cmd = null;
@@ -183,16 +179,22 @@ class ServerThread extends Thread {
 	}
 	
 	private void readMD() {
-		// Get patient Id
-		String patientId;
 		try {
-			patientId = (String) inStream.readObject();
-			pep.enforce("read", currUser.getUserId(), currUser.getRole(), patientId, false);
+			String patientId = (String) inStream.readObject();
+			String subjectId = this.currUser.getUserId();
+			Boolean authorize = pep.enforce(subjectId, patientId, "read");
+			
+			if (authorize) {
+				// get the resource
+				gateway.getRecord(patientId);
+				System.out.println("Authorized!");
+			}
+			
+			
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	private void registerUser() throws ClassNotFoundException, IOException {

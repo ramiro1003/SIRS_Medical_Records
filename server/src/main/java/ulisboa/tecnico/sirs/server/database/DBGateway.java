@@ -18,7 +18,9 @@ public class DBGateway {
 	private static final String SQL_INSERT_USER = "INSERT INTO User (UserId, Email, Name, Type) VALUES (?, ?, ?, ?)";
 	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE Email=?";
 	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (Email, HashedPass) VALUES (?, ?)";
+	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord WHERE RecordId=?";
 
+	
 	private String db;
 	private String password;
 	
@@ -58,7 +60,6 @@ public class DBGateway {
 			this.password = dbPwd.split("=")[1];
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			System.out.println("Exception: Could not read database credentials.");
 			e.printStackTrace();
 		}
@@ -126,6 +127,28 @@ public class DBGateway {
 		} catch (SQLException e) {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
 		}
+	}
+	
+	public MedicalRecord getRecord(String requestedRecordId) {
+		try {
+			// Get record from recordId
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_GET_MEDICAL_RECORD);
+			stmt.setString(1, requestedRecordId);
+			ResultSet result = stmt.executeQuery();
+			Integer recordId = result.getInt("RecordId");
+			Integer userId = result.getInt("UserId");
+			String patientName = result.getString("PatientName");
+			Integer age = result.getInt("Age");
+			Integer height = result.getInt("Height");
+			Integer weight = result.getInt("Weight");
+			
+			return new MedicalRecord(recordId, userId, patientName, age, height, weight);
+			
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		}
+		// FIXME return null or empty
+		return null;
 	}
 
 	public void close() throws SQLException {
