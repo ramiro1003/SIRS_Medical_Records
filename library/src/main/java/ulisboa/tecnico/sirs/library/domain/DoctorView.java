@@ -12,10 +12,11 @@ public class DoctorView extends UserView{
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
 
-	public DoctorView(String email, String name) {
-		super(email, name);
+	public DoctorView(String userId, String email, String name) {
+		super(userId, email, name);
 	}
 	
+	@Override
 	public void runApp(ObjectInputStream appInStream, ObjectOutputStream appOutStream, Scanner appScanner) {
 		// Get socket from 'main App'
 		inStream = appInStream;

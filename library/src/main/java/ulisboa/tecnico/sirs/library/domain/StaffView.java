@@ -8,8 +8,8 @@ public class StaffView extends UserView {
 
 	private static final long serialVersionUID = 1L;
 
-	public StaffView(String email, String name) {
-		super(email, name);
+	public StaffView(String userId, String email, String name) {
+		super(userId, email, name);
 	}
 
 	@Override

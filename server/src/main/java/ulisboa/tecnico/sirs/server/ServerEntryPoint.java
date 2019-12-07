@@ -25,7 +25,6 @@ public class ServerEntryPoint
 	
 	public static void main( String[] args )
 	{
-		
 		gateway = new DBGateway();
 		
 		//receive clients
@@ -189,13 +188,13 @@ class ServerThread extends Thread {
 		// Create UserView based on user type/role
 		switch(type) {
 			case "Patient":
-				userView = new PatientView(currUser.getEmail(), currUser.getName());
+				userView = new PatientView(currUser.getUserId(), currUser.getEmail(), currUser.getName());
 				break;
 			case "Staff":
-				userView = new StaffView(currUser.getEmail(), currUser.getName());
+				userView = new StaffView(currUser.getUserId(), currUser.getEmail(), currUser.getName());
 				break;
 			case "Doctor":
-				userView = new DoctorView(currUser.getEmail(), currUser.getName());
+				userView = new DoctorView(currUser.getUserId(), currUser.getEmail(), currUser.getName());
 				break;
 		}
 		
@@ -215,8 +214,7 @@ class ServerThread extends Thread {
 	private void readMD() {
 		try {
 			String patientId = (String) inStream.readObject();
-			String subjectId = this.currUser.getUserId();
-			Boolean authorize = pep.enforce(subjectId, patientId, "read");
+			Boolean authorize = pep.enforce(currUser, patientId, "read");
 			
 			if (authorize) {
 				// get the resource
