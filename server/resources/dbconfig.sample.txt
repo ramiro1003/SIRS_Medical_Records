@@ -1,2 +1,0 @@
-dbname=NAME_HERE
-dbpwd=PWD_HERE

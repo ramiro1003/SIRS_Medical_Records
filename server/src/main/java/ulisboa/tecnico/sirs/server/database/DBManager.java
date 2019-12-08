@@ -18,7 +18,6 @@ public class DBManager {
 
 	private static final String DB_SETUP_SCRIPT = "resources/setupscript.sql";
 
-
 	public void setProperties(String url, String username, String password) {
 		this.url = url;
 		this.username = username;
@@ -39,20 +38,6 @@ public class DBManager {
 
 	@SuppressWarnings("resource")
 	public void createDefaultDB() throws IOException {
-
-		/**
-		File f = new File(DB_SETUP_SCRIPT);
-		FileInputStream inputstream = new FileInputStream(f);
-		Scanner sc = new Scanner(inputstream).useDelimiter("\\A");
-	    String queryStatement = sc.hasNext() ? sc.next() : "";
-	    try (Statement statement = this.connection.createStatement()) {
-	        statement.execute(queryStatement);
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-		    inputstream.close();
-	    }
-	    inputstream.close();
-		 */
 		//Initialize the script runner
 		ScriptRunner sr = new ScriptRunner(this.connection);
 		//Creating a reader object

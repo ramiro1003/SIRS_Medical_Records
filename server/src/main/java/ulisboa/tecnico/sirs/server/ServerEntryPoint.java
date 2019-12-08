@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -28,8 +29,10 @@ public class ServerEntryPoint
 	public static void main( String[] args )
 	{
 		gateway = new DBGateway();
+		if(args.length == 2) {
+			gateway.runTestScript(args[1]);
+		}
 		
-		//receive clients
 		SSLServerSocketFactory ssf;
 		ServerSocket socket = null;
 		// Check if port is valid
@@ -41,14 +44,15 @@ public class ServerEntryPoint
 		}
 		
 		try {
+			//start tls
 			System.setProperty("javax.net.ssl.keyStore", KEYSTORE_PATH);
 			System.setProperty("javax.net.ssl.keyStorePassword", "sirssirs");
 			ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
 			socket = ssf.createServerSocket(port);
 			
-			
 			while(true) {
 				try {
+					//receive clients
 					Socket inSocket = socket.accept();
 					ServerThread newServerThread = new ServerThread(inSocket, gateway);
 					newServerThread.start();
@@ -278,12 +282,12 @@ class ServerThread extends Thread {
 
 	private void registerUser() throws ClassNotFoundException, IOException {
 		// Checks if user already exists
-		String userId = (String) inStream.readObject();
+		int userId = Integer.parseInt((String) inStream.readObject());
 		//logMan.writeLog(email, currUser);
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
-			if(user.getUserId().equals(userId)) {
+			if(user.getUserId() == userId){
 				found = true;
 				break;
 			}
@@ -307,7 +311,8 @@ class ServerThread extends Thread {
 					byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
 					String hashedPass = new String(hashedPassBytes);
 					//logMan.writeLog(hashedPass, currUser);
-					gateway.registerUser(userId, email, name, type, hashedPass);
+					String birthDate = null;
+					gateway.registerUser(userId, email, name, type, hashedPass, birthDate);
 				} catch (NoSuchAlgorithmException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -321,6 +326,4 @@ class ServerThread extends Thread {
 			outStream.writeObject("User Already Exists");
 		}
 	}
-
-
 }

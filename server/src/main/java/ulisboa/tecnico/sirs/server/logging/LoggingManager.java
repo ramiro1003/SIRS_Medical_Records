@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 
 public class LoggingManager {
 	
-	private final static String FILE_PATH = "";
+	private final static String FILE_PATH = "log_file.txt";
 	private BufferedWriter out;
 	
 	public LoggingManager() throws IOException {

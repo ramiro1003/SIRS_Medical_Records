@@ -11,14 +11,11 @@ public class MedicalRecord {
 	
 	// FIXME DB format
 	private Integer recordId, userId;
-	private String patientName;
-	private Integer age, height, weight;
+	private Integer height, weight;
 	 
-	public MedicalRecord(Integer recordId, Integer userId, String patientName, Integer age, Integer height, Integer weight) {
+	public MedicalRecord(Integer recordId, Integer userId, Integer height, Integer weight) {
 		this.recordId = recordId;
 		this.userId = userId;
-		this.patientName = patientName;
-		this.age = age;
 		this.height = height;
 		this.weight = weight;	
 	}
@@ -42,14 +39,6 @@ public class MedicalRecord {
 
 	public Integer getUserId() {
 		return userId;
-	}
-
-	public String getPatientName() {
-		return patientName;
-	}
-
-	public Integer getAge() {
-		return age;
 	}
 
 	public Integer getHeight() {
