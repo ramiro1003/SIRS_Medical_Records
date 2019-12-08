@@ -8,12 +8,18 @@ import java.util.Scanner;
 public abstract class UserView implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
+	private String userId;
 	private String email;
 	private String name;
 
-	public UserView(String email, String name) {
+	public UserView(String userId, String email, String name) {
+		this.userId = userId;
 		this.email = email;
 		this.name = name;
+	}
+	
+	public String getUserId() {
+		return userId;
 	}
 	
 	public String getEmail() {
