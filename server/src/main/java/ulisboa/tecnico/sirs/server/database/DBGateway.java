@@ -192,11 +192,11 @@ public class DBGateway {
 		}
 	}
 	
-	public MedicalRecord getRecord(String requestedRecordId) {
+	public MedicalRecord getMedicalRecord(String patientId) {
 		try {
 			// Get record from recordId
 			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_GET_MEDICAL_RECORD);
-			stmt.setString(1, requestedRecordId);
+			stmt.setString(1, patientId);
 			ResultSet result = stmt.executeQuery();
 			Integer recordId = Integer.parseInt(cManager.decipher(result.getString("Id")));
 			Integer userId = Integer.parseInt(cManager.decipher(result.getString("PatientId")));

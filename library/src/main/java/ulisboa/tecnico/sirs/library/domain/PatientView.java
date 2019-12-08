@@ -12,7 +12,7 @@ public class PatientView extends UserView {
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
 
-	public PatientView(String userId, String email, String name) {
+	public PatientView(Integer userId, String email, String name) {
 		super(userId, email, name);
 	}
 

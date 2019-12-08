@@ -3,7 +3,6 @@ package ulisboa.tecnico.sirs.client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
@@ -11,10 +10,8 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import ulisboa.tecnico.sirs.library.domain.DoctorView;
 import ulisboa.tecnico.sirs.library.domain.UserView;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
@@ -128,10 +125,10 @@ public class App
 	private static void loginUser() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
 		// Ask user e-mail
 		System.out.print("What's your username (e-mail)?\n>> ");
-		String email = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+		String email = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
 		// Ask user password
 		System.out.print("Enter your password:\n>> ");
-		String password = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+		String password = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
 		// Check login result
 		UserView loginResult = loginRequest(email, password);
 		if(!loginResult.equals(null)) {
@@ -185,23 +182,23 @@ public class App
 		}
 		// Ask user name
 		System.out.print("What's your name?\n>> ");
-		String username = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		String username = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
 		// Ask user citizen Id
 		System.out.print("What's your citizen Id?\n>> ");
-		String userId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		String userId = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
 		// Ask user e-mail
 		System.out.print("Enter your e-mail:\n>> ");
-		String email = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		String email = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
 		if(!email.matches("^([a-z0-9_-]+\\.)*[a-z0-9_-]+@[a-z0-9_-]+(\\.[a-z0-9_-]+)*\\.[a-z]{2,6}$")) { //FIXME regex sacado
 			System.out.println("Wrong e-mail format.");
 			return false;
 		}
 		// Ask password
 		System.out.print("Enter a password:\n>> ");
-		String password = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		String password = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
 		// Confirm password
 		System.out.print("Confirm your password by reentering it:\n>> ");
-		String confirmPassword = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+		String confirmPassword = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
 		// If passwords match, ask server to make the user registration
 		if(password.equals(confirmPassword)) {
 			// Send registration request

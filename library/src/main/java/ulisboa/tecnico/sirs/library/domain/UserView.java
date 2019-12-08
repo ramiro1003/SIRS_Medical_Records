@@ -8,17 +8,17 @@ import java.util.Scanner;
 public abstract class UserView implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private String userId;
+	private Integer userId;
 	private String email;
 	private String name;
 
-	public UserView(String userId, String email, String name) {
+	public UserView(Integer userId, String email, String name) {
 		this.userId = userId;
 		this.email = email;
 		this.name = name;
 	}
 	
-	public String getUserId() {
+	public Integer getUserId() {
 		return userId;
 	}
 	

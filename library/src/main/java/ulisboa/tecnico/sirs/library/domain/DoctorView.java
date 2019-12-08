@@ -12,7 +12,7 @@ public class DoctorView extends UserView{
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
 
-	public DoctorView(String userId, String email, String name) {
+	public DoctorView(Integer userId, String email, String name) {
 		super(userId, email, name);
 	}
 	
@@ -124,7 +124,7 @@ public class DoctorView extends UserView{
 		try {
 			outStream.writeObject("-readMD");
 			System.out.print("What's the Patient's Id?\n>> ");
-			String patientId = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 			outStream.writeObject(patientId);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

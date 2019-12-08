@@ -269,7 +269,7 @@ class ServerThread extends Thread {
 			
 			if (authorize) {
 				// get the resource
-				gateway.getRecord(patientId);
+				gateway.getMedicalRecord(patientId);
 				System.out.println("Authorized!");
 			}
 			

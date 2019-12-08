@@ -12,7 +12,7 @@ public class StaffView extends UserView {
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
 
-	public StaffView(String userId, String email, String name) {
+	public StaffView(Integer userId, String email, String name) {
 		super(userId, email, name);
 	}
 
