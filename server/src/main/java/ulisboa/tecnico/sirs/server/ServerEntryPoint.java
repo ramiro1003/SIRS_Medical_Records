@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.net.ssl.SSLServerSocketFactory;
 
+import ulisboa.tecnico.sirs.domain.MedicalRecord;
 import ulisboa.tecnico.sirs.domain.User;
 import ulisboa.tecnico.sirs.library.domain.*;
 import ulisboa.tecnico.sirs.server.database.DBGateway;
@@ -259,6 +260,7 @@ class ServerThread extends Thread {
 	private void readMD() {
 		try {
 			String patientId = (String) inStream.readObject();
+			MedicalRecord MD = gateway.getMedicalRecord(patientId);
 			Boolean authorize = pep.enforce(currUser, patientId, "read");
 			
 			if (authorize) {

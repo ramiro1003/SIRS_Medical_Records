@@ -14,7 +14,8 @@ CREATE TABLE User (
 
 CREATE TABLE MedicalRecord (
 	RecordId INT NOT NULL AUTO_INCREMENT,
-	UserId INT,
+	DoctorId INT,
+	PatientId INT,
 	PatientName VARCHAR(150), 
 	Age INT,
 	Weight INT,
@@ -36,5 +37,5 @@ CREATE TABLE Auth (
 INSERT INTO User (UserId, Email, Name, Type)
 VALUES ("14237841", "miguel.grilo@gmail.com", "Miguel Grilo", "Patient");
 
-INSERT INTO MedicalRecord (UserId, PatientName, Age, Height, Weight)
-VALUES ("14237841", "Miguel Grilo", 21, 198, 87);
+--INSERT INTO MedicalRecord (UserId, PatientName, Age, Height, Weight)
+--VALUES ("14237841", "Miguel Grilo", 21, 198, 87);
