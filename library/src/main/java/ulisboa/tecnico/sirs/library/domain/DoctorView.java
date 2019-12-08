@@ -93,7 +93,16 @@ public class DoctorView extends UserView{
 	}
 	
 	private void writeMedicalRecord() {
-		// TODO Auto-generated method stub
+		try {
+			outStream.writeObject("-writeMD");
+			System.out.print("What's the Patient's Id?\n>> ");
+			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(patientId);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 		
 	}
 	
