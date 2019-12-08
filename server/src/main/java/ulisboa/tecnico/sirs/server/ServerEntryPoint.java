@@ -101,8 +101,8 @@ class ServerThread extends Thread {
 					cmd = (String) inStream.readObject();
 					//logMan.writeLog(cmd, currUser);
 					switch(cmd) {
-						case "-listMD":
-							listMD();
+						case "-changePassword":
+							changePassword();
 							break;
 						case "-loginUser":
 							loginUser();
@@ -127,9 +127,9 @@ class ServerThread extends Thread {
 		}
 	}
 	
-	private void listMD() {
+	private void changePassword() {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	private void loginUser() throws ClassNotFoundException, IOException {
