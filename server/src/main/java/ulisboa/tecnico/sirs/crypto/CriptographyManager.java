@@ -28,7 +28,7 @@ public class CriptographyManager {
 	private static PublicKey pubKey;
 	private static PrivateKey priKey;
 
-	public static void main(String[] s){
+	public CriptographyManager(){
 		try {
 
 			InputStream ins = CriptographyManager.class.getResourceAsStream("keystore.jks");
@@ -55,8 +55,9 @@ public class CriptographyManager {
 	/**
 	 * Ciphers a file
 	 * @param data string to be ciphered
+	 * @throws Exception 
 	 */
-	public static String cipher(String data)  {
+	public String cipher(String data) throws Exception  {
 
 		String result = null;
 
@@ -68,7 +69,7 @@ public class CriptographyManager {
 
 			result = Base64.getEncoder().encodeToString(cipherText);
 		} catch (Exception e) {
-
+			throw new Exception();
 		}
 
 		return result;
@@ -78,8 +79,9 @@ public class CriptographyManager {
 	/**
 	 * Deciphers the file
 	 * @param data string to be deciphered
+	 * @throws Exception 
 	 */
-	public static String decipher(String data) {
+	public String decipher(String data) throws Exception {
 
 		String result = null;
 
@@ -91,7 +93,7 @@ public class CriptographyManager {
 
 			result =  new String(decriptCipher.doFinal(bytes), UTF_8);
 		} catch (Exception e) {
-
+			throw new Exception();
 		}
 
 		return result;
