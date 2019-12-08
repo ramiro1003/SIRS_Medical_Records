@@ -1,2 +1,0 @@
-dbname=root
-dbpwd=admin
