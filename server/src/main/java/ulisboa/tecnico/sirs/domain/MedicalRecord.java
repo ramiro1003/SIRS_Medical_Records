@@ -1,65 +1,68 @@
 package ulisboa.tecnico.sirs.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MedicalRecord {
 	
-	private User patient;
-	private User doctor;
-	private List<String> history;
-	
-	// FIXME DB format
-	private Integer recordId, userId;
+	private Integer recordId, patientId, doctorId;
 	private Integer height, weight;
-	 
-	public MedicalRecord(Integer recordId, Integer userId, Integer height, Integer weight) {
+	private List<Prescription> prescription;
+	private List<Diagnosis> diagnosis;
+	private List<Treatment> treatment;
+	
+	
+	public MedicalRecord(Integer recordId, Integer patientId, Integer doctorId, Integer height, Integer weight,
+			List<Prescription> prescription, List<Diagnosis> diagnosis, List<Treatment> treatment) {
 		this.recordId = recordId;
-		this.userId = userId;
+		this.patientId = patientId;
+		this.doctorId = doctorId;
 		this.height = height;
-		this.weight = weight;	
+		this.weight = weight;
+		this.prescription = prescription;
+		this.diagnosis = diagnosis;
+		this.treatment = treatment;
 	}
-	
-	public MedicalRecord(User patient, User doctor, List<String> history) {
-		this.patient = patient;
-		this.doctor = doctor;
-		this.history = history;
-	}
-	
-	public MedicalRecord(User patient, User doctor) {
-		this.patient = patient;
-		this.doctor = doctor;
-		this.history = new ArrayList<String>();
-	}
-	
-	
+
+
 	public Integer getRecordId() {
 		return recordId;
 	}
 
-	public Integer getUserId() {
-		return userId;
+
+	public Integer getPatientId() {
+		return patientId;
 	}
+
+
+	public Integer getDoctorId() {
+		return doctorId;
+	}
+
 
 	public Integer getHeight() {
 		return height;
 	}
 
+
 	public Integer getWeight() {
 		return weight;
 	}
 
+
+	public List<Prescription> getPrescription() {
+		return prescription;
+	}
+
+
+	public List<Diagnosis> getDiagnosis() {
+		return diagnosis;
+	}
+
+
+	public List<Treatment> getTreatment() {
+		return treatment;
+	}
 	
-
-	public User getPatient() {
-		return patient;
-	}
-
-	public User getDoctor() {
-		return doctor;
-	}
-
-	public List<String> getHistory() {
-		return history;
-	}
+	
+	
 }
