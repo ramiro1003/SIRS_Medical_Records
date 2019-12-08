@@ -128,8 +128,38 @@ class ServerThread extends Thread {
 	}
 	
 	private void changePassword() {
-		// TODO Auto-generated method stub
-		
+		try {
+			String password = (String) inStream.readObject();
+			String email = currUser.getEmail();
+			String username = currUser.getName();
+			// Hash password + salt(email)
+			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			String saltedPass = password + email;
+			byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+			String hashedPass = new String(hashedPassBytes);
+			// Authenticate user
+			if(hashedPass.equals(gateway.getHashedPassword(email))) {
+				outStream.writeObject("User authenticated");
+				// Check if user successfully matched passwords (so server doesn't wait on the new password for no reason)
+				if(inStream.readObject().equals("Password confirmed")) {
+					String newPass = (String) inStream.readObject();
+					// Checks password strength
+					if(checkPasswordStrength(newPass, username, email)) {
+						outStream.writeObject("Strong password");
+						gateway.updateUserPassword(email, newPass);
+					}
+					else {
+						outStream.writeObject("Weak password");
+					}
+				}
+			}
+			else {
+				outStream.writeObject("Wrong password");
+			}
+		} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void loginUser() throws ClassNotFoundException, IOException {
@@ -223,7 +253,7 @@ class ServerThread extends Thread {
 
 	private void quitUser() {
 		//logMan.writeLog(user, currUser);
-		System.out.println("User " + currUser.getName() + " disconnected.");
+		System.out.println(currUser.getType() + " " + currUser.getName() + " (" + currUser.getEmail() + ") disconnected.");
 	}
 	
 	private void readMD() {

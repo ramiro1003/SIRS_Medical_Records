@@ -18,6 +18,7 @@ public class DBGateway {
 	private static final String SQL_INSERT_USER = "INSERT INTO User (UserId, Email, Name, Type) VALUES (?, ?, ?, ?)";
 	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE Email=?";
 	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (Email, HashedPass) VALUES (?, ?)";
+	private static final String SQL_UPDATE_AUTH = "UPDATE Auth SET HashedPass=? WHERE Email=?";
 	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord WHERE RecordId=?";
 
 	
@@ -108,6 +109,18 @@ public class DBGateway {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
 		}
 		return hashedPass;
+	}
+	
+	public void updateUserPassword(String email, String newPass) {
+		try{
+			// Update Auth table
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_UPDATE_AUTH);
+			stmt.setString(1, newPass);
+			stmt.setString(2, email);
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		}
 	}
 	
 	public void registerUser(String userId, String email, String name, String type, String hashedPass) {
