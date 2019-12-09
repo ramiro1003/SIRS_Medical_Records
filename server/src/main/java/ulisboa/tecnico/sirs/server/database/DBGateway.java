@@ -16,9 +16,9 @@ import  ulisboa.tecnico.sirs.domain.*;
 public class DBGateway {
 
 	private static final String SQL_SELECT_USERS = "SELECT * FROM User";
-	private static final String SQL_INSERT_USER = "INSERT INTO User (UserId, Email, Name, Type, BirthDate) VALUES (?, ?, ?, ?, ?)";
+	private static final String SQL_INSERT_USER = "INSERT INTO User (Id, Email, Name, Type, BirthDate) VALUES (?, ?, ?, ?, ?)";
 	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE Email=?";
-	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (Email, HashedPass) VALUES (?, ?)";
+	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (UserId, Email, HashedPass) VALUES (?, ?, ?)";
 	private static final String SQL_UPDATE_AUTH = "UPDATE Auth SET HashedPass=? WHERE Email=?";
 	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord WHERE RecordId=?";
 	private static final String SQL_INSERT_MEDICAL_RECORD = "INSERT INTO MedicalRecord (Id, PatientId, Weight, Height) VALUES (?,?,?,?)";
@@ -39,15 +39,10 @@ public class DBGateway {
 		//Connection to database
 		manager = new DBManager();
 		manager.setProperties("jdbc:mariadb://localhost:3306/sirs", db, password);
-		try {
-			manager.createConnection();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e1) {
-			System.out.println("Error connection to database");
-		}
 
 		try {
 			manager.createDefaultDB();
-		} catch (IOException e2) {
+		} catch (IOException | SQLException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
@@ -144,10 +139,11 @@ public class DBGateway {
 			stmt.setString(5, cManager.cipher(birthDate));
 			stmt.executeUpdate();
 			// Insert into Auth table
-			stmt = this.manager.getConnection().prepareStatement(SQL_INSERT_AUTH);
-			stmt.setString(1, email);
-			stmt.setString(2, hashedPass);
-			stmt.executeUpdate();
+			PreparedStatement stmt2 = this.manager.getConnection().prepareStatement(SQL_INSERT_AUTH);
+			stmt2.setInt(1, userId);
+			stmt2.setString(2, cManager.cipher(email));
+			stmt2.setString(3, hashedPass);
+			stmt2.executeUpdate();
 		} catch (SQLException e) {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
 		} catch (Exception e) {
@@ -223,7 +219,7 @@ public class DBGateway {
 	
 	public void runTestScript(String filename) {
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(filename));
+			BufferedReader br = new BufferedReader(new FileReader("resources/" + filename));
 			String command; 
 			while ((command = br.readLine()) != null) {
 				String[] split = command.split(" ");

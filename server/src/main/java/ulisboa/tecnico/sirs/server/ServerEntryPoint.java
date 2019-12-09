@@ -7,7 +7,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -87,7 +86,6 @@ class ServerThread extends Thread {
 	public ServerThread(Socket clientSocket, DBGateway gateway) throws IOException {
 		this.socket = clientSocket;
 		this.gateway = gateway;
-		
 		//this.logMan = new LoggingManager();
 	}
 

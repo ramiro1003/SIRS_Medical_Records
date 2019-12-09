@@ -9,8 +9,7 @@ CREATE TABLE User (
 	Name VARCHAR(500),
 	Type VARCHAR(500),
 	BirthDate VARCHAR(500),
-	PRIMARY KEY (Id),
-	CONSTRAINT chk_Type CHECK (Type IN ("Patient", "Doctor", "Staff", "Admin"))
+	PRIMARY KEY (Id)
 );
 
 CREATE TABLE MedicalRecord (
@@ -48,37 +47,14 @@ ALTER TABLE Medication
 		ON DELETE CASCADE;
 		
 CREATE TABLE Auth (
-	Email VARCHAR(150),
+	UserId INT,
+	Email VARCHAR(500),
 	HashedPass VARCHAR(64),
-	PRIMARY KEY (Email)
+	PRIMARY KEY (UserId)
 );
 
 ALTER TABLE Auth 
-	ADD CONSTRAINT fk_user_email 
-		FOREIGN KEY (Email) 
-		REFERENCES User(Email)
+	ADD CONSTRAINT fk_user_id
+		FOREIGN KEY (UserId) 
+		REFERENCES User(Id)
 		ON DELETE CASCADE;
-
-INSERT INTO User (Email, Name, Type, BirthDate)
-VALUES ("miguel.grilo@gmail.com", "Miguel Grilo", "Patient", "19901010");
-
-INSERT INTO MedicalRecord (PatientId, Weight, Height)
-VALUES ("1", "80", "200");
-
-INSERT INTO User (Email, Name, Type, BirthDate)
-VALUES ("jorge.boce@gmail.com", "Jorge Jesus", "Patient", "19581113");
-
-INSERT INTO MedicalRecord (PatientId, Weight, Height)
-VALUES ("2", "77", "180");
-
-INSERT INTO User (Email, Name, Type, BirthDate)
-VALUES ("bob.maluco@gmail.com", "Bob Marley", "Doctor", "19500616");
-
-INSERT INTO User (Email, Name, Type, BirthDate)
-VALUES ("billie.jean@gmail.com", "Michael Jackson", "Doctor", "19670316");
-
-INSERT INTO Medication (MedicalRecordId, Name, PrescriptionDate)
-VALUES ("1", "Ben-u-ron", now());
-
-INSERT INTO Medication (MedicalRecordId, Name, PrescriptionDate)
-VALUES ("2", "Vicodin", now());

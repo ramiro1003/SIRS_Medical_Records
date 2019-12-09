@@ -24,26 +24,23 @@ public class DBManager {
 		this.password = password;
 	}
 
-	public void createConnection() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-		connection = DriverManager.getConnection(url, username, password);
-	}
-
 	public void closeConnection() throws SQLException {
 		connection.close();
 	}
 
-	public Connection getConnection() {
-		return this.connection;
+	public Connection getConnection() throws SQLException {
+		return DriverManager.getConnection(url, username, password);
 	}
 
 	@SuppressWarnings("resource")
-	public void createDefaultDB() throws IOException {
+	public void createDefaultDB() throws IOException, SQLException {
 		//Initialize the script runner
-		ScriptRunner sr = new ScriptRunner(this.connection);
+		ScriptRunner sr = new ScriptRunner(getConnection());
 		//Creating a reader object
 		Reader reader = new BufferedReader(new FileReader(DB_SETUP_SCRIPT));
 		//Running the script
 		sr.runScript(reader);
+		System.out.println("DB Created");
 	}
 
 }

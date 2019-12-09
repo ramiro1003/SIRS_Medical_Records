@@ -1,52 +1,36 @@
 package ulisboa.tecnico.sirs.crypto;
 
+import java.security.Key;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.util.Base64;
 import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.google.common.io.BaseEncoding;
 
-import java.io.IOException;
+import java.io.FileInputStream;
 import java.io.InputStream;
-
 
 /**
  * Class responsible for:
  * - manage keys
  * - cipher and decipher
- * - sign and validate
  */
 public class CriptographyManager {
 
-	private static PublicKey pubKey;
-	private static PrivateKey priKey;
-
+	private static Key key;
+	
 	public CriptographyManager(){
 		try {
 
-			InputStream ins = CriptographyManager.class.getResourceAsStream("keystore.jks");
-
-			KeyStore keyStore = KeyStore.getInstance("JKS");
-			keyStore.load(ins, "s3cr3t".toCharArray());   //Keystore password
-			KeyStore.PasswordProtection keyPassword =       //Key password
-					new KeyStore.PasswordProtection("s3cr3t".toCharArray());
-
-			KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("mykey", keyPassword);
-
-			Certificate cert = keyStore.getCertificate("mykey");
-
-			pubKey = cert.getPublicKey();
-			priKey = privateKeyEntry.getPrivateKey();
-
-		} catch (NoSuchAlgorithmException | CertificateException 
-				| IOException | KeyStoreException | UnrecoverableEntryException e) {
+			InputStream keystoreStream = new FileInputStream("resources/keystore.jck"); 
+			KeyStore keystore = KeyStore.getInstance("JCEKS"); 
+			keystore.load(keystoreStream, "sirssirs".toCharArray()); 
+			if (!keystore.containsAlias("sirsaes")) { 
+			 throw new RuntimeException("Alias for key not found"); 
+			} 
+			key = keystore.getKey("sirsaes", "sirssirs".toCharArray());
+			
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -59,20 +43,21 @@ public class CriptographyManager {
 	 */
 	public String cipher(String data) throws Exception  {
 
-		String result = null;
-
-		try {
-			Cipher encryptCipher = Cipher.getInstance("RSA");
-			encryptCipher.init(Cipher.ENCRYPT_MODE, pubKey);
-
-			byte[] cipherText = encryptCipher.doFinal(data.getBytes(UTF_8));
-
-			result = Base64.getEncoder().encodeToString(cipherText);
-		} catch (Exception e) {
-			throw new Exception();
-		}
-
-		return result;
+        try
+        {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec secretKeySpecification = new SecretKeySpec(key.getEncoded(), "AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpecification);
+            byte[] encryptedMessageInBytes = cipher.doFinal(data.getBytes("UTF-8"));
+            String encMsg = BaseEncoding.base64().encode(encryptedMessageInBytes);
+            System.out.println(encMsg);
+            return encMsg;
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
 
 	}
 
@@ -83,20 +68,21 @@ public class CriptographyManager {
 	 */
 	public String decipher(String data) throws Exception {
 
-		String result = null;
-
-		try {
-			byte[] bytes = Base64.getDecoder().decode(data);
-
-			Cipher decriptCipher = Cipher.getInstance("RSA");
-			decriptCipher.init(Cipher.DECRYPT_MODE, priKey);
-
-			result =  new String(decriptCipher.doFinal(bytes), UTF_8);
-		} catch (Exception e) {
-			throw new Exception();
-		}
-
-		return result;
+        try
+        {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec secretKeySpecification = new SecretKeySpec(key.getEncoded(), "AES"); 
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpecification);
+            byte[] encryptedTextBytes = BaseEncoding.base64().decode(data); 
+            byte[] decryptedTextBytes = cipher.doFinal(encryptedTextBytes); 
+            String origMessage = new String(decryptedTextBytes); 
+            return origMessage;
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
 	}
 
 }
