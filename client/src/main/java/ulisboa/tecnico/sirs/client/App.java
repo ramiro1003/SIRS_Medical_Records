@@ -22,22 +22,24 @@ public class App
 	private static UserView user;
 	private static String ip;
 	private static int port;
+	private static String context;
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
 	private static final String KEYSTORE_PATH = "resources/client.keyStore";
 	
-	@SuppressWarnings("resource")
+	
 	public static void main( String[] args ) {
+		// Get server IP and port, and get context
+		String[] input = args[0].split(":");
 		// Check if application is being properly run with mvn exec
-		if(args.length != 1) {
-			System.out.println("System usage: mvn exec:java -Dexec.args=\"{serverIp}:{serverPort}\"");
+		if(args.length != 1 || input.length != 3 || input.length != 2) {
+			System.out.println("System usage: mvn exec:java -Dexec.args=\"[serverIp]:[serverPort]:{context}\"\n"
+								+ "You can either not specify context or specify using one of the two modes: \"operationroom\" or \"emergency\"");
 			System.exit(0);
 		}
-		// Get "server location": server IP and port
-		String[] serverLocation = args[0].split(":");
 		// Check if IP format is valid
-		if(serverLocation[0].matches("^(?:(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])$")) { //FIXME Regex sacado
-			ip = serverLocation[0];
+		if(input[0].matches("^(?:(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])$")) { //FIXME Regex sacado
+			ip = input[0];
 		}
 		else {
 			System.out.println("Invalid IPv4 format");
@@ -45,10 +47,16 @@ public class App
 		}
 		// Check if port is valid
 		try {
-			port = Integer.parseInt(serverLocation[1]);
+			port = Integer.parseInt(input[1]);
 		} catch (NumberFormatException e) {
 			System.out.println("Port must be an integer");
 			System.exit(0);
+		}
+		// Check if context is valid
+		if(input.length == 3) {
+			if(input[2] == "operationroom" || input[2] == "emergency") {
+				context = input[2];
+			}
 		}
 		// Set system keystore
 		System.setProperty("javax.net.ssl.trustStore", KEYSTORE_PATH);
