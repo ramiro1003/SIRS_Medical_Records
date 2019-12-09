@@ -97,7 +97,15 @@ public class DoctorView extends UserView{
 			System.out.print("What's the Patient's Id?\n>> ");
 			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 			outStream.writeObject(patientId);
-		} catch (IOException e) {
+			String access = (String) inStream.readObject();
+			if(access.equals("Authorized")) {
+				MedicalRecordView medicalRecordView = (MedicalRecordView) inStream.readObject();
+				System.out.println(medicalRecordView.getInfo());
+			}
+			else {
+				System.out.println("You don't have access to this Medical Record");
+			}
+		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

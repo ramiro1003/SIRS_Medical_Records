@@ -104,6 +104,9 @@ class ServerThread extends Thread {
 					cmd = (String) inStream.readObject();
 					//logMan.writeLog(cmd, currUser);
 					switch(cmd) {
+						case "-changePassword":
+							changePassword();
+							break;
 						case "-listP":
 							listDoctorPatients();
 						case "-loginUser":
@@ -112,18 +115,15 @@ class ServerThread extends Thread {
 						case "-readMD":
 							readMD();
 							break;
-						case "-writeMD":
-							writeMD();
-							break;
 						case "-registerUser":
 							registerUser();
+							break;
+						case "-writeMD":
+							writeMD();
 							break;
 						case "-quit":
 							quitUser();
 							quit = true;
-							break;
-						case "-changePassword":
-							changePassword();
 							break;
 					}
 				}
@@ -132,6 +132,72 @@ class ServerThread extends Thread {
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private void changePassword() {
+		try {
+			String password = (String) inStream.readObject();
+			String email = currUser.getEmail();
+			String username = currUser.getName();
+			// Hash password + salt(email)
+			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			String saltedPass = password + email;
+			byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+			String hashedPass = new String(hashedPassBytes);
+			// Authenticate user
+			if(hashedPass.equals(gateway.getHashedPassword(email))) {
+				outStream.writeObject("User authenticated");
+				// Check if user successfully matched passwords (so server doesn't wait on the new password for no reason)
+				if(inStream.readObject().equals("Password confirmed")) {
+					String newPass = (String) inStream.readObject();
+					// Checks password strength
+					if(checkPasswordStrength(newPass, username, email)) {
+						outStream.writeObject("Strong password");
+						gateway.updateUserPassword(email, newPass);
+					}
+					else {
+						outStream.writeObject("Weak password");
+					}
+				}
+			}
+			else {
+				outStream.writeObject("Wrong password");
+			}
+		} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private boolean checkPasswordStrength(String password, String name, String email) {
+		// Get lower case password so we can make easier comparisons
+		String lowerCasePass = password.toLowerCase();
+		// Check if password contains at least one name of full user name. If so, password is considered weak
+		String[] nameSplit = name.split(" ");
+		for(String word : nameSplit) {
+			if(lowerCasePass.contains(word.toLowerCase())) {
+				return false;
+			}
+		}
+		// Check if password contains at least one word of user email. If so, password is considered weak
+		String[] emailSplit = email.split("[._@]");
+		emailSplit = Arrays.copyOf(emailSplit, emailSplit.length - 1);
+		for(String word : emailSplit) {
+			if(lowerCasePass.contains(word.toLowerCase())) {
+				return false;
+			}
+		}
+		// Check if password as less than 12 characters. If so, password is considered weak
+		if(password.length() < 12) {
+			return false;
+		}
+		// Check if password does not have at least 1 number, 1 upper case letter and 1 lower case letter. If so, password is considered weak
+		else if(!password.matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\\d]{12,}$")) { //FIXME Regex sacado
+			return false;
+		}
+		else {
+			return true;
 		}
 	}
 	
@@ -190,37 +256,6 @@ class ServerThread extends Thread {
 			outStream.writeObject("Bad login");
 		}			
 	}
-
-	private boolean checkPasswordStrength(String password, String name, String email) {
-		// Get lower case password so we can make easier comparisons
-		String lowerCasePass = password.toLowerCase();
-		// Check if password contains at least one name of full user name. If so, password is considered weak
-		String[] nameSplit = name.split(" ");
-		for(String word : nameSplit) {
-			if(lowerCasePass.contains(word.toLowerCase())) {
-				return false;
-			}
-		}
-		// Check if password contains at least one word of user email. If so, password is considered weak
-		String[] emailSplit = email.split("[._@]");
-		emailSplit = Arrays.copyOf(emailSplit, emailSplit.length - 1);
-		for(String word : emailSplit) {
-			if(lowerCasePass.contains(word.toLowerCase())) {
-				return false;
-			}
-		}
-		// Check if password as less than 12 characters. If so, password is considered weak
-		if(password.length() < 12) {
-			return false;
-		}
-		// Check if password does not have at least 1 number, 1 upper case letter and 1 lower case letter. If so, password is considered weak
-		else if(!password.matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\\d]{12,}$")) { //FIXME Regex sacado
-			return false;
-		}
-		else {
-			return true;
-		}
-	}
 	
 	private UserView createUserView() {
 		String type = currUser.getType();
@@ -241,21 +276,32 @@ class ServerThread extends Thread {
 		return userView;
 	}
 	
+	private MedicalRecordView createMedicalRecordView(MedicalRecord medicalRecord) {		
+		Integer recordId = medicalRecord.getRecordId();
+		Integer patientId = medicalRecord.getPatientId();
+		Integer doctorId = medicalRecord.getDoctorId();
+		String name = medicalRecord.getName();
+		Integer height = medicalRecord.getHeight();
+		Integer weight = medicalRecord.getWeight();
+		List<List<String>> prescriptionsInfo = medicalRecord.getPrescriptionsInfo();
+		List<List<String>> diagnosesInfo = medicalRecord.getDiagnosesInfo();
+		List<List<String>> treatmentsInfo = medicalRecord.getTreatmentsInfo();
+		
+		return new MedicalRecordView(recordId, patientId, doctorId, name, height, weight, prescriptionsInfo, diagnosesInfo, treatmentsInfo);		
+	}
+	
 	private void readMD() {
 		try {
 			String patientId = (String) inStream.readObject();
 			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
-			
 			Boolean authorize = pep.enforce(currUser, medicalRecord, "read", "context");
-			
 			if (authorize) {
-				// return MedicalRecordView
+				outStream.writeObject("Authorized");
+				outStream.writeObject(createMedicalRecordView(medicalRecord));
 			}
 			else {
-				
-			}			
-			
-			
+				outStream.writeObject("Non authorized");
+			}
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -324,41 +370,6 @@ class ServerThread extends Thread {
 		} 
 		else {
 			outStream.writeObject("User Already Exists");
-		}
-	}
-	
-	private void changePassword() {
-		try {
-			String password = (String) inStream.readObject();
-			String email = currUser.getEmail();
-			String username = currUser.getName();
-			// Hash password + salt(email)
-			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-			String saltedPass = password + email;
-			byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
-			String hashedPass = new String(hashedPassBytes);
-			// Authenticate user
-			if(hashedPass.equals(gateway.getHashedPassword(email))) {
-				outStream.writeObject("User authenticated");
-				// Check if user successfully matched passwords (so server doesn't wait on the new password for no reason)
-				if(inStream.readObject().equals("Password confirmed")) {
-					String newPass = (String) inStream.readObject();
-					// Checks password strength
-					if(checkPasswordStrength(newPass, username, email)) {
-						outStream.writeObject("Strong password");
-						gateway.updateUserPassword(email, newPass);
-					}
-					else {
-						outStream.writeObject("Weak password");
-					}
-				}
-			}
-			else {
-				outStream.writeObject("Wrong password");
-			}
-		} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	

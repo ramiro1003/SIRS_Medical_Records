@@ -61,9 +61,16 @@ public class PatientView extends UserView {
 	private void readMDClient() {
 		try {
 			outStream.writeObject("-readMD");
-			String patientId = String.valueOf(this.getUserId());
-			outStream.writeObject(patientId);
-		} catch (IOException e) {
+			outStream.writeObject(this.getUserId().toString());
+			String access = (String) inStream.readObject();
+			if(access.equals("Authorized")) {
+				MedicalRecordView medicalRecordView = (MedicalRecordView) inStream.readObject();
+				System.out.println(medicalRecordView.getInfo());
+			}
+			else {
+				System.out.println("You don't have access to this Medical Record");
+			}
+		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

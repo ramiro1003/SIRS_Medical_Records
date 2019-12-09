@@ -1,5 +1,6 @@
 package ulisboa.tecnico.sirs.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MedicalRecord {
@@ -56,20 +57,50 @@ public class MedicalRecord {
 	}
 
 
-	public List<Prescription> getPrescription() {
+	public List<Prescription> getPrescriptions() {
 		return prescription;
 	}
 
 
-	public List<Diagnosis> getDiagnosis() {
+	public List<Diagnosis> getDiagnoses() {
 		return diagnosis;
 	}
 
 
-	public List<Treatment> getTreatment() {
+	public List<Treatment> getTreatments() {
 		return treatment;
 	}
 	
+	public List<List<String>> getPrescriptionsInfo() {
+		List<List<String>> info = new ArrayList<>();
+		for(Prescription p : this.getPrescriptions()) {
+			List<String> prescription = new ArrayList<>();
+			prescription.add(p.getName());
+			prescription.add(p.getPrescriptionDate().toString());
+		}
+		return info;
+	}
 	
+	public List<List<String>> getDiagnosesInfo() {
+		List<List<String>> info = new ArrayList<>();
+		for(Diagnosis d : this.getDiagnoses()) {
+			List<String> diagnosis = new ArrayList<>();
+			diagnosis.add(d.getName());
+			diagnosis.add(d.getDiagnosisDate().toString());
+			diagnosis.add(d.getDescription());
+		}
+		return info;
+	}
+	
+	public List<List<String>> getTreatmentsInfo() {
+		List<List<String>> info = new ArrayList<>();
+		for(Treatment t : this.getTreatments()) {
+			List<String> treatment = new ArrayList<>();
+			treatment.add(t.getName());
+			treatment.add(t.getTreatmentDate().toString());
+			treatment.add(t.getDescription());
+		}
+		return info;
+	}
 	
 }

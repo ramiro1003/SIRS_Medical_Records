@@ -28,7 +28,7 @@ public class StaffView extends UserView {
 		Boolean quit = false;
 		while(!quit) {
 			System.out.print("Please choose the number of what you want to perform and press enter:\n"
-							+ "1) Check my Medical Record\n"
+							+ "1) Read a Medical Record\n"
 							+ "0) Quit\n"
 							+ ">> ");
 
@@ -36,7 +36,7 @@ public class StaffView extends UserView {
 			
 			switch(userInput) {
 			case "1":
-				readMDClient();
+				readMedicalRecord();
 				break;
 			case "0":
 				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
@@ -58,9 +58,24 @@ public class StaffView extends UserView {
 		}		
 	}
 	
-	private void readMDClient() {
-		// TODO Auto-generated method stub
-		
+	private void readMedicalRecord() {
+		try {
+			outStream.writeObject("-readMD");
+			System.out.print("What's the Patient's Id?\n>> ");
+			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(patientId);
+			String access = (String) inStream.readObject();
+			if(access.equals("Authorized")) {
+				MedicalRecordView medicalRecordView = (MedicalRecordView) inStream.readObject();
+				System.out.println(medicalRecordView.getInfo());
+			}
+			else {
+				System.out.println("You don't have access to this Medical Record");
+			}
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private static void quitClient() {
