@@ -76,67 +76,28 @@ public class App
 
 	private static void run() {
 		// Welcome message
-		System.out.println("Hi! Welcome to SIRS Medical Record System.");
-		// Variable used to store user input
-		String userInput;
-		// First loop to check if user is registered or not and then executes login or register, respectively
-		Boolean exitSwitch = false;
-		while(!exitSwitch) {
-			System.out.print("Are you a registered user?: (Y = Yes, N = No)\n>> ");
-			userInput = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
-			switch(userInput) {
-				case "Y":
-				case "y":
-				case "yes":
-				case "Yes":
-					try {
-						loginUser();
-						user.runApp(inStream, outStream, scanner);
-					} catch (NoSuchAlgorithmException | ClassNotFoundException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					exitSwitch = true;
-					break;
-				case "N":
-				case "n":
-				case "No":
-				case "no":
-					try {
-						if(registerUser()) {
-							user.runApp(inStream, outStream, scanner);
-						}
-						else {
-							quitClient();
-						}
-					} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					exitSwitch = true;
-					break;
-				default:
-					System.out.println("Invalid instruction!");
-			}
-		}
-		quitClient();
-	}
-
-	private static void loginUser() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+		System.out.println("Hi! Welcome to SIRS Medical Record System.\n"
+							+ "Please login with your credentials:\n");
 		// Ask user e-mail
 		System.out.print("What's your username (e-mail)?\n>> ");
 		String email = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
 		// Ask user password
 		System.out.print("Enter your password:\n>> ");
 		String password = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
-		// Check login result
-		UserView loginResult = loginRequest(email, password);
-		if(!loginResult.equals(null)) {
-			user = loginResult;
-			System.out.println("Hello " + user.getName() + "!");
-		} else {
-			System.out.println("Wrong credentials.");
-			quitClient();
+		try {
+			// Check login result
+			UserView loginResult = loginRequest(email, password);
+			if(!loginResult.equals(null)) {
+				user = loginResult;
+				System.out.println("Hello " + user.getName() + "!");
+				user.runApp(inStream, outStream, scanner);
+			} else {
+				System.out.println("Wrong credentials.");
+				quitClient();
+			}
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -254,7 +215,6 @@ public class App
 	
 	private static void quitClient() {
 		try {
-			outStream.writeObject("-quit");
 			outStream.close();
 			inStream.close();
 			System.exit(0);

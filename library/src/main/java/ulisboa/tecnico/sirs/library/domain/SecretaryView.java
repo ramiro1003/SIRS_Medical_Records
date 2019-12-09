@@ -3,6 +3,7 @@ package ulisboa.tecnico.sirs.library.domain;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.SecureRandom;
 import java.util.Scanner;
 
 public class SecretaryView extends UserView {
@@ -63,10 +64,89 @@ public class SecretaryView extends UserView {
 	}
 	
 	private void registerUser() {
-		// TODO Auto-generated method stub
-		
-	}
+		// Pedir o tipo de utilizador
+		String type = null;
+		Boolean exitSwitch = false;
+		while(!exitSwitch) {
+			System.out.print("Are you registering a new doctor, patient, staff or secretary?\n"
+							+ "1) Doctor\n"
+							+ "2) Patient\n"
+							+ "3) Staff\n"
+							+ "4) Secretary\n"
+							+ ">> ");
+			String typeOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			switch(typeOption) {
+			case "1":
+				type = "Doctor";
+				exitSwitch = true;
+				break;
+			case "2":
+				type = "Patient";
+				exitSwitch = true;
+				break;
+			case "3":
+				type = "Staff";
+				exitSwitch = true;
+				break;
+			case "4":
+				type = "Secretary";
+				exitSwitch = true;
+				break;
+			default:
+				System.out.println("Invalid instruction!");
+			}
+		}
+		// Ask user name
+		System.out.print("What's the user name?\n>> ");
+		String username = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+		// Ask user citizen Id
+		System.out.print("What's the user Id?\n>> ");
+		String userId = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+		// Ask user e-mail
+		System.out.print("What's the user e-mail:\n>> ");
+		String email = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+		if(!email.matches("^([a-z0-9_-]+\\.)*[a-z0-9_-]+@[a-z0-9_-]+(\\.[a-z0-9_-]+)*\\.[a-z]{2,6}$")) { //FIXME regex sacado
+			System.out.println("Wrong e-mail format.");
+		}
+		// Send registration request
+		try {
+			outStream.writeObject("-registerUser");
+			// Send user Id
+			outStream.writeObject(userId);
+			if(inStream.readObject().equals("New user")) {
+				// Generate password
+				String password = generateRandomPassword();
+				System.out.println("This is the user initial password. This should be changed by the user:  " + password);
+				// Send user e-mail
+				outStream.writeObject(email);
+				// Send username
+				outStream.writeObject(username);
+				// Send user type
+				outStream.writeObject(type);
+				// Send plain text password
+				outStream.writeObject(password);
+				System.out.println("User successfully registered in SIRS Medical Records Systems.");
+			}
+			else {
+				System.out.println("User with such e-mail already exists");
+			}
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}	
 	
+	private String generateRandomPassword() {
+		SecureRandom random = new SecureRandom();
+		String dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%_+-";
+		String password = "";
+		for (int i = 0; i < 12; i++) {
+		    int index = random.nextInt(dictionary.length());
+		    password += dictionary.charAt(index);
+		}
+		return password;
+	}
+
 	private void changePassword() {
 		try {
 			// Get user old password so he can authenticate himself
