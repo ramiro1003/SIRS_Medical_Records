@@ -29,10 +29,15 @@ public class App
 	
 	
 	public static void main( String[] args ) {
+		if(args.length != 1) {
+			System.out.println("System usage: mvn exec:java -Dexec.args=\"[serverIp]:[serverPort]:{context}\"\n"
+								+ "You can either not specify context or specify using one of the two modes: \"operationroom\" or \"emergency\"");
+			System.exit(0);
+		}
 		// Get server IP and port, and get context
 		String[] input = args[0].split(":");
 		// Check if application is being properly run with mvn exec
-		if(args.length != 1 || input.length != 3 || input.length != 2) {
+		if(input.length > 3 || input.length < 2) {
 			System.out.println("System usage: mvn exec:java -Dexec.args=\"[serverIp]:[serverPort]:{context}\"\n"
 								+ "You can either not specify context or specify using one of the two modes: \"operationroom\" or \"emergency\"");
 			System.exit(0);
@@ -54,9 +59,16 @@ public class App
 		}
 		// Check if context is valid
 		if(input.length == 3) {
-			if(input[2] == "operationroom" || input[2] == "emergency") {
+			if(input[2].equals("operationroom") || input[2].equals("emergency")) {
 				context = input[2];
 			}
+			else {
+				System.out.println("You can either not specify context or specify using one of the two modes: \"operationroom\" or \"emergency\"");
+				System.exit(0);
+			}
+		}
+		else {
+			context = "default";
 		}
 		// Set system keystore
 		System.setProperty("javax.net.ssl.trustStore", KEYSTORE_PATH);
