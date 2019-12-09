@@ -117,14 +117,166 @@ public class DoctorView extends UserView{
 			System.out.print("What's the Patient's Id?\n>> ");
 			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
 			outStream.writeObject(patientId);
+			String access = (String) inStream.readObject();
 			
-		} catch (IOException e) {
+			if(access.equals("Authorized")) {
+				
+				Boolean quitWrite = false;
+				String writeAction;
+				
+				while(!quitWrite) {
+					System.out.print("Please choose the number of what you want to wish to write:\n"
+							+ "1) Change height\n"
+							+ "2) Change weight\n"
+							+ "3) Add prescription\n"
+							+ "4) Add diagnosis\n"
+							+ "5) Add treatment\n"
+							+ "0) Back\n"
+							+ ">> ");
+					
+					writeAction = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+					
+					switch(writeAction) {
+						case "1":
+							changeHeight();
+							break;
+						case "2":
+							changeWeight();
+							break;
+						case "3":
+							addPrescription();
+							break;
+						case "4":
+							addDiagnosis();
+							break;
+						case "5":
+							addTreatment();
+							break;
+						case "0":
+							quitWrite();
+							quitWrite = true;
+							break;
+						default:
+							System.out.println("Invalid instruction!");
+					}
+				}
+			}
+			else {
+				System.out.println("You don't have write access to this Medical Record");
+			}
+			
+			
+		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
 		
 	}
 	
+	
+	
+	private void changeHeight() {
+		try {
+			outStream.writeObject("-changeHeight");
+			System.out.print("What is the patient's height? (centimeters) \n>> ");
+			String heightStr = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			
+			
+			if(!heightStr.matches("^[0-9]{2,3}$")) { 
+				System.out.println("Wrong height format!");
+				return;
+			}
+			
+			outStream.writeObject(heightStr);
+			
+			String complete = (String) inStream.readObject();
+			if(complete.contentEquals("complete"))
+				System.out.print("Patient height updated.");
+			return;
+			
+		} catch (IOException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+	
+	private void changeWeight() {
+		try {
+			outStream.writeObject("-changeWeight");
+			System.out.print("What is the patient's weight? (kilograms) \n>> ");
+			String weightStr = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			
+			if(!weightStr.matches("^[0-9]{1,3}$")) { 
+				System.out.println("Wrong weight format!");
+				return;
+			}
+			
+			outStream.writeObject(weightStr);
+			
+			String complete = (String) inStream.readObject();
+			if(complete.contentEquals("complete"))
+				System.out.print("Patient weight updated.");
+			return;
+			
+		} catch (IOException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+	}
+	
+	private void addPrescription() {
+		try {
+			outStream.writeObject("-addPrescription");
+			System.out.print("Add new patient prescription:\n>> ");
+			
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+	}
+
+	private void addDiagnosis() {
+		try {
+			outStream.writeObject("-addDiagnosis");
+			System.out.print("Add new patient diagnosis:\n>> ");
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+	}
+	
+	private void addTreatment() {
+		try {
+			outStream.writeObject("-addTreatment");
+			System.out.print("Add new patient treatment:\n>> ");
+			
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+
+	private void quitWrite() {
+		try {
+			outStream.writeObject("-quitWrite");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}			
+	}
+
+
+
+
+
+
 	private void changePassword() {
 		try {
 			// Get user old password so he can authenticate himself

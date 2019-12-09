@@ -312,11 +312,51 @@ class ServerThread extends Thread {
 		try {
 			String patientId = (String) inStream.readObject();
 			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
-			
-			Boolean authorize = pep.enforce(currUser, medicalRecord, "write", "context");
+			Boolean authorize = pep.enforce(currUser, medicalRecord, "write", "context"); // FIXME CONTEXT SENT
 			
 			if (authorize) {
+				outStream.writeObject("Authorized");
 				
+				Integer patientIdInt = Integer.parseInt(patientId);
+				
+				String writeCmd = null;
+				Boolean writeQuit = false;
+				try {
+					while(!writeQuit) {
+						writeCmd = (String) inStream.readObject();
+						//logMan.writeLog(writeCmd, currUser);
+						switch(writeCmd) {
+							case "-changeHeight":
+								changeHeight(patientIdInt);
+								break;
+							case "-changeWeight":
+								changeWeight(patientIdInt);
+								break;
+							case "-addPrescription":
+								addPrescription(patientIdInt);
+								break;
+							case "-addDiagnosis":
+								addDiagnosis(patientIdInt);
+								break;
+							case "-addTreatment":
+								addTreatment(patientIdInt);
+								break;
+							case "-quitWrite":
+								writeQuit = true;
+								break;
+						}
+					}
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				
+				
+				
+			}
+			else {
+				outStream.writeObject("Non authorized");
 			}
 			
 			
@@ -325,6 +365,54 @@ class ServerThread extends Thread {
 			e.printStackTrace();
 		}
 	}
+
+	private void addTreatment(Integer patientId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void addDiagnosis(Integer patientId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void addPrescription(Integer patientId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void changeHeight(Integer patientId) {
+		String height;
+		try {
+			height = (String) inStream.readObject();
+			
+			gateway.changeHeight(patientId, height);
+			outStream.writeObject("complete");
+			
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	private void changeWeight(Integer patientId) {
+		try {
+			String weight = (String) inStream.readObject();
+			
+			gateway.changeWeight(patientId, weight);
+			
+			outStream.writeObject("complete");
+			
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	
 
 	private void registerUser() throws ClassNotFoundException, IOException {
 		// Checks if user already exists

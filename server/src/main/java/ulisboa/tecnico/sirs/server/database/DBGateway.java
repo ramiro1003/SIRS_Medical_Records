@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ulisboa.tecnico.sirs.crypto.CriptographyManager;
-import  ulisboa.tecnico.sirs.domain.*;
+import ulisboa.tecnico.sirs.domain.*;
 import ulisboa.tecnico.sirs.library.domain.PatientView;
 
 public class DBGateway {
@@ -23,6 +23,8 @@ public class DBGateway {
 	private static final String SQL_UPDATE_AUTH = "UPDATE Auth SET HashedPass=? WHERE Email=?";
 	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord INNER JOIN User ON MedicalRecord.PatiendId = User.Id WHERE MedicalRecord.PatientId = ?";
 	private static final String SQL_INSERT_MEDICAL_RECORD = "INSERT INTO MedicalRecord (Id, PatientId, Weight, Height) VALUES (?,?,?,?)";
+	private static final String SQL_CHANGE_WEIGHT = "UPDATE MedicalRecord SET Weight=? VALUES (?) WHERE MedicalRecord.PatientId = ?";
+	private static final String SQL_CHANGE_HEIGHT = "UPDATE MedicalRecord SET Height=? VALUES (?) WHERE MedicalRecord.PatientId = ?";
 	private static final String SQL_INSERT_MEDICATION = "INSERT INTO Medication (MedicalRecordId, Name, PrescriptionDate) VALUES (?,?,?)";
 	private static final String SQL_GET_DOCTOR_PATIENTS = "SELECT * FROM MedicalRecord INNER JOIN User AS d ON MedicalRecord.DoctorId = b.Id"
 														+ "INNER JOIN User AS p ON MedicalRecord.PatientId = a.Id"
@@ -174,6 +176,42 @@ public class DBGateway {
 		}
 	}
 	
+	public void changeWeight(Integer patientId, String weight) {
+
+		// FIXME CHECK THIS
+		try {
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_CHANGE_WEIGHT);
+			stmt.setInt(1, patientId);
+			stmt.setString(2, cManager.cipher(weight));
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
+	}
+	
+	public void changeHeight(Integer patientId, String height) {
+		
+		// FIXME CHECK THIS
+		try {
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_CHANGE_HEIGHT);
+			stmt.setInt(1, patientId);
+			stmt.setString(2, cManager.cipher(height));
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	
 	private void addMedication(int idMedRec, String medName, String presDate) {
 		
 		//cipher strings
@@ -290,6 +328,10 @@ public class DBGateway {
 			System.out.println("ERROR: Test file not found!");
 		} 
 	}
+
+
+
+	
 
 
 }
