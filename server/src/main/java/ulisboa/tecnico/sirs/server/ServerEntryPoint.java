@@ -117,6 +117,9 @@ class ServerThread extends Thread {
 						case "-readMD":
 							readMD();
 							break;
+						case "-writeMD":
+							writeMD();
+							break;
 						case "-registerUser":
 							registerUser();
 							break;
@@ -262,13 +265,33 @@ class ServerThread extends Thread {
 	private void readMD() {
 		try {
 			String patientId = (String) inStream.readObject();
-			MedicalRecord MD = gateway.getMedicalRecord(patientId);
-			Boolean authorize = pep.enforce(currUser, patientId, "read");
+			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
+			
+			Boolean authorize = pep.enforce(currUser, medicalRecord, "read", "context");
 			
 			if (authorize) {
-				// get the resource
-				gateway.getMedicalRecord(patientId);
-				System.out.println("Authorized!");
+				// return MedicalRecordView
+			}
+			else {
+				
+			}			
+			
+			
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void writeMD() {
+		try {
+			String patientId = (String) inStream.readObject();
+			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
+			
+			Boolean authorize = pep.enforce(currUser, medicalRecord, "write", "context");
+			
+			if (authorize) {
+				
 			}
 			
 			

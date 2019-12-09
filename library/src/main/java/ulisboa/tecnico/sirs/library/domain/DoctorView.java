@@ -28,42 +28,82 @@ public class DoctorView extends UserView{
 		Boolean quit = false;
 		while(!quit) {
 			System.out.print("Please choose the number of what you want to perform and press enter:\n"
-							+ "1) List Medical Records\n"
+							+ "1) List Patients\n"
 							+ "2) Read a Medical Record\n"
-							+ "3) Change password\n"
+							+ "3) Edit a Medical Record\n"
+							+ "4) Change password\n"
 							+ "0) Quit\n"
 							+ ">> ");
 
 			userInput = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
 			
 			switch(userInput) {
-			case "1":
-				listMDClient();
-				break;
-			case "2":
-				readMDClient();
-				break;
-			case "3":
-				changePassword();
-				break;
-			case "0":
-				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
-				String conf = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
-				switch(conf) {
-					case "Y":
-					case "y":
-					case "yes":
-					case "Yes":
-						quit = true;
-						quitClient();
-						break;
-					default:
-				}				
-				break;
-			default:
-				System.out.println("Invalid instruction!");
+				case "1":
+					listPatients();
+					break;
+				case "2":
+					readMedicalRecord();
+					break;
+				case "3":
+					writeMedicalRecord();
+					break;
+				case "4":
+					changePassword();
+					break;
+				case "0":
+					System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
+					String conf = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+					switch(conf) {
+						case "Y":
+						case "y":
+						case "yes":
+						case "Yes":
+							quit = true;
+							quitClient();
+							break;
+						default:
+					}				
+					break;
+				default:
+					System.out.println("Invalid instruction!");
 			}
 		}
+	}
+
+	private void listPatients() {
+		try {
+			outStream.writeObject("-listP");
+			System.out.println(inStream.readObject());
+		} catch (IOException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void readMedicalRecord() {
+		try {
+			outStream.writeObject("-readMD");
+			System.out.print("What's the Patient's Id?\n>> ");
+			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(patientId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void writeMedicalRecord() {
+		try {
+			outStream.writeObject("-writeMD");
+			System.out.print("What's the Patient's Id?\n>> ");
+			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(patientId);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		
 	}
 	
 	private void changePassword() {
@@ -105,28 +145,6 @@ public class DoctorView extends UserView{
 				System.out.println("Wrong password");
 			}
 		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private void listMDClient() {
-		try {
-			outStream.writeObject("-listMD");
-			System.out.println(inStream.readObject());
-		} catch (IOException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private void readMDClient() {
-		try {
-			outStream.writeObject("-readMD");
-			System.out.print("What's the Patient's Id?\n>> ");
-			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
-			outStream.writeObject(patientId);
-		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

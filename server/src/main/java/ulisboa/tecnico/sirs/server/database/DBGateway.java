@@ -190,15 +190,18 @@ public class DBGateway {
 	
 	public MedicalRecord getMedicalRecord(String patientId) {
 		try {
-			// Get record from recordId
 			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_GET_MEDICAL_RECORD);
 			stmt.setString(1, patientId);
 			ResultSet result = stmt.executeQuery();
+			
+			// FIXME needs fixing according to new db schema 
 			Integer recordId = Integer.parseInt(cManager.decipher(result.getString("Id")));
 			Integer userId = Integer.parseInt(cManager.decipher(result.getString("PatientId")));
 			Integer height = Integer.parseInt(cManager.decipher(result.getString("Height")));
 			Integer weight = Integer.parseInt(cManager.decipher(result.getString("Weight")));
-			return new MedicalRecord(recordId, userId, height, weight);
+			// add remaining fields and query for prescription, diagnosis and treatment
+			
+			return new MedicalRecord(recordId, patientId, doctorId, height, weight, prescription, diagnosis, treatment);
 			
 		} catch (SQLException e) {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
