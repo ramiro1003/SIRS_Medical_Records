@@ -1,4 +1,4 @@
 Operations supported on the test file:
-createUser <id> <email> <name> <type["patient","doctor","staff"]> <birthDate(format:YYYYMMDD)> <password>
-createMD <id> <patientID> <weight> <height>
-createMedication <mdID> <name> <prescriptionDate>
+createUser:<id>:<name>:<type["Patient","Doctor","Staff","Secretary"]>:<birthDate(format:YYYYMMDD)>:<password>
+createMD:<id>:<patientID>:<weight>:<height>
+createMedication:<mdID>:<name>:<prescriptionDate>

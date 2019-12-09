@@ -1,1 +1,2 @@
-createUser 123456789 mario@gmail.com Mario Patient 19800809 password
+createUser:123456789:Mario:Patient:19800809:Password123
+createUser:123:Carlos Silva:Secretary:19980412:CristoAleluia123
