@@ -78,4 +78,9 @@ public class PatientView extends UserView {
 		}		
 	}
 
+	public void printInfo() {
+		System.out.println("Patient's Name: " + this.getName()
+		+ "Patient's ID: " + this.getUserId());
+	}
+
 }

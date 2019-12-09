@@ -12,6 +12,7 @@ import java.util.List;
 
 import ulisboa.tecnico.sirs.crypto.CriptographyManager;
 import  ulisboa.tecnico.sirs.domain.*;
+import ulisboa.tecnico.sirs.library.domain.PatientView;
 
 public class DBGateway {
 
@@ -20,9 +21,12 @@ public class DBGateway {
 	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE Email=?";
 	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (UserId, Email, HashedPass) VALUES (?, ?, ?)";
 	private static final String SQL_UPDATE_AUTH = "UPDATE Auth SET HashedPass=? WHERE Email=?";
-	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord NATURAL JOIN User WHERE PatientId=?";
+	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord INNER JOIN User ON MedicalRecord.PatiendId = User.Id WHERE MedicalRecord.PatientId = ?";
 	private static final String SQL_INSERT_MEDICAL_RECORD = "INSERT INTO MedicalRecord (Id, PatientId, Weight, Height) VALUES (?,?,?,?)";
 	private static final String SQL_INSERT_MEDICATION = "INSERT INTO Medication (MedicalRecordId, Name, PrescriptionDate) VALUES (?,?,?)";
+	private static final String SQL_GET_DOCTOR_PATIENTS = "SELECT * FROM MedicalRecord INNER JOIN User AS d ON MedicalRecord.DoctorId = b.Id"
+														+ "INNER JOIN User AS p ON MedicalRecord.PatientId = a.Id"
+														+ "WHERE MedicalRecord.DoctorId = ?";
 
 	private String db;
 	private String password;
@@ -220,6 +224,27 @@ public class DBGateway {
 		}
 		// FIXME return null or empty
 		return null;
+	}
+	
+	public List<PatientView> getDoctorPatients(String doctorId) {
+		List<PatientView> result = new ArrayList<>();
+		ResultSet resultSet = null; 
+		try {
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_GET_DOCTOR_PATIENTS);
+			stmt.setString(1, doctorId);
+			resultSet = stmt.executeQuery();
+			while(resultSet.next()) {
+				int userId = Integer.parseInt(cManager.decipher(resultSet.getString("p.UserId")));
+				String email = cManager.decipher(resultSet.getString("p.Email"));
+				String name = cManager.decipher(resultSet.getString("p.Name"));
+				result.add(new PatientView(userId, email, name));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// FIXME return null or empty
+		return result;
 	}
 	
 	public void close() throws SQLException {

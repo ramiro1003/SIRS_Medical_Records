@@ -3,6 +3,7 @@ package ulisboa.tecnico.sirs.library.domain;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
 import java.util.Scanner;
 
 public class DoctorView extends UserView{
@@ -70,11 +71,21 @@ public class DoctorView extends UserView{
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void listPatients() {
 		try {
 			outStream.writeObject("-listP");
-			System.out.println(inStream.readObject());
-		} catch (IOException | ClassNotFoundException e) {
+			String answer = (String) inStream.readObject();
+			if(answer.equals("Doctor has patients")) {
+				List<PatientView> patients = (List<PatientView>) inStream.readObject();
+				for(PatientView p : patients) {
+					p.printInfo();
+				}
+			}
+			else {
+				System.out.println("This doctor has no patients assigned to him");
+			}
+		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

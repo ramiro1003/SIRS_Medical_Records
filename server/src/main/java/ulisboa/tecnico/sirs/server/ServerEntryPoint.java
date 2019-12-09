@@ -104,15 +104,10 @@ class ServerThread extends Thread {
 					cmd = (String) inStream.readObject();
 					//logMan.writeLog(cmd, currUser);
 					switch(cmd) {
-						case "-changePassword":
-							changePassword();
-							break;
+						case "-listP":
+							listDoctorPatients();
 						case "-loginUser":
 							loginUser();
-							break;
-						case "-quit":
-							quitUser();
-							quit = true;
 							break;
 						case "-readMD":
 							readMD();
@@ -122,6 +117,13 @@ class ServerThread extends Thread {
 							break;
 						case "-registerUser":
 							registerUser();
+							break;
+						case "-quit":
+							quitUser();
+							quit = true;
+							break;
+						case "-changePassword":
+							changePassword();
 							break;
 					}
 				}
@@ -133,36 +135,18 @@ class ServerThread extends Thread {
 		}
 	}
 	
-	private void changePassword() {
+	private void listDoctorPatients() {
+		Integer doctorId = currUser.getUserId();
+		List<PatientView> patients = gateway.getDoctorPatients(doctorId.toString());
 		try {
-			String password = (String) inStream.readObject();
-			String email = currUser.getEmail();
-			String username = currUser.getName();
-			// Hash password + salt(email)
-			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-			String saltedPass = password + email;
-			byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
-			String hashedPass = new String(hashedPassBytes);
-			// Authenticate user
-			if(hashedPass.equals(gateway.getHashedPassword(email))) {
-				outStream.writeObject("User authenticated");
-				// Check if user successfully matched passwords (so server doesn't wait on the new password for no reason)
-				if(inStream.readObject().equals("Password confirmed")) {
-					String newPass = (String) inStream.readObject();
-					// Checks password strength
-					if(checkPasswordStrength(newPass, username, email)) {
-						outStream.writeObject("Strong password");
-						gateway.updateUserPassword(email, newPass);
-					}
-					else {
-						outStream.writeObject("Weak password");
-					}
-				}
+			if(patients.isEmpty()) {
+				outStream.writeObject("Doctor has no patients");
 			}
 			else {
-				outStream.writeObject("Wrong password");
+				outStream.writeObject("Doctor has patients");
+				outStream.writeObject(patients);
 			}
-		} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -256,11 +240,6 @@ class ServerThread extends Thread {
 		
 		return userView;
 	}
-
-	private void quitUser() {
-		//logMan.writeLog(user, currUser);
-		System.out.println(currUser.getType() + " " + currUser.getName() + " (" + currUser.getEmail() + ") disconnected.");
-	}
 	
 	private void readMD() {
 		try {
@@ -346,5 +325,45 @@ class ServerThread extends Thread {
 		else {
 			outStream.writeObject("User Already Exists");
 		}
+	}
+	
+	private void changePassword() {
+		try {
+			String password = (String) inStream.readObject();
+			String email = currUser.getEmail();
+			String username = currUser.getName();
+			// Hash password + salt(email)
+			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			String saltedPass = password + email;
+			byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+			String hashedPass = new String(hashedPassBytes);
+			// Authenticate user
+			if(hashedPass.equals(gateway.getHashedPassword(email))) {
+				outStream.writeObject("User authenticated");
+				// Check if user successfully matched passwords (so server doesn't wait on the new password for no reason)
+				if(inStream.readObject().equals("Password confirmed")) {
+					String newPass = (String) inStream.readObject();
+					// Checks password strength
+					if(checkPasswordStrength(newPass, username, email)) {
+						outStream.writeObject("Strong password");
+						gateway.updateUserPassword(email, newPass);
+					}
+					else {
+						outStream.writeObject("Weak password");
+					}
+				}
+			}
+			else {
+				outStream.writeObject("Wrong password");
+			}
+		} catch (ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void quitUser() {
+		//logMan.writeLog(user, currUser);
+		System.out.println(currUser.getType() + " " + currUser.getName() + " (" + currUser.getEmail() + ") disconnected.");
 	}
 }
