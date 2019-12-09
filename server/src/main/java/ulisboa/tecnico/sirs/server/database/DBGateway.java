@@ -20,7 +20,7 @@ public class DBGateway {
 	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE Email=?";
 	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (UserId, Email, HashedPass) VALUES (?, ?, ?)";
 	private static final String SQL_UPDATE_AUTH = "UPDATE Auth SET HashedPass=? WHERE Email=?";
-	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord WHERE RecordId=?";
+	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord NATURAL JOIN User WHERE PatientId=?";
 	private static final String SQL_INSERT_MEDICAL_RECORD = "INSERT INTO MedicalRecord (Id, PatientId, Weight, Height) VALUES (?,?,?,?)";
 	private static final String SQL_INSERT_MEDICATION = "INSERT INTO Medication (MedicalRecordId, Name, PrescriptionDate) VALUES (?,?,?)";
 
@@ -196,12 +196,18 @@ public class DBGateway {
 			
 			// FIXME needs fixing according to new db schema 
 			Integer recordId = Integer.parseInt(cManager.decipher(result.getString("Id")));
-			Integer userId = Integer.parseInt(cManager.decipher(result.getString("PatientId")));
+			Integer patientIdInt = Integer.parseInt(patientId);
+			String patientName = result.getString(cManager.decipher(result.getString("Name")));
+			Integer doctorId = Integer.parseInt(cManager.decipher(result.getString("DoctorId")));
 			Integer height = Integer.parseInt(cManager.decipher(result.getString("Height")));
 			Integer weight = Integer.parseInt(cManager.decipher(result.getString("Weight")));
-			// add remaining fields and query for prescription, diagnosis and treatment
+			List<Prescription> prescription = null;
+			List<Diagnosis> diagnosis = null;				//FIXME LISTS ARE NULL!
+			List<Treatment> treatment = null;
 			
-			return new MedicalRecord(recordId, patientId, doctorId, height, weight, prescription, diagnosis, treatment);
+			// curtia ir buscar nome do doutor provavelmente mas ja se faz isso
+			
+			return new MedicalRecord(recordId, patientIdInt, doctorId, patientName, height, weight, prescription, diagnosis, treatment);
 			
 		} catch (SQLException e) {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
