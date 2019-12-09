@@ -3,16 +3,17 @@ package ulisboa.tecnico.sirs.library.domain;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.SecureRandom;
 import java.util.Scanner;
 
-public class PatientView extends UserView {
+public class SecretaryView extends UserView {
 	
 	private static final long serialVersionUID = 1L;
 	private static Scanner scanner;
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
-
-	public PatientView(Integer userId, String email, String name) {
+	
+	public SecretaryView(Integer userId, String email, String name) {
 		super(userId, email, name);
 	}
 
@@ -28,8 +29,8 @@ public class PatientView extends UserView {
 		Boolean quit = false;
 		while(!quit) {
 			System.out.print("Please choose the number of what you want to perform and press enter:\n"
-							+ "1) Check my Medical Record\n"
-							+ "9) Change Password\n"
+							+ "1) Register User\n"
+							+ "9) Change Your Password\n"
 							+ "0) Quit\n"
 							+ ">> ");
 
@@ -37,7 +38,7 @@ public class PatientView extends UserView {
 			
 			switch(userInput) {
 			case "1":
-				readMDClient();
+				registerUser();
 				break;
 			case "9":
 				changePassword();
@@ -62,24 +63,90 @@ public class PatientView extends UserView {
 		}
 	}
 	
-	private void readMDClient() {
+	private void registerUser() {
+		// Pedir o tipo de utilizador
+		String type = null;
+		Boolean exitSwitch = false;
+		while(!exitSwitch) {
+			System.out.print("Are you registering a new doctor, patient, staff or secretary?\n"
+							+ "1) Doctor\n"
+							+ "2) Patient\n"
+							+ "3) Staff\n"
+							+ "4) Secretary\n"
+							+ ">> ");
+			String typeOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			switch(typeOption) {
+			case "1":
+				type = "Doctor";
+				exitSwitch = true;
+				break;
+			case "2":
+				type = "Patient";
+				exitSwitch = true;
+				break;
+			case "3":
+				type = "Staff";
+				exitSwitch = true;
+				break;
+			case "4":
+				type = "Secretary";
+				exitSwitch = true;
+				break;
+			default:
+				System.out.println("Invalid instruction!");
+			}
+		}
+		// Ask user name
+		System.out.print("What's the user name?\n>> ");
+		String username = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+		// Ask user citizen Id
+		System.out.print("What's the user Id?\n>> ");
+		String userId = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+		// Ask user e-mail
+		System.out.print("What's the user e-mail:\n>> ");
+		String email = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+		if(!email.matches("^([a-z0-9_-]+\\.)*[a-z0-9_-]+@[a-z0-9_-]+(\\.[a-z0-9_-]+)*\\.[a-z]{2,6}$")) { //FIXME regex sacado
+			System.out.println("Wrong e-mail format.");
+		}
+		// Send registration request
 		try {
-			outStream.writeObject("-readMD");
-			outStream.writeObject(this.getUserId().toString());
-			String access = (String) inStream.readObject();
-			if(access.equals("Authorized")) {
-				MedicalRecordView medicalRecordView = (MedicalRecordView) inStream.readObject();
-				System.out.println(medicalRecordView.getInfo());
+			outStream.writeObject("-registerUser");
+			// Send user Id
+			outStream.writeObject(userId);
+			if(inStream.readObject().equals("New user")) {
+				// Generate password
+				String password = generateRandomPassword();
+				System.out.println("This is the user initial password. This should be changed by the user:  " + password);
+				// Send user e-mail
+				outStream.writeObject(email);
+				// Send username
+				outStream.writeObject(username);
+				// Send user type
+				outStream.writeObject(type);
+				// Send plain text password
+				outStream.writeObject(password);
+				System.out.println("User successfully registered in SIRS Medical Records Systems.");
 			}
 			else {
-				System.out.println("You don't have access to this Medical Record");
+				System.out.println("User with such e-mail already exists");
 			}
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	}	
 	
+	private String generateRandomPassword() {
+		SecureRandom random = new SecureRandom();
+		String dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%_+-";
+		String password = "";
+		for (int i = 0; i < 12; i++) {
+		    int index = random.nextInt(dictionary.length());
+		    password += dictionary.charAt(index);
+		}
+		return password;
+	}
+
 	private void changePassword() {
 		try {
 			// Get user old password so he can authenticate himself
@@ -123,7 +190,7 @@ public class PatientView extends UserView {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void quitClient() {
 		try {
 			outStream.writeObject("-quit");
@@ -131,11 +198,6 @@ public class PatientView extends UserView {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
-	}
-
-	public void printInfo() {
-		System.out.println("Patient's Name: " + this.getName()
-		+ "Patient's ID: " + this.getUserId());
 	}
 
 }

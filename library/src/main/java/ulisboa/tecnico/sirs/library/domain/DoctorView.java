@@ -32,7 +32,7 @@ public class DoctorView extends UserView{
 							+ "1) List Patients\n"
 							+ "2) Read a Medical Record\n"
 							+ "3) Edit a Medical Record\n"
-							+ "4) Change password\n"
+							+ "9) Change Password\n"
 							+ "0) Quit\n"
 							+ ">> ");
 
@@ -48,7 +48,7 @@ public class DoctorView extends UserView{
 				case "3":
 					writeMedicalRecord();
 					break;
-				case "4":
+				case "9":
 					changePassword();
 					break;
 				case "0":
