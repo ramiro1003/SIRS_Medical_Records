@@ -12,8 +12,8 @@ public class StaffView extends UserView {
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
 
-	public StaffView(Integer userId, String email, String name) {
-		super(userId, email, name);
+	public StaffView(Integer userId, String name) {
+		super(userId, name);
 	}
 
 	@Override
@@ -108,8 +108,7 @@ public class StaffView extends UserView {
 								+ "  - Must contain at least 1 upper case letter\n"
 								+ "  - Must contain at least 1 lower case letter\n"
 								+ "  - Must contain at least 1 number\n"
-								+ "  - Can't contain any name of yours\n"
-								+ "  - Can't contain words that appear in your email");
+								+ "  - Can't contain any name of yours");
 					}
 				}
 				else {

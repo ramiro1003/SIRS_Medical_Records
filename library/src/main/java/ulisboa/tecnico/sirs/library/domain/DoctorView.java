@@ -13,8 +13,8 @@ public class DoctorView extends UserView{
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
 
-	public DoctorView(Integer userId, String email, String name) {
-		super(userId, email, name);
+	public DoctorView(Integer userId, String name) {
+		super(userId, name);
 	}
 	
 	@Override
@@ -303,8 +303,7 @@ public class DoctorView extends UserView{
 								+ "  - Must contain at least 1 upper case letter\n"
 								+ "  - Must contain at least 1 lower case letter\n"
 								+ "  - Must contain at least 1 number\n"
-								+ "  - Can't contain any name of yours\n"
-								+ "  - Can't contain words that appear in your email");
+								+ "  - Can't contain any name of yours");
 					}
 				}
 				else {

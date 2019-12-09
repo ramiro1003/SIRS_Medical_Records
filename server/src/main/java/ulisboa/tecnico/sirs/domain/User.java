@@ -4,26 +4,20 @@ import java.sql.Date;
 
 public class User {
 	
-	private int userId;
-	private String email;
+	private Integer userId;
 	private String name;
 	private String type;
 	private Date birthDate;
 
-	public User(int userId2, String email, String name, String type, Date birthDate) {
-		this.userId = userId2;
-		this.email = email;
+	public User(Integer userId, String name, String type, Date birthDate) {
+		this.userId = userId;
 		this.name = name;
 		this.type = type;
 		this.birthDate = birthDate;
 	}
 	
-	public int getUserId() {
+	public Integer getUserId() {
 		return userId;
-	}
-	
-	public String getEmail() {
-		return email;
 	}
 
 	public String getName() {

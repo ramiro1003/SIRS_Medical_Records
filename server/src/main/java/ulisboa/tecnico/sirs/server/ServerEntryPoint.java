@@ -27,16 +27,17 @@ public class ServerEntryPoint
 	
 	public static void main( String[] args )
 	{
+		String[] input = args[0].split(":");
 		gateway = new DBGateway();
-		if(args.length == 2) {
-			gateway.runTestScript(args[1]);
+		if(input.length == 2) {
+			gateway.runTestScript(input[1]);
 		}
 		
 		SSLServerSocketFactory ssf;
 		ServerSocket socket = null;
 		// Check if port is valid
 		try {
-			port = Integer.parseInt(args[0]);
+			port = Integer.parseInt(input[0]);
 		} catch (NumberFormatException e) {
 			System.out.println("Port must be an integer");
 			System.exit(0);
@@ -109,6 +110,7 @@ class ServerThread extends Thread {
 							break;
 						case "-listP":
 							listDoctorPatients();
+							break;
 						case "-loginUser":
 							loginUser();
 							break;
@@ -138,23 +140,23 @@ class ServerThread extends Thread {
 	private void changePassword() {
 		try {
 			String password = (String) inStream.readObject();
-			String email = currUser.getEmail();
+			Integer userId = currUser.getUserId();
 			String username = currUser.getName();
-			// Hash password + salt(email)
+			// Hash password + salt(userId)
 			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-			String saltedPass = password + email;
+			String saltedPass = password + userId;
 			byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
 			String hashedPass = new String(hashedPassBytes);
 			// Authenticate user
-			if(hashedPass.equals(gateway.getHashedPassword(email))) {
+			if(hashedPass.equals(gateway.getHashedPassword(userId))) {
 				outStream.writeObject("User authenticated");
 				// Check if user successfully matched passwords (so server doesn't wait on the new password for no reason)
 				if(inStream.readObject().equals("Password confirmed")) {
 					String newPass = (String) inStream.readObject();
 					// Checks password strength
-					if(checkPasswordStrength(newPass, username, email)) {
+					if(checkPasswordStrength(newPass, username)) {
 						outStream.writeObject("Strong password");
-						gateway.updateUserPassword(email, newPass);
+						gateway.updateUserPassword(userId, newPass);
 					}
 					else {
 						outStream.writeObject("Weak password");
@@ -170,20 +172,12 @@ class ServerThread extends Thread {
 		}
 	}
 	
-	private boolean checkPasswordStrength(String password, String name, String email) {
+	private boolean checkPasswordStrength(String password, String name) {
 		// Get lower case password so we can make easier comparisons
 		String lowerCasePass = password.toLowerCase();
 		// Check if password contains at least one name of full user name. If so, password is considered weak
 		String[] nameSplit = name.split(" ");
 		for(String word : nameSplit) {
-			if(lowerCasePass.contains(word.toLowerCase())) {
-				return false;
-			}
-		}
-		// Check if password contains at least one word of user email. If so, password is considered weak
-		String[] emailSplit = email.split("[._@]");
-		emailSplit = Arrays.copyOf(emailSplit, emailSplit.length - 1);
-		for(String word : emailSplit) {
 			if(lowerCasePass.contains(word.toLowerCase())) {
 				return false;
 			}
@@ -219,15 +213,15 @@ class ServerThread extends Thread {
 	}
 
 	private void loginUser() throws ClassNotFoundException, IOException {
-		String email = (String) inStream.readObject();
-		//logMan.writeLog(email, currUser);
+		Integer userId = (Integer) inStream.readObject();
+		//logMan.writeLog(userId, currUser);
 		String password = (String) inStream.readObject();
 		//logMan.writeLog(hashedPass, currUser);
 		// First checks if user exists
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
-			if(user.getEmail().equals(email)) {
+			if(user.getUserId() == userId) {
 				found = true;
 				currUser = user;
 				break;
@@ -236,16 +230,17 @@ class ServerThread extends Thread {
 		// If user exists, checks if hashed password matches with the one stored on the database
 		if(found) {
 			try {
-				// Hash password + salt(email)
+				// Hash password + salt(userId)
 				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-				String saltedPass = password + email;
+				String saltedPass = password + userId;
 				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
 				String hashedPass = new String(hashedPassBytes);
-				if(hashedPass.equals(gateway.getHashedPassword(email))) {
+				if(hashedPass.equals(gateway.getHashedPassword(userId))) {
+					outStream.writeObject("User logged in");
 					outStream.writeObject(createUserView());
 				}
 				else {
-					outStream.writeObject(null);
+					outStream.writeObject("Bad login");
 				}
 			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
@@ -263,13 +258,13 @@ class ServerThread extends Thread {
 		// Create UserView based on user type/role
 		switch(type) {
 			case "Patient":
-				userView = new PatientView(currUser.getUserId(), currUser.getEmail(), currUser.getName());
+				userView = new PatientView(currUser.getUserId(), currUser.getName());
 				break;
 			case "Staff":
-				userView = new StaffView(currUser.getUserId(), currUser.getEmail(), currUser.getName());
+				userView = new StaffView(currUser.getUserId(), currUser.getName());
 				break;
 			case "Doctor":
-				userView = new DoctorView(currUser.getUserId(), currUser.getEmail(), currUser.getName());
+				userView = new DoctorView(currUser.getUserId(), currUser.getName());
 				break;
 		}
 		
@@ -416,8 +411,8 @@ class ServerThread extends Thread {
 
 	private void registerUser() throws ClassNotFoundException, IOException {
 		// Checks if user already exists
-		int userId = Integer.parseInt((String) inStream.readObject());
-		//logMan.writeLog(email, currUser);
+		Integer userId = Integer.parseInt((String) inStream.readObject());
+		//logMan.writeLog(userId, currUser);
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
@@ -429,24 +424,23 @@ class ServerThread extends Thread {
 		// Creates a new user
 		if(!found) {
 			outStream.writeObject("New user");
-			String email = (String) inStream.readObject();
 			String name = (String) inStream.readObject();
 			//logMan.writeLog(name, currUser);
 			String type = (String) inStream.readObject();
 			//logMan.writeLog(type, currUser);
 			String password = (String) inStream.readObject();
 			// Check passsword strength
-			if(checkPasswordStrength(password, name, email)) {
-				// Hash password + salt(email)
+			if(checkPasswordStrength(password, name)) {
+				// Hash password + salt(userId)
 				try {
 					outStream.writeObject("Strong password");
 					MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-					String saltedPass = password + email;
+					String saltedPass = password + userId.toString();
 					byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
 					String hashedPass = new String(hashedPassBytes);
 					//logMan.writeLog(hashedPass, currUser);
 					String birthDate = null;
-					gateway.registerUser(userId, email, name, type, hashedPass, birthDate);
+					gateway.registerUser(userId, name, type, hashedPass, birthDate);
 				} catch (NoSuchAlgorithmException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -463,6 +457,6 @@ class ServerThread extends Thread {
 	
 	private void quitUser() {
 		//logMan.writeLog(user, currUser);
-		System.out.println(currUser.getType() + " " + currUser.getName() + " (" + currUser.getEmail() + ") disconnected.");
+		System.out.println(currUser.getType() + " " + currUser.getName() + " disconnected.");
 	}
 }

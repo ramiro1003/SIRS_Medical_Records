@@ -9,21 +9,15 @@ public abstract class UserView implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	private Integer userId;
-	private String email;
 	private String name;
 
-	public UserView(Integer userId, String email, String name) {
+	public UserView(Integer userId, String name) {
 		this.userId = userId;
-		this.email = email;
 		this.name = name;
 	}
 	
 	public Integer getUserId() {
 		return userId;
-	}
-	
-	public String getEmail() {
-		return email;
 	}
 
 	public String getName() {

@@ -13,8 +13,8 @@ public class SecretaryView extends UserView {
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
 	
-	public SecretaryView(Integer userId, String email, String name) {
-		super(userId, email, name);
+	public SecretaryView(Integer userId, String name) {
+		super(userId, name);
 	}
 
 	@Override
@@ -102,12 +102,6 @@ public class SecretaryView extends UserView {
 		// Ask user citizen Id
 		System.out.print("What's the user Id?\n>> ");
 		String userId = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
-		// Ask user e-mail
-		System.out.print("What's the user e-mail:\n>> ");
-		String email = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
-		if(!email.matches("^([a-z0-9_-]+\\.)*[a-z0-9_-]+@[a-z0-9_-]+(\\.[a-z0-9_-]+)*\\.[a-z]{2,6}$")) { //FIXME regex sacado
-			System.out.println("Wrong e-mail format.");
-		}
 		// Send registration request
 		try {
 			outStream.writeObject("-registerUser");
@@ -117,8 +111,6 @@ public class SecretaryView extends UserView {
 				// Generate password
 				String password = generateRandomPassword();
 				System.out.println("This is the user initial password. This should be changed by the user:  " + password);
-				// Send user e-mail
-				outStream.writeObject(email);
 				// Send username
 				outStream.writeObject(username);
 				// Send user type
@@ -137,6 +129,7 @@ public class SecretaryView extends UserView {
 	}	
 	
 	private String generateRandomPassword() {
+		//FIXME
 		SecureRandom random = new SecureRandom();
 		String dictionary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%_+-";
 		String password = "";
@@ -173,8 +166,7 @@ public class SecretaryView extends UserView {
 								+ "  - Must contain at least 1 upper case letter\n"
 								+ "  - Must contain at least 1 lower case letter\n"
 								+ "  - Must contain at least 1 number\n"
-								+ "  - Can't contain any name of yours\n"
-								+ "  - Can't contain words that appear in your email");
+								+ "  - Can't contain any name of yours");
 					}
 				}
 				else {

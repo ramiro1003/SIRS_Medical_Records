@@ -3,6 +3,8 @@ package ulisboa.tecnico.sirs.server.database;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,10 +19,10 @@ import ulisboa.tecnico.sirs.library.domain.PatientView;
 public class DBGateway {
 
 	private static final String SQL_SELECT_USERS = "SELECT * FROM User";
-	private static final String SQL_INSERT_USER = "INSERT INTO User (Id, Email, Name, Type, BirthDate) VALUES (?, ?, ?, ?, ?)";
-	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE Email=?";
-	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (UserId, Email, HashedPass) VALUES (?, ?, ?)";
-	private static final String SQL_UPDATE_AUTH = "UPDATE Auth SET HashedPass=? WHERE Email=?";
+	private static final String SQL_INSERT_USER = "INSERT INTO User (Id, Name, Type, BirthDate) VALUES (?, ?, ?, ?)";
+	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE UserId=?";
+	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (UserId, HashedPass) VALUES (?, ?)";
+	private static final String SQL_UPDATE_AUTH = "UPDATE Auth SET HashedPass=? WHERE UserId=?";
 	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord INNER JOIN User ON MedicalRecord.PatiendId = User.Id WHERE MedicalRecord.PatientId = ?";
 	private static final String SQL_INSERT_MEDICAL_RECORD = "INSERT INTO MedicalRecord (Id, PatientId, Weight, Height) VALUES (?,?,?,?)";
 	private static final String SQL_CHANGE_WEIGHT = "UPDATE MedicalRecord SET Weight=? VALUES (?) WHERE MedicalRecord.PatientId = ?";
@@ -74,88 +76,6 @@ public class DBGateway {
 		
 		
 	}
-
-	public List<User> getUsers(){
-		
-		List<User> result = new ArrayList<>();
-		ResultSet resultSet = null; 
-		
-		try {
-			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_SELECT_USERS);
-			resultSet = stmt.executeQuery();
-
-			while(resultSet.next()) {
-				int userId = Integer.parseInt(cManager.decipher(resultSet.getString("UserId")));
-				String email = cManager.decipher(resultSet.getString("Email"));
-				String name = cManager.decipher(resultSet.getString("Name"));
-				String type = cManager.decipher(resultSet.getString("Type"));
-				String birthDateStr = cManager.decipher(resultSet.getString("BirthDate"));
-				Date birthDate = new Date(Integer.parseInt(birthDateStr));
-				result.add(new User(userId, email, name, type, birthDate));
-			}
-		} catch (SQLException e) {
-			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return result;
-	}
-	
-	public String getHashedPassword(String email) {
-		
-		String hashedPass = null;
-		ResultSet resultSet = null; 
-		
-		try {
-			// Get hashed password
-			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_SELECT_AUTH);
-			stmt.setString(1, email);
-			resultSet = stmt.executeQuery();
-			resultSet.next();
-			hashedPass = resultSet.getString("HashedPass");
-		} catch (SQLException e) {
-			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-		}
-		return hashedPass;
-	}
-	
-	public void updateUserPassword(String email, String newPass) {
-		try{
-			// Update Auth table
-			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_UPDATE_AUTH);
-			stmt.setString(1, newPass);
-			stmt.setString(2, email);
-			stmt.executeUpdate();
-		} catch (SQLException e) {
-			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-		}
-	}
-	
-	public void registerUser(int userId, String email, String name, 
-			String type, String birthDate, String hashedPass) {
-				
-		try{
-			// Insert into User table
-			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_INSERT_USER);
-			stmt.setInt(1, userId);
-			stmt.setString(2, cManager.cipher(email));
-			stmt.setString(3, cManager.cipher(name));
-			stmt.setString(4, cManager.cipher(type));
-			stmt.setString(5, cManager.cipher(birthDate));
-			stmt.executeUpdate();
-			// Insert into Auth table
-			PreparedStatement stmt2 = this.manager.getConnection().prepareStatement(SQL_INSERT_AUTH);
-			stmt2.setInt(1, userId);
-			stmt2.setString(2, cManager.cipher(email));
-			stmt2.setString(3, hashedPass);
-			stmt2.executeUpdate();
-		} catch (SQLException e) {
-			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-		} catch (Exception e) {
-			System.out.println("Problems ciphering!");
-		}
-	}
 	
 	private void addMedicalRecord(int id, int patientId, String weight, String height) {
 		
@@ -176,42 +96,6 @@ public class DBGateway {
 		}
 	}
 	
-	public void changeWeight(Integer patientId, String weight) {
-
-		// FIXME CHECK THIS
-		try {
-			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_CHANGE_WEIGHT);
-			stmt.setInt(1, patientId);
-			stmt.setString(2, cManager.cipher(weight));
-			stmt.executeUpdate();
-		} catch (SQLException e) {
-			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-				
-	}
-	
-	public void changeHeight(Integer patientId, String height) {
-		
-		// FIXME CHECK THIS
-		try {
-			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_CHANGE_HEIGHT);
-			stmt.setInt(1, patientId);
-			stmt.setString(2, cManager.cipher(height));
-			stmt.executeUpdate();
-		} catch (SQLException e) {
-			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	
-	
 	private void addMedication(int idMedRec, String medName, String presDate) {
 		
 		//cipher strings
@@ -228,6 +112,74 @@ public class DBGateway {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void changeHeight(Integer patientId, String height) {
+		// FIXME CHECK THIS
+		try {
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_CHANGE_HEIGHT);
+			stmt.setInt(1, patientId);
+			stmt.setString(2, cManager.cipher(height));
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void changeWeight(Integer patientId, String weight) {
+		// FIXME CHECK THIS
+		try {
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_CHANGE_WEIGHT);
+			stmt.setInt(1, patientId);
+			stmt.setString(2, cManager.cipher(weight));
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}			
+	}
+	
+	public List<PatientView> getDoctorPatients(String doctorId) {
+		List<PatientView> result = new ArrayList<>();
+		ResultSet resultSet = null; 
+		try {
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_GET_DOCTOR_PATIENTS);
+			stmt.setString(1, doctorId);
+			resultSet = stmt.executeQuery();
+			while(resultSet.next()) {
+				int userId = Integer.parseInt(cManager.decipher(resultSet.getString("p.UserId")));
+				String name = cManager.decipher(resultSet.getString("p.Name"));
+				result.add(new PatientView(userId, name));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// FIXME return null or empty
+		return result;
+	}
+	
+	public String getHashedPassword(Integer userId) {
+		
+		String hashedPass = null;
+		ResultSet resultSet = null; 
+		
+		try {
+			// Get hashed password
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_SELECT_AUTH);
+			stmt.setInt(1, userId);
+			resultSet = stmt.executeQuery();
+			resultSet.next();
+			hashedPass = resultSet.getString("HashedPass");
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		}
+		return hashedPass;
 	}
 	
 	public MedicalRecord getMedicalRecord(String patientId) {
@@ -263,26 +215,66 @@ public class DBGateway {
 		// FIXME return null or empty
 		return null;
 	}
-	
-	public List<PatientView> getDoctorPatients(String doctorId) {
-		List<PatientView> result = new ArrayList<>();
+
+	public List<User> getUsers(){
+		
+		List<User> result = new ArrayList<>();
 		ResultSet resultSet = null; 
+		
 		try {
-			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_GET_DOCTOR_PATIENTS);
-			stmt.setString(1, doctorId);
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_SELECT_USERS);
 			resultSet = stmt.executeQuery();
+
 			while(resultSet.next()) {
-				int userId = Integer.parseInt(cManager.decipher(resultSet.getString("p.UserId")));
-				String email = cManager.decipher(resultSet.getString("p.Email"));
-				String name = cManager.decipher(resultSet.getString("p.Name"));
-				result.add(new PatientView(userId, email, name));
+				Integer userId = Integer.parseInt(cManager.decipher(resultSet.getString("UserId")));
+				String name = cManager.decipher(resultSet.getString("Name"));
+				String type = cManager.decipher(resultSet.getString("Type"));
+				String birthDateStr = cManager.decipher(resultSet.getString("BirthDate"));
+				Date birthDate = new Date(Integer.parseInt(birthDateStr));
+				result.add(new User(userId, name, type, birthDate));
 			}
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// FIXME return null or empty
+
 		return result;
+	}
+	
+	public void registerUser(Integer userId, String name, 
+			String type, String birthDate, String hashedPass) {
+				
+		try{
+			// Insert into User table
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_INSERT_USER);
+			stmt.setInt(1, userId);
+			stmt.setString(2, cManager.cipher(name));
+			stmt.setString(3, cManager.cipher(type));
+			stmt.setString(4, cManager.cipher(birthDate));
+			stmt.executeUpdate();
+			// Insert into Auth table
+			PreparedStatement stmt2 = this.manager.getConnection().prepareStatement(SQL_INSERT_AUTH);
+			stmt2.setInt(1, userId);
+			stmt2.setString(2, hashedPass);
+			stmt2.executeUpdate();
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		} catch (Exception e) {
+			System.out.println("Problems ciphering!");
+		}
+	}
+	
+	public void updateUserPassword(Integer userId, String newPass) {
+		try{
+			// Update Auth table
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_UPDATE_AUTH);
+			stmt.setString(1, newPass);
+			stmt.setInt(2, userId);
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		}
 	}
 	
 	public void close() throws SQLException {
@@ -294,31 +286,29 @@ public class DBGateway {
 			BufferedReader br = new BufferedReader(new FileReader("resources/" + filename));
 			String command; 
 			while ((command = br.readLine()) != null) {
-				String[] split = command.split(" ");
+				String[] split = command.split(":");
 				switch(split[0]) {
 				case "createUser":
-					int idUser = Integer.parseInt(split[1]);
-					String email = split[2];
-					String name = split[3];
-					String type = split[4];
+					Integer userId = Integer.parseInt(split[1]);
+					String name = split[2];
+					String type = split[3];
 					//pode dar merda
-					String birthDate = split[5];
-					
-					String hashedPass = getHashedPassword(split[6]);
-					registerUser(idUser, email, name, type, birthDate, hashedPass);
+					String birthDate = split[4];
+					String hashedPass = saltAndHashPass(split[5], userId.toString());
+					registerUser(userId, name, type, birthDate, hashedPass);
 					break;
 				case "createMD":
-					int idMD = Integer.parseInt(split[1]);
-					int patientId = Integer.parseInt(split[2]);
+					Integer recordId = Integer.parseInt(split[1]);
+					Integer patientId = Integer.parseInt(split[2]);
 					String weight = split[3];
 					String height = split[4];
-					addMedicalRecord(idMD, patientId, weight, height);
+					addMedicalRecord(recordId, patientId, weight, height);
 					break;
 				case "createMedication":
-					int idMedRec = Integer.parseInt(split[1]);
+					Integer MDId = Integer.parseInt(split[1]);
 					String medName = split[2];
 					String presDate = split[3];
-					addMedication(idMedRec, medName, presDate);
+					addMedication(MDId, medName, presDate);
 					break;
 				}
 				System.out.println(command); 
@@ -329,9 +319,18 @@ public class DBGateway {
 		} 
 	}
 
-
-
+	private String saltAndHashPass(String password, String userId) {
+		String hashedPass = null;
+		try {
+			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+			String saltedPass = password + userId.toString();
+			byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+			hashedPass = new String(hashedPassBytes);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return hashedPass;
+	}
 	
-
-
 }

@@ -97,18 +97,16 @@ public class App
 	private static void run() {
 		// Welcome message
 		System.out.println("Hi! Welcome to SIRS Medical Record System.\n"
-							+ "Please login with your credentials:\n");
+							+ "Please login with your credentials:");
 		// Ask user e-mail
-		System.out.print("What's your username (e-mail)?\n>> ");
-		String email = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
+		System.out.print("What's your Id (Citizen Card)?\n>> ");
+		String userId = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
 		// Ask user password
 		System.out.print("Enter your password:\n>> ");
 		String password = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
 		try {
 			// Check login result
-			UserView loginResult = loginRequest(email, password);
-			if(!loginResult.equals(null)) {
-				user = loginResult;
+			if(loginRequest(Integer.parseInt(userId), password)) {
 				System.out.println("Hello " + user.getName() + "!");
 				user.runApp(inStream, outStream, scanner);
 			} else {
@@ -121,16 +119,21 @@ public class App
 		}
 	}
 	
-	private static UserView loginRequest(String email, String password) throws ClassNotFoundException, IOException {
+	private static Boolean loginRequest(Integer userId, String password) throws ClassNotFoundException, IOException {
 		// Send login request
 		outStream.writeObject("-loginUser");
-		// Send email
-		outStream.writeObject(email);
+		// Send userId
+		outStream.writeObject(userId);
 		// Send hash of password + salt(email)
 		outStream.writeObject(password);
 		// Check login result
-		UserView loginResult = (UserView) inStream.readObject();
-		return loginResult;
+		String loginResult = (String) inStream.readObject();
+		if(loginResult.equals("User logged in")) {
+			UserView userView = (UserView) inStream.readObject();
+			user = userView;
+			return true;
+		}
+		return false;
 	}
 	
 	private static void quitClient() {
