@@ -3,20 +3,19 @@ package ulisboa.tecnico.sirs.library.domain;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.List;
 import java.util.Scanner;
 
-public class DoctorView extends UserView{
-
+public class SecretaryView extends UserView {
+	
 	private static final long serialVersionUID = 1L;
 	private static Scanner scanner;
 	private static ObjectInputStream inStream;
 	private static ObjectOutputStream outStream;
-
-	public DoctorView(Integer userId, String email, String name) {
+	
+	public SecretaryView(Integer userId, String email, String name) {
 		super(userId, email, name);
 	}
-	
+
 	@Override
 	public void runApp(ObjectInputStream appInStream, ObjectOutputStream appOutStream, Scanner appScanner) {
 		// Get socket from 'main App'
@@ -29,99 +28,42 @@ public class DoctorView extends UserView{
 		Boolean quit = false;
 		while(!quit) {
 			System.out.print("Please choose the number of what you want to perform and press enter:\n"
-							+ "1) List Patients\n"
-							+ "2) Read a Medical Record\n"
-							+ "3) Edit a Medical Record\n"
-							+ "9) Change Password\n"
+							+ "1) Register User\n"
+							+ "9) Change Your Password\n"
 							+ "0) Quit\n"
 							+ ">> ");
 
 			userInput = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
 			
 			switch(userInput) {
-				case "1":
-					listPatients();
-					break;
-				case "2":
-					readMedicalRecord();
-					break;
-				case "3":
-					writeMedicalRecord();
-					break;
-				case "9":
-					changePassword();
-					break;
-				case "0":
-					System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
-					String conf = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
-					switch(conf) {
-						case "Y":
-						case "y":
-						case "yes":
-						case "Yes":
-							quit = true;
-							quitClient();
-							break;
-						default:
-					}				
-					break;
-				default:
-					System.out.println("Invalid instruction!");
+			case "1":
+				registerUser();
+				break;
+			case "9":
+				changePassword();
+				break;
+			case "0":
+				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
+				String conf = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+				switch(conf) {
+					case "Y":
+					case "y":
+					case "yes":
+					case "Yes":
+						quit = true;
+						quitClient();
+						break;
+					default:
+				}				
+				break;
+			default:
+				System.out.println("Invalid instruction!");
 			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void listPatients() {
-		try {
-			outStream.writeObject("-listP");
-			String answer = (String) inStream.readObject();
-			if(answer.equals("Doctor has patients")) {
-				List<PatientView> patients = (List<PatientView>) inStream.readObject();
-				for(PatientView p : patients) {
-					p.printInfo();
-				}
-			}
-			else {
-				System.out.println("This doctor has no patients assigned to him");
-			}
-		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	
-	private void readMedicalRecord() {
-		try {
-			outStream.writeObject("-readMD");
-			System.out.print("What's the Patient's Id?\n>> ");
-			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
-			outStream.writeObject(patientId);
-			String access = (String) inStream.readObject();
-			if(access.equals("Authorized")) {
-				MedicalRecordView medicalRecordView = (MedicalRecordView) inStream.readObject();
-				System.out.println(medicalRecordView.getInfo());
-			}
-			else {
-				System.out.println("You don't have access to this Medical Record");
-			}
-		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private void writeMedicalRecord() {
-		try {
-			outStream.writeObject("-writeMD");
-			System.out.print("What's the Patient's Id?\n>> ");
-			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
-			outStream.writeObject(patientId);
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+	private void registerUser() {
+		// TODO Auto-generated method stub
 		
 	}
 	
@@ -168,7 +110,7 @@ public class DoctorView extends UserView{
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void quitClient() {
 		try {
 			outStream.writeObject("-quit");

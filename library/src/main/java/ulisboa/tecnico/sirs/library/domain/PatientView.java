@@ -29,6 +29,7 @@ public class PatientView extends UserView {
 		while(!quit) {
 			System.out.print("Please choose the number of what you want to perform and press enter:\n"
 							+ "1) Check my Medical Record\n"
+							+ "9) Change Password\n"
 							+ "0) Quit\n"
 							+ ">> ");
 
@@ -37,6 +38,9 @@ public class PatientView extends UserView {
 			switch(userInput) {
 			case "1":
 				readMDClient();
+				break;
+			case "9":
+				changePassword();
 				break;
 			case "0":
 				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
@@ -69,6 +73,50 @@ public class PatientView extends UserView {
 			}
 			else {
 				System.out.println("You don't have access to this Medical Record");
+			}
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void changePassword() {
+		try {
+			// Get user old password so he can authenticate himself
+			System.out.print("Enter your current password:\n>> ");
+			String password = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(password);
+			if(inStream.readObject().equals("User authenticated")) {
+				// Ask user for new password and confirm it
+				System.out.print("Enter your new password:\n>> ");
+				String newPass = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+				System.out.print("Confirm your new password by reentering it:\n>> ");
+				String confirmNewPass = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+				if(newPass.equals(confirmNewPass)) {
+					outStream.writeObject("Password confirmed");
+					outStream.writeObject(newPass);
+					// Checks if server accepts our password (strength-wise)
+					String passStrength = (String) inStream.readObject();
+					if(passStrength.equals("Strong password")) {
+						System.out.println("Your password was successfully updated");
+					}
+					else {
+						System.out.println("Your new password doesn't meet at least one of the following requirements:\n"
+								+ "  - Must have a minimum of 12 characters\n"
+								+ "  - Must contain at least 1 upper case letter\n"
+								+ "  - Must contain at least 1 lower case letter\n"
+								+ "  - Must contain at least 1 number\n"
+								+ "  - Can't contain any name of yours\n"
+								+ "  - Can't contain words that appear in your email");
+					}
+				}
+				else {
+					outStream.writeObject("Password not confirmed");
+					System.out.println("Passwords don't match.");
+				}
+			}
+			else {
+				System.out.println("Wrong password");
 			}
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
