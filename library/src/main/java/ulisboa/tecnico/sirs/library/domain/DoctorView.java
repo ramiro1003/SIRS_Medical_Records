@@ -84,7 +84,7 @@ public class DoctorView extends UserView{
 				}
 			}
 			else {
-				System.out.println("This doctor has no patients assigned to him");
+				System.out.println("You have no assigned patients.");
 			}
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block

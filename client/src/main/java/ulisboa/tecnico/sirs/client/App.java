@@ -106,7 +106,7 @@ public class App
 		while(!goodInput) {
 			System.out.print("What's your Id (Citizen Card)?\n>> ");
 			userId = scanner.nextLine();
-			if(!userId.matches("^[0-9]{1,8}$")) { 
+			if(!userId.matches("^[0-9]{1,9}$")) { 
 				System.out.println("Wrong Id format! Id is a number with 9 digits maximum.");
 			}
 			else {
@@ -115,7 +115,7 @@ public class App
 		}
 		// Ask user password
 		System.out.print("Enter your password:\n>> ");
-		String password = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
+		String password = scanner.nextLine();
 		try {
 			// Check login result
 			if(loginRequest(Integer.parseInt(userId), password)) {

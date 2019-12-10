@@ -386,7 +386,6 @@ public class DBGateway {
 				String name = cManager.decipher(result.getString("Name"));
 				String description = cManager.decipher(result.getString("Description"));
 				String date = cManager.decipher(result.getString("TreatmentDate"));
-				System.out.println(date);
 				int year = Integer.parseInt(date.substring(0, 4));
 				int month = Integer.parseInt(date.substring(4, 6));
 				int day = Integer.parseInt(date.substring(6, 8));

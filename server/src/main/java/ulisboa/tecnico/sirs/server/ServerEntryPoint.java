@@ -277,7 +277,7 @@ class ServerThread extends Thread {
 		return userView;
 	}
 	
-	private MedicalRecordView createMedicalRecordView(MedicalRecord medicalRecord) {		
+	private MedicalRecordView createMedicalRecordView(MedicalRecord medicalRecord) {
 		Integer recordId = medicalRecord.getRecordId();
 		Integer patientId = medicalRecord.getPatientId();
 		Integer doctorId = medicalRecord.getDoctorId();
