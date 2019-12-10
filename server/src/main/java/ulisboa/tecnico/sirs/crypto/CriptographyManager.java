@@ -50,7 +50,6 @@ public class CriptographyManager {
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpecification);
             byte[] encryptedMessageInBytes = cipher.doFinal(data.getBytes("UTF-8"));
             String encMsg = BaseEncoding.base64().encode(encryptedMessageInBytes);
-            System.out.println(encMsg);
             return encMsg;
         } 
         catch (Exception e) 

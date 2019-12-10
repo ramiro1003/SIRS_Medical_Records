@@ -25,8 +25,8 @@ public class DBGateway {
 	private static final String SQL_UPDATE_AUTH = "UPDATE Auth SET HashedPass=? WHERE UserId=?";
 	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord INNER JOIN User ON MedicalRecord.PatientId = User.Id WHERE MedicalRecord.PatientId = ?";
 	private static final String SQL_INSERT_MEDICAL_RECORD = "INSERT INTO MedicalRecord (Id, PatientId, DoctorId, Weight, Height) VALUES (?,?,?,?,?)";
-	private static final String SQL_CHANGE_WEIGHT = "UPDATE MedicalRecord SET Weight=? VALUES (?) WHERE MedicalRecord.PatientId = ?";
-	private static final String SQL_CHANGE_HEIGHT = "UPDATE MedicalRecord SET Height=? VALUES (?) WHERE MedicalRecord.PatientId = ?";
+	private static final String SQL_CHANGE_WEIGHT = "UPDATE MedicalRecord SET Weight=? WHERE PatientId = ?";
+	private static final String SQL_CHANGE_HEIGHT = "UPDATE MedicalRecord SET Height=? WHERE PatientId = ?";
 	private static final String SQL_INSERT_MEDICATION = "INSERT INTO Medication (MedicalRecordId, Name, PrescriptionDate) VALUES (?,?,?)";
 	private static final String SQL_INSERT_TREATMENT = "INSERT INTO Treatment (MedicalRecordId, Name, TreatmentDate, Description) VALUES (?,?,?,?)";
 	private static final String SQL_INSERT_DIAGNOSIS = "INSERT INTO Diagnosis (MedicalRecordId, Name, DiagnosisDate, Description) VALUES (?,?,?,?)";
@@ -189,11 +189,10 @@ public class DBGateway {
 	}
 	
 	public void changeHeight(Integer patientId, String height) {
-		// FIXME CHECK THIS
 		try {
 			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_CHANGE_HEIGHT);
-			stmt.setInt(1, patientId);
-			stmt.setString(2, cManager.cipher(height));
+			stmt.setString(1, cManager.cipher(height));
+			stmt.setInt(2, patientId);
 			stmt.executeUpdate();
 		} catch (SQLException e) {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
@@ -204,11 +203,10 @@ public class DBGateway {
 	}
 	
 	public void changeWeight(Integer patientId, String weight) {
-		// FIXME CHECK THIS
 		try {
 			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_CHANGE_WEIGHT);
-			stmt.setInt(1, patientId);
-			stmt.setString(2, cManager.cipher(weight));
+			stmt.setString(1, cManager.cipher(weight));
+			stmt.setInt(2, patientId);
 			stmt.executeUpdate();
 		} catch (SQLException e) {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
@@ -392,11 +390,8 @@ public class DBGateway {
 				String date = cManager.decipher(result.getString("TreatmentDate"));
 				System.out.println(date);
 				int year = Integer.parseInt(date.substring(0, 4));
-				System.out.println(year);
 				int month = Integer.parseInt(date.substring(4, 6));
-				System.out.println(month);
 				int day = Integer.parseInt(date.substring(6, 8));
-				System.out.println(day);
 				list.add(new Treatment(name, new Date(year - 1900, month - 1, day), description));
 			}
 
@@ -452,7 +447,6 @@ public class DBGateway {
 					Integer userId = Integer.parseInt(split[1]);
 					String name = split[2];
 					String type = split[3];
-					//pode dar merda
 					String birthDate = split[4];
 					String hashedPass = saltAndHashPass(split[5], userId);
 					registerUser(userId, name, type, birthDate, hashedPass);
@@ -488,8 +482,6 @@ public class DBGateway {
 				}
 				System.out.println(command); 
 			}
-			MedicalRecord m = getMedicalRecord("123456789");
-			System.out.println(m.toString());
 			br.close();
 		} catch (IOException e) {
 			System.out.println("ERROR: Test file not found!");
