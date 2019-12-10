@@ -28,7 +28,7 @@ public class SecretaryView extends UserView {
 		// User logged in, now running application
 		Boolean quit = false;
 		while(!quit) {
-			System.out.print("Please choose the number of what you want to perform and press enter:\n"
+			System.out.print("\nPlease choose the number of what you want to perform and press enter:\n"
 							+ "1) Register User\n"
 							+ "9) Change Your Password\n"
 							+ "0) Quit\n"

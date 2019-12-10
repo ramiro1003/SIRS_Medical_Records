@@ -104,7 +104,7 @@ public class MedicalRecord {
 	}
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder("Medical Record no" + recordId + "\n");
+		StringBuilder sb = new StringBuilder("Medical Record no " + recordId + "\n");
 		sb.append("Patient id: " + patientId + "\n");
 		sb.append("Patient name: " + name + "\n");
 		sb.append("Patient weight: " + weight + "\n");

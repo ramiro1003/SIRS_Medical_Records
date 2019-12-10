@@ -29,7 +29,7 @@ public class DoctorView extends UserView{
 		// User logged in, now running application
 		Boolean quit = false;
 		while(!quit) {
-			System.out.print("Please choose the number of what you want to perform and press enter:\n"
+			System.out.print("\nPlease choose the number of what you want to perform and press enter:\n"
 							+ "1) List Patients\n"
 							+ "2) Read a Medical Record\n"
 							+ "3) Edit a Medical Record\n"
@@ -104,7 +104,7 @@ public class DoctorView extends UserView{
 				System.out.println(medicalRecordView.getInfo());
 			}
 			else {
-				System.out.println("You don't have access to this Medical Record");
+				System.out.println("You don't have access to this Medical Record.");
 			}
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
@@ -126,7 +126,7 @@ public class DoctorView extends UserView{
 				String writeAction;
 				
 				while(!quitWrite) {
-					System.out.print("Please choose the number of what you want to wish to write:\n"
+					System.out.print("\nPlease choose the number of what you want to wish to write:\n"
 							+ "1) Change height\n"
 							+ "2) Change weight\n"
 							+ "3) Add prescription\n"

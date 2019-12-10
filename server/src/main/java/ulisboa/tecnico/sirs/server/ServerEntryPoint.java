@@ -295,14 +295,18 @@ class ServerThread extends Thread {
 			String patientId = (String) inStream.readObject();
 			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
 			
-			Boolean authorize = pep.enforce(currUser, medicalRecord, "read", context);
-			
-			if (authorize) {
-				outStream.writeObject("Authorized");
-				outStream.writeObject(createMedicalRecordView(medicalRecord));
+			if(medicalRecord ==  null) {
+				outStream.writeObject("Not authorized");
 			}
 			else {
-				outStream.writeObject("Not authorized");
+				Boolean authorize = pep.enforce(currUser, medicalRecord, "read", context);
+				if (authorize) {
+					outStream.writeObject("Authorized");
+					outStream.writeObject(createMedicalRecordView(medicalRecord));
+				}
+				else {
+					outStream.writeObject("Not authorized");
+				}
 			}
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
