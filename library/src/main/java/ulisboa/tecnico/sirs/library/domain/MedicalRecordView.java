@@ -1,9 +1,11 @@
 package ulisboa.tecnico.sirs.library.domain;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class MedicalRecordView {
+public class MedicalRecordView implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	private Integer recordId, patientId, doctorId;
 	private String name;
 	private Integer height, weight;

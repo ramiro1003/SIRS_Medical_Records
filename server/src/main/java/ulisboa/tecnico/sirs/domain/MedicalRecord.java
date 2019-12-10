@@ -75,8 +75,8 @@ public class MedicalRecord {
 		List<List<String>> info = new ArrayList<>();
 		for(Prescription p : this.getPrescriptions()) {
 			List<String> prescription = new ArrayList<>();
-			prescription.set(0, p.getName());
-			prescription.set(1, p.getPrescriptionDate().toString());
+			prescription.add(p.getName());
+			prescription.add( p.getPrescriptionDate().toString());
 		}
 		return info;
 	}
@@ -85,9 +85,9 @@ public class MedicalRecord {
 		List<List<String>> info = new ArrayList<>();
 		for(Diagnosis d : this.getDiagnoses()) {
 			List<String> diagnosis = new ArrayList<>();
-			diagnosis.set(0, d.getName());
-			diagnosis.set(1, d.getDiagnosisDate().toString());
-			diagnosis.set(2, d.getDescription());
+			diagnosis.add(d.getName());
+			diagnosis.add(d.getDiagnosisDate().toString());
+			diagnosis.add(d.getDescription());
 		}
 		return info;
 	}
@@ -96,9 +96,9 @@ public class MedicalRecord {
 		List<List<String>> info = new ArrayList<>();
 		for(Treatment t : this.getTreatments()) {
 			List<String> treatment = new ArrayList<>();
-			treatment.set(0, t.getName());
-			treatment.set(1, t.getTreatmentDate().toString());
-			treatment.set(2, t.getDescription());
+			treatment.add(t.getName());
+			treatment.add(t.getTreatmentDate().toString());
+			treatment.add(t.getDescription());
 		}
 		return info;
 	}

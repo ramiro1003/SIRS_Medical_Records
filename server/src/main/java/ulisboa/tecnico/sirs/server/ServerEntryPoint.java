@@ -287,7 +287,6 @@ class ServerThread extends Thread {
 		List<List<String>> prescriptionsInfo = medicalRecord.getPrescriptionsInfo();
 		List<List<String>> diagnosesInfo = medicalRecord.getDiagnosesInfo();
 		List<List<String>> treatmentsInfo = medicalRecord.getTreatmentsInfo();
-		
 		return new MedicalRecordView(recordId, patientId, doctorId, name, height, weight, prescriptionsInfo, diagnosesInfo, treatmentsInfo);		
 	}
 	
