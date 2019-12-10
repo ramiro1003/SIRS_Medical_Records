@@ -20,7 +20,6 @@ public class PolicyEnforcementPoint
 	}
 	
 	public boolean enforce(User user, MedicalRecord patientId, String action, String context) {
-		System.out.println("User " + user.getName() + " PatientId " + patientId + "Action " +  action + "Context " + context);
 		Boolean authorization = this.enforcer.enforce(user, patientId, action, context);
 		return authorization;
 	}

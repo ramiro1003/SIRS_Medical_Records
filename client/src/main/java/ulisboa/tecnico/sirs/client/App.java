@@ -119,7 +119,7 @@ public class App
 		try {
 			// Check login result
 			if(loginRequest(Integer.parseInt(userId), password)) {
-				System.out.println("Hello " + user.getName() + "!");
+				System.out.println("\nHello " + user.getName() + "!");
 				user.runApp(inStream, outStream, scanner);
 			} else {
 				System.out.println("Wrong credentials.");
