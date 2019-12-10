@@ -318,52 +318,55 @@ class ServerThread extends Thread {
 		try {
 			String patientId = (String) inStream.readObject();
 			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
-			Boolean authorize = pep.enforce(currUser, medicalRecord, "write", context); // FIXME CONTEXT SENT
 			
-			if (authorize) {
-				outStream.writeObject("Authorized");
-				
-				Integer patientIdInt = Integer.parseInt(patientId);
-				
-				String writeCmd = null;
-				Boolean writeQuit = false;
-				try {
-					while(!writeQuit) {
-						writeCmd = (String) inStream.readObject();
-						//logMan.writeLog(writeCmd, currUser);
-						switch(writeCmd) {
-							case "-changeHeight":
-								changeHeight(patientIdInt);
-								break;
-							case "-changeWeight":
-								changeWeight(patientIdInt);
-								break;
-							case "-addPrescription":
-								addPrescription(patientIdInt, medicalRecord.getRecordId());
-								break;
-							case "-addDiagnosis":
-								addDiagnosis(patientIdInt, medicalRecord.getRecordId());
-								break;
-							case "-addTreatment":
-								addTreatment(patientIdInt, medicalRecord.getRecordId());
-								break;
-							case "-quitWrite":
-								writeQuit = true;
-								break;
-						}
-					}
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-				
-				
-				
-			}
-			else {
+			if(medicalRecord ==  null) {
 				outStream.writeObject("Not authorized");
 			}
+			else {
+				Boolean authorize = pep.enforce(currUser, medicalRecord, "write", context); // FIXME CONTEXT SENT
+				
+				if (authorize) {
+					outStream.writeObject("Authorized");
+					
+					Integer patientIdInt = Integer.parseInt(patientId);
+					
+					String writeCmd = null;
+					Boolean writeQuit = false;
+					try {
+						while(!writeQuit) {
+							writeCmd = (String) inStream.readObject();
+							//logMan.writeLog(writeCmd, currUser);
+							switch(writeCmd) {
+								case "-changeHeight":
+									changeHeight(patientIdInt);
+									break;
+								case "-changeWeight":
+									changeWeight(patientIdInt);
+									break;
+								case "-addPrescription":
+									addPrescription(patientIdInt, medicalRecord.getRecordId());
+									break;
+								case "-addDiagnosis":
+									addDiagnosis(patientIdInt, medicalRecord.getRecordId());
+									break;
+								case "-addTreatment":
+									addTreatment(patientIdInt, medicalRecord.getRecordId());
+									break;
+								case "-quitWrite":
+									writeQuit = true;
+									break;
+							}
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				else {
+					outStream.writeObject("Not authorized");
+				}
+				
+			}
+			
 			
 			
 		} catch (ClassNotFoundException | IOException e) {
