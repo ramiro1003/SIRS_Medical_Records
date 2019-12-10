@@ -1,4 +1,6 @@
 DROP TABLE IF EXISTS Medication;
+DROP TABLE IF EXISTS Treatment;
+DROP TABLE IF EXISTS Diagnosis;
 DROP TABLE IF EXISTS MedicalRecord;
 DROP TABLE IF EXISTS Auth;
 DROP TABLE IF EXISTS User;
@@ -40,7 +42,37 @@ CREATE TABLE Medication(
 );
 
 ALTER TABLE Medication 
-	ADD CONSTRAINT fk_medical_record_id 
+	ADD CONSTRAINT fk_medical_record_med_id 
+		FOREIGN KEY (MedicalRecordId) 
+		REFERENCES MedicalRecord(Id)
+		ON DELETE CASCADE;
+
+CREATE TABLE Diagnosis(
+	Id INT NOT NULL AUTO_INCREMENT,
+	MedicalRecordId INT,
+	Name VARCHAR(500),
+	Description VARCHAR(500),
+	DiagnosisDate VARCHAR(500),
+	PRIMARY KEY (Id)
+);
+
+ALTER TABLE Diagnosis 
+	ADD CONSTRAINT fk_medical_record_dia_id 
+		FOREIGN KEY (MedicalRecordId) 
+		REFERENCES MedicalRecord(Id)
+		ON DELETE CASCADE;
+		
+CREATE TABLE Treatment(
+	Id INT NOT NULL AUTO_INCREMENT,
+	MedicalRecordId INT,
+	Name VARCHAR(500),
+	Description VARCHAR(500),
+	TreatmentDate VARCHAR(500),
+	PRIMARY KEY (Id)
+);
+
+ALTER TABLE Treatment 
+	ADD CONSTRAINT fk_medical_record_tre_id 
 		FOREIGN KEY (MedicalRecordId) 
 		REFERENCES MedicalRecord(Id)
 		ON DELETE CASCADE;

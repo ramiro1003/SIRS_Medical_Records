@@ -19,5 +19,12 @@ public class Prescription {
 	public Date getPrescriptionDate() {
 		return prescriptionDate;
 	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder("Prescription: ");
+		sb.append("| Name: " + name);
+		sb.append("| Date: " + prescriptionDate.toString() + " |");
+		return sb.toString();
+	}
 
 }

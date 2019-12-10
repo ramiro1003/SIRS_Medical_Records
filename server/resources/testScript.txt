@@ -1,2 +1,10 @@
+createUser:123456781:House:Doctor:19600809:Sjfsuh8
 createUser:123456789:Mario:Patient:19800809:Password123
+createMD:1:123456789:123456781:80:190
+createUser:123456784:Maria:Patient:19500809:anotherPassworksdskfn23
+createMD:2:123456784:123456781:50:150
 createUser:123:Carlos Silva:Secretary:19980412:CristoAleluia123
+createMedication:1:Vicodin:20181109
+createMedication:2:Vicodin:20151021
+createDiagnosis:1:HepatiteA:Epa esta um bocado amarelo:20190809
+createTreatment:1:Conjunto de medicacao:varios remedios:20190809

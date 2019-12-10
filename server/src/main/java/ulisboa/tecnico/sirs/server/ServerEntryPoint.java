@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.SSLServerSocketFactory;
@@ -29,8 +28,8 @@ public class ServerEntryPoint
 	{
 		String[] input = args[0].split(":");
 		gateway = new DBGateway();
-		if(input.length == 2) {
-			gateway.runTestScript(input[1]);
+		if(args.length == 2) {
+			gateway.runTestScript(args[1]);
 		}
 		
 		SSLServerSocketFactory ssf;

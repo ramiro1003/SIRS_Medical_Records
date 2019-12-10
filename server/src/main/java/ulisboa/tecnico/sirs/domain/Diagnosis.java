@@ -26,5 +26,12 @@ public class Diagnosis {
 		return description;
 	}
 		
-
+	public String toString() {
+		StringBuilder sb = new StringBuilder("Diagnosis: ");
+		sb.append("| Name: " + name);
+		sb.append(" | Description: " + description);
+		sb.append(" | Date: " + diagnosisDate.toString() + " |");
+		return sb.toString();
+	}
+	
 }

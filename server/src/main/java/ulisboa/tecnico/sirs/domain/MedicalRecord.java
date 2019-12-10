@@ -103,4 +103,22 @@ public class MedicalRecord {
 		return info;
 	}
 	
+	public String toString() {
+		StringBuilder sb = new StringBuilder("Medical Record no" + recordId + "\n");
+		sb.append("Patient id: " + patientId + "\n");
+		sb.append("Patient name: " + name + "\n");
+		sb.append("Patient weight: " + weight + "\n");
+		sb.append("Patient height: " + height + "\n");
+		for(Prescription p : prescription) {
+			sb.append(p.toString() + "\n");
+		}
+		for(Diagnosis d : diagnosis) {
+			sb.append(d.toString() + "\n");
+		}
+		for(Treatment t : treatment) {
+			sb.append(t.toString() + "\n");
+		}
+		return sb.toString();
+	}
+	
 }

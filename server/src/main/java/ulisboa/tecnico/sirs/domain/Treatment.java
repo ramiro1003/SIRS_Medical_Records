@@ -26,6 +26,12 @@ public class Treatment {
 		return description;
 	}
 	
-	
+	public String toString() {
+		StringBuilder sb = new StringBuilder("Treatment: ");
+		sb.append("| Name: " + name);
+		sb.append(" | Description: " + description);
+		sb.append(" | Date: " + treatmentDate.toString() + " |");
+		return sb.toString();
+	}
 	
 }
