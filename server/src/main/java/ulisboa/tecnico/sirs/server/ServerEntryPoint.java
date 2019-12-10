@@ -221,7 +221,7 @@ class ServerThread extends Thread {
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
-			if(user.getUserId() == userId) {
+			if(user.getUserId().equals(userId)) {
 				found = true;
 				currUser = user;
 				break;
@@ -416,7 +416,7 @@ class ServerThread extends Thread {
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
-			if(user.getUserId() == userId){
+			if(user.getUserId().equals(userId)){
 				found = true;
 				break;
 			}
