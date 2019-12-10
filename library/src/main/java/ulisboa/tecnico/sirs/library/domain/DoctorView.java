@@ -3,6 +3,7 @@ package ulisboa.tecnico.sirs.library.domain;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
@@ -228,11 +229,20 @@ public class DoctorView extends UserView{
 	private void addPrescription() {
 		try {
 			outStream.writeObject("-addPrescription");
-			System.out.print("Add new patient prescription:\n>> ");
+			System.out.print("Add new patient prescription\n ");
+			System.out.print("What is the name of the prescription?\n>> ");			
+			
+			String prescriptionName = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(prescriptionName);
 			
 			
+			String complete = (String) inStream.readObject();
+			if(complete.contentEquals("complete"))
+				System.out.print("Patient prescription added.");
+			return;
 			
-		} catch (IOException e) {
+			
+		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
@@ -242,10 +252,23 @@ public class DoctorView extends UserView{
 	private void addDiagnosis() {
 		try {
 			outStream.writeObject("-addDiagnosis");
-			System.out.print("Add new patient diagnosis:\n>> ");
+			System.out.print("Add new patient diagnosis\n ");
+			System.out.print("What is the patient diagnosis?\n>> ");			
+			
+			String diagnosisName = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(diagnosisName);
+			
+			System.out.print("Add a diagnosis description:\n>> ");
+			String diagnosisDescription = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(diagnosisDescription);
+			
+			String complete = (String) inStream.readObject();
+			if(complete.contentEquals("complete"))
+				System.out.print("Patient diagnosis added.");
+			return;
 			
 			
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
@@ -255,13 +278,26 @@ public class DoctorView extends UserView{
 	private void addTreatment() {
 		try {
 			outStream.writeObject("-addTreatment");
-			System.out.print("Add new patient treatment:\n>> ");
+			System.out.print("Add new patient treatment\n ");
+			System.out.print("What is the treatment?\n>> ");			
+			
+			String treatmentName = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(treatmentName);
+			
+			System.out.print("Add a treatment description:\n>> ");
+			String treatmentDescription = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			outStream.writeObject(treatmentDescription);
+			
+			String complete = (String) inStream.readObject();
+			if(complete.contentEquals("complete"))
+				System.out.print("Patient treatment added.");
+			return;
 			
 			
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}			
 	}
 
 	private void quitWrite() {
@@ -271,9 +307,6 @@ public class DoctorView extends UserView{
 			e.printStackTrace();
 		}			
 	}
-
-
-
 
 
 

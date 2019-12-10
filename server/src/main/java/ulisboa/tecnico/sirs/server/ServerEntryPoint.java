@@ -8,6 +8,9 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.net.ssl.SSLServerSocketFactory;
@@ -81,6 +84,7 @@ class ServerThread extends Thread {
 	private User currUser;
 	private DBGateway gateway;
 	private PolicyEnforcementPoint pep;
+	private String context = "default";
 	//private LoggingManager logMan;
 
 	public ServerThread(Socket clientSocket, DBGateway gateway) throws IOException {
@@ -291,13 +295,15 @@ class ServerThread extends Thread {
 		try {
 			String patientId = (String) inStream.readObject();
 			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
-			Boolean authorize = pep.enforce(currUser, medicalRecord, "read", "context");
+			
+			Boolean authorize = pep.enforce(currUser, medicalRecord, "read", context);
+			
 			if (authorize) {
 				outStream.writeObject("Authorized");
 				outStream.writeObject(createMedicalRecordView(medicalRecord));
 			}
 			else {
-				outStream.writeObject("Non authorized");
+				outStream.writeObject("Not authorized");
 			}
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
@@ -309,7 +315,7 @@ class ServerThread extends Thread {
 		try {
 			String patientId = (String) inStream.readObject();
 			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
-			Boolean authorize = pep.enforce(currUser, medicalRecord, "write", "context"); // FIXME CONTEXT SENT
+			Boolean authorize = pep.enforce(currUser, medicalRecord, "write", context); // FIXME CONTEXT SENT
 			
 			if (authorize) {
 				outStream.writeObject("Authorized");
@@ -330,13 +336,13 @@ class ServerThread extends Thread {
 								changeWeight(patientIdInt);
 								break;
 							case "-addPrescription":
-								addPrescription(patientIdInt);
+								addPrescription(patientIdInt, medicalRecord.getRecordId());
 								break;
 							case "-addDiagnosis":
-								addDiagnosis(patientIdInt);
+								addDiagnosis(patientIdInt, medicalRecord.getRecordId());
 								break;
 							case "-addTreatment":
-								addTreatment(patientIdInt);
+								addTreatment(patientIdInt, medicalRecord.getRecordId());
 								break;
 							case "-quitWrite":
 								writeQuit = true;
@@ -353,7 +359,7 @@ class ServerThread extends Thread {
 				
 			}
 			else {
-				outStream.writeObject("Non authorized");
+				outStream.writeObject("Not authorized");
 			}
 			
 			
@@ -363,20 +369,8 @@ class ServerThread extends Thread {
 		}
 	}
 
-	private void addTreatment(Integer patientId) {
-		// TODO Auto-generated method stub
-		
-	}
+	
 
-	private void addDiagnosis(Integer patientId) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void addPrescription(Integer patientId) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	private void changeHeight(Integer patientId) {
 		String height;
@@ -390,9 +384,8 @@ class ServerThread extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 	}
+	
 	
 	private void changeWeight(Integer patientId) {
 		try {
@@ -406,8 +399,65 @@ class ServerThread extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
+
+
+	private void addPrescription(Integer patientId, Integer medicalRecordId) {
+		try {
+			String prescriptionName = (String) inStream.readObject();
+			
+			DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+			String prescriptionDate = formatter.format(LocalDate.now());
+			
+			// note: method names differ, but prescription == medication
+			gateway.addMedication(medicalRecordId, prescriptionName, prescriptionDate);
+			
+			outStream.writeObject("complete");
+			
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	private void addDiagnosis(Integer patientId, Integer medicalRecordId) {
+		try {
+			String diagnosis = (String) inStream.readObject();
+			String diagnosisDescription = (String) inStream.readObject();
+			
+			DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+			String diagnosisDate = formatter.format(LocalDate.now());
+			
+			gateway.addDiagnosis(medicalRecordId, diagnosis, diagnosisDate, diagnosisDescription);
+			
+			outStream.writeObject("complete");
+			
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	private void addTreatment(Integer patientId, Integer medicalRecordId) {
+		try {
+			String treatment = (String) inStream.readObject();
+			String treatmentDescription = (String) inStream.readObject();
+			
+			DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
+			String treatmentDate = formatter.format(LocalDate.now());
+			
+			gateway.addDiagnosis(medicalRecordId, treatment, treatmentDate, treatmentDescription);
+			
+			outStream.writeObject("complete");
+			
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 
 	
 

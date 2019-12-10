@@ -11,8 +11,6 @@ import ulisboa.tecnico.sirs.domain.User;
 
 public class PolicyEnforcementPoint
 {
-	//private final PdpEngineConfiguration pdpEngineConf; 
-	//private final BasePdpEngine pdp;
 	private final Enforcer enforcer;
 
 	public PolicyEnforcementPoint() throws IllegalArgumentException, IOException {

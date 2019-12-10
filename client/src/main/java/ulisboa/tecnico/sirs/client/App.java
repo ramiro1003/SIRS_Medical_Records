@@ -70,9 +70,10 @@ public class App
 		else {
 			context = "default";
 		}
+		
 		// Set system keystore
 		System.setProperty("javax.net.ssl.trustStore", KEYSTORE_PATH);
-		System.setProperty("javax.net.ssl.trustStorePassword", "sirssirs");
+		System.setProperty("javax.net.ssl.trustStorePassword", "sirssirs"); // FIXME change this
 		
 		try {
 			// Instantiate scanner to get user input

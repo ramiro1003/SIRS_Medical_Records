@@ -263,22 +263,23 @@ public class DBGateway {
 			stmt.setInt(1, searchParam);
 			ResultSet result = stmt.executeQuery();
 			
-			result.next();
+			if (result.next()) {
 			
-			Integer recordId = result.getInt("Id");
-			String patientName = getPatientName(searchParam);
-			Integer doctorId = result.getInt("DoctorId");
-			Integer height = Integer.parseInt(cManager.decipher(result.getString("Height")));
-			Integer weight = Integer.parseInt(cManager.decipher(result.getString("Weight")));
+				Integer recordId = result.getInt("Id");
+				String patientName = getPatientName(searchParam);
+				Integer doctorId = result.getInt("DoctorId");
+				Integer height = Integer.parseInt(cManager.decipher(result.getString("Height")));
+				Integer weight = Integer.parseInt(cManager.decipher(result.getString("Weight")));
+				
+				//then get the history from the medical record
+				List<Prescription> prescription = getPrescription(recordId);
+				List<Diagnosis> diagnosis = getDiagnosis(recordId);		
+				List<Treatment> treatment = getTreatment(recordId);
+				
+				// curtia ir buscar nome do doutor provavelmente mas ja se faz isso
+				return new MedicalRecord(recordId, searchParam, doctorId, patientName, height, weight, prescription, diagnosis, treatment);
+			}
 			
-			//then get the history from the medical record
-			List<Prescription> prescription = getPrescription(recordId);
-			List<Diagnosis> diagnosis = getDiagnosis(recordId);		
-			List<Treatment> treatment = getTreatment(recordId);
-			
-			// curtia ir buscar nome do doutor provavelmente mas ja se faz isso
-			
-			return new MedicalRecord(recordId, searchParam, doctorId, patientName, height, weight, prescription, diagnosis, treatment);
 			
 		} catch (SQLException e) {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
@@ -302,10 +303,9 @@ public class DBGateway {
 			stmt.setInt(1, userId);
 			ResultSet result = stmt.executeQuery();
 			
-			result.next();
-			
-			name = cManager.decipher(result.getString("Name"));
-
+			if(result.next()) {
+				name = cManager.decipher(result.getString("Name"));
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
