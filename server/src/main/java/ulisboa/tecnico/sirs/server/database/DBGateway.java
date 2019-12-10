@@ -152,7 +152,7 @@ public class DBGateway {
 			stmt.setString(1, doctorId);
 			resultSet = stmt.executeQuery();
 			while(resultSet.next()) {
-				int userId = Integer.parseInt(cManager.decipher(resultSet.getString("p.UserId")));
+				Integer userId = Integer.parseInt(cManager.decipher(resultSet.getString("p.UserId")));
 				String name = cManager.decipher(resultSet.getString("p.Name"));
 				result.add(new PatientView(userId, name));
 			}
@@ -175,7 +175,7 @@ public class DBGateway {
 			stmt.setInt(1, userId);
 			resultSet = stmt.executeQuery();
 			resultSet.next();
-			System.out.println("Gateway: " + hashedPass);
+			hashedPass = resultSet.getString("HashedPass");
 		} catch (SQLException e) {
 			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
 		}
