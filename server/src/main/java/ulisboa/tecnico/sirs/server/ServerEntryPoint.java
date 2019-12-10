@@ -28,8 +28,8 @@ public class ServerEntryPoint
 	{
 		String[] input = args[0].split(":");
 		gateway = new DBGateway();
-		if(args.length == 2) {
-			gateway.runTestScript(args[1]);
+		if(input.length == 2) {
+			gateway.runTestScript(input[1]);
 		}
 		
 		SSLServerSocketFactory ssf;
