@@ -220,7 +220,7 @@ class ServerThread extends Thread {
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
-			if(user.getUserId() == userId) {
+			if(user.getUserId().equals(userId)) {
 				found = true;
 				currUser = user;
 				break;
@@ -231,7 +231,7 @@ class ServerThread extends Thread {
 			try {
 				// Hash password + salt(userId)
 				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-				String saltedPass = password + userId;
+				String saltedPass = password + userId.toString();
 				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
 				String hashedPass = new String(hashedPassBytes);
 				if(hashedPass.equals(gateway.getHashedPassword(userId))) {
@@ -264,6 +264,9 @@ class ServerThread extends Thread {
 				break;
 			case "Doctor":
 				userView = new DoctorView(currUser.getUserId(), currUser.getName());
+				break;
+			case "Secretary":
+				userView = new SecretaryView(currUser.getUserId(), currUser.getName());
 				break;
 		}
 		
@@ -415,7 +418,7 @@ class ServerThread extends Thread {
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
-			if(user.getUserId() == userId){
+			if(user.getUserId().equals(userId)){
 				found = true;
 				break;
 			}

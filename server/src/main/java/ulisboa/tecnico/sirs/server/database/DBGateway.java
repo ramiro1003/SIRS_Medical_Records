@@ -18,7 +18,7 @@ import ulisboa.tecnico.sirs.library.domain.PatientView;
 
 public class DBGateway {
 
-	private static final String SQL_SELECT_USERS = "SELECT * FROM User";
+	private static final String SQL_SELECT_USER = "SELECT * FROM User";
 	private static final String SQL_INSERT_USER = "INSERT INTO User (Id, Name, Type, BirthDate) VALUES (?, ?, ?, ?)";
 	private static final String SQL_SELECT_AUTH = "SELECT HashedPass FROM Auth WHERE UserId=?";
 	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (UserId, HashedPass) VALUES (?, ?)";
@@ -226,7 +226,7 @@ public class DBGateway {
 			stmt.setString(1, doctorId);
 			resultSet = stmt.executeQuery();
 			while(resultSet.next()) {
-				int userId = Integer.parseInt(cManager.decipher(resultSet.getString("p.UserId")));
+				Integer userId = Integer.parseInt(cManager.decipher(resultSet.getString("p.UserId")));
 				String name = cManager.decipher(resultSet.getString("p.Name"));
 				result.add(new PatientView(userId, name));
 			}
@@ -414,11 +414,11 @@ public class DBGateway {
 		ResultSet resultSet = null; 
 		
 		try {
-			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_SELECT_USERS);
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_SELECT_USER);
 			resultSet = stmt.executeQuery();
 
 			while(resultSet.next()) {
-				Integer userId = Integer.parseInt(cManager.decipher(resultSet.getString("UserId")));
+				Integer userId = Integer.parseInt(resultSet.getString("Id"));
 				String name = cManager.decipher(resultSet.getString("Name"));
 				String type = cManager.decipher(resultSet.getString("Type"));
 				String birthDateStr = cManager.decipher(resultSet.getString("BirthDate"));
@@ -454,7 +454,7 @@ public class DBGateway {
 					String type = split[3];
 					//pode dar merda
 					String birthDate = split[4];
-					String hashedPass = saltAndHashPass(split[5], userId.toString());
+					String hashedPass = saltAndHashPass(split[5], userId);
 					registerUser(userId, name, type, birthDate, hashedPass);
 					break;
 				case "createMD":
@@ -496,7 +496,7 @@ public class DBGateway {
 		} 
 	}
 
-	private String saltAndHashPass(String password, String userId) {
+	private String saltAndHashPass(String password, Integer userId) {
 		String hashedPass = null;
 		try {
 			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
