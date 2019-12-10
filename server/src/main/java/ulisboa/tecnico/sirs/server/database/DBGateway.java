@@ -83,9 +83,7 @@ public class DBGateway {
 		
 	}
 	
-	public void registerUser(Integer userId, String name, 
-			String type, String birthDate, String hashedPass) {
-				
+	public void registerUser(Integer userId, String name, String type, String birthDate, String hashedPass) {
 		try{
 			// Insert into User table
 			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_INSERT_USER);

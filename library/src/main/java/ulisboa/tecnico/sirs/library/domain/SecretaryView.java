@@ -96,12 +96,64 @@ public class SecretaryView extends UserView {
 				System.out.println("Invalid instruction!");
 			}
 		}
+		// Variable used to sanitize user input
+		Boolean goodInput = false;
 		// Ask user name
 		System.out.print("What's the user name?\n>> ");
 		String username = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
 		// Ask user citizen Id
-		System.out.print("What's the user Id?\n>> ");
-		String userId = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+		String userId = "";
+		while(!goodInput) {
+			System.out.print("What's the user Id?\n>> ");
+			userId = scanner.nextLine();
+			if(!userId.matches("^[0-9]{1,8}$")) { 
+				System.out.println("Wrong Id format! Id is a number with 9 digits maximum.");
+			}
+			else {
+				goodInput = true;
+			}
+		}
+		goodInput = false;
+		// Ask user birth date
+		String year = "";
+		String month = "";
+		String day = "";
+		System.out.println("When was the user born?");
+		while(!goodInput) {
+			System.out.print("Year: ");
+			year = scanner.nextLine();
+			if(!year.matches("^[0-9]{4}$")) { 
+				System.out.println("Wrong year format. Year must be a number like XXXX");
+			}
+			else {
+				goodInput = true;
+			}
+		}
+		goodInput = false;
+		while(!goodInput) {
+			System.out.print("Month: ");
+			month = scanner.nextLine();
+			if(!month.matches("^(0?[1-9]|1[012])$")) { 
+				System.out.println("Wrong month format. Year must be a number like X or XX");
+			}
+			else {
+				if(month.length() == 1) {month = "0" + month;}
+				goodInput = true;
+			}
+		}
+		goodInput = false;
+		while(!goodInput) {
+			System.out.print("Day: ");
+			day = scanner.nextLine();
+			if(!day.matches("^(0?[1-9]|1[0-9]|2[0-9]|30|31)$")) { 
+				System.out.println("Wrong day format. Year must be a number like X or XX");
+			}
+			else {
+				if(day.length() == 1) {day = "0" + day;}
+				goodInput = true;
+			}
+		}
+		String birthDate = year + month + day;
 		// Send registration request
 		try {
 			outStream.writeObject("-registerUser");
@@ -110,11 +162,13 @@ public class SecretaryView extends UserView {
 			if(inStream.readObject().equals("New user")) {
 				// Generate password
 				String password = generateRandomPassword();
-				System.out.println("This is the user initial password. This should be changed by the user:  " + password);
+				System.out.println("This is the user initial password. This should be changed by the user: " + password);
 				// Send username
 				outStream.writeObject(username);
 				// Send user type
 				outStream.writeObject(type);
+				// Send user birthdate
+				outStream.writeObject(birthDate);
 				// Send plain text password
 				outStream.writeObject(password);
 				System.out.println("User successfully registered in SIRS Medical Records Systems.");

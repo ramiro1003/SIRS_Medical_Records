@@ -429,27 +429,20 @@ class ServerThread extends Thread {
 			String name = (String) inStream.readObject();
 			//logMan.writeLog(name, currUser);
 			String type = (String) inStream.readObject();
+			String birthDate = (String) inStream.readObject();
 			//logMan.writeLog(type, currUser);
 			String password = (String) inStream.readObject();
-			// Check passsword strength
-			if(checkPasswordStrength(password, name)) {
-				// Hash password + salt(userId)
-				try {
-					outStream.writeObject("Strong password");
-					MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-					String saltedPass = password + userId.toString();
-					byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
-					String hashedPass = new String(hashedPassBytes);
-					//logMan.writeLog(hashedPass, currUser);
-					String birthDate = null;
-					gateway.registerUser(userId, name, type, hashedPass, birthDate);
-				} catch (NoSuchAlgorithmException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			else {
-				outStream.writeObject("Weak password");
+			// Hash password + salt(userId)
+			try {
+				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+				String saltedPass = password + userId.toString();
+				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
+				String hashedPass = new String(hashedPassBytes);
+				//logMan.writeLog(hashedPass, currUser);
+				gateway.registerUser(userId, name, type, birthDate, hashedPass);
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		} 
 		else {

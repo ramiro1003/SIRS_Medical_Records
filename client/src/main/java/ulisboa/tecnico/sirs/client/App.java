@@ -98,9 +98,20 @@ public class App
 		// Welcome message
 		System.out.println("Hi! Welcome to SIRS Medical Record System.\n"
 							+ "Please login with your credentials:");
+		// Variable used to sanitize user input
+		Boolean goodInput = false;
 		// Ask user e-mail
-		System.out.print("What's your Id (Citizen Card)?\n>> ");
-		String userId = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
+		String userId = "";
+		while(!goodInput) {
+			System.out.print("What's your Id (Citizen Card)?\n>> ");
+			userId = scanner.nextLine();
+			if(!userId.matches("^[0-9]{1,8}$")) { 
+				System.out.println("Wrong Id format! Id is a number with 9 digits maximum.");
+			}
+			else {
+				goodInput = true;
+			}
+		}
 		// Ask user password
 		System.out.print("Enter your password:\n>> ");
 		String password = scanner.nextLine(); // FIXME NOT SANITIZING USER INPUT
