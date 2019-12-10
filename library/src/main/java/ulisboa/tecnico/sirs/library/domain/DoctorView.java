@@ -312,6 +312,7 @@ public class DoctorView extends UserView{
 
 	private void changePassword() {
 		try {
+			outStream.writeObject("-changePassword");
 			// Get user old password so he can authenticate himself
 			System.out.print("Enter your current password:\n>> ");
 			String password = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
