@@ -266,7 +266,7 @@ public class DBGateway {
 			ResultSet result = stmt.executeQuery();
 			
 			if (result.next()) {
-			
+							
 				Integer recordId = result.getInt("Id");
 				String patientName = getPatientName(searchParam);
 				Integer doctorId = result.getInt("DoctorId");
@@ -278,7 +278,6 @@ public class DBGateway {
 				List<Diagnosis> diagnosis = getDiagnosis(recordId);		
 				List<Treatment> treatment = getTreatment(recordId);
 				
-				// curtia ir buscar nome do doutor provavelmente mas ja se faz isso
 				return new MedicalRecord(recordId, searchParam, doctorId, patientName, height, weight, prescription, diagnosis, treatment);
 			}
 			

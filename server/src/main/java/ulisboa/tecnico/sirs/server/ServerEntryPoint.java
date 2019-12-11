@@ -173,8 +173,7 @@ class ServerThread extends Thread {
 	private void readMD() {
 		try {
 			String patientId = (String) inStream.readObject();
-			LoggingManager.writeLog("Read medical record: " + patientId, 
-					currUser.getUserId().toString());
+			LoggingManager.writeLog("Read medical record: " + patientId, currUser.getUserId().toString());
 			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
 			
 			if(medicalRecord ==  null) {
