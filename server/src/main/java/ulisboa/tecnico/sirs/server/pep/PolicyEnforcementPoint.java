@@ -19,23 +19,9 @@ public class PolicyEnforcementPoint
 		this.enforcer = new Enforcer(currentWorkingDirectory + "/resources/abac_model.conf");
 	}
 	
-	public boolean enforce(User user, MedicalRecord patientId, String action, String context) {
-		Boolean authorization = this.enforcer.enforce(user, patientId, action, context);
+	public boolean enforce(User user, MedicalRecord record, String action, String context) {
+		Boolean authorization = this.enforcer.enforce(user, record, action, context);
 		return authorization;
 	}
 		
-}
-
-class ParsedMessage {
-	
-	private String userEmail = null;
-	
-	public ParsedMessage(String message) {
-		userEmail = message;
-	}
-	
-	public String getUserEmail() {
-		return userEmail;
-	}
-	
 }

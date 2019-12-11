@@ -308,6 +308,7 @@ class ServerThread extends Thread {
 				outStream.writeObject("Not authorized");
 			}
 			else {
+				System.out.println("Fui ao pep com os seguintes argumentos: " + currUser.getName() + " " + medicalRecord.getPatientId() + " read " + context);
 				Boolean authorize = pep.enforce(currUser, medicalRecord, "read", context);
 				if (authorize) {
 					outStream.writeObject("Authorized");
