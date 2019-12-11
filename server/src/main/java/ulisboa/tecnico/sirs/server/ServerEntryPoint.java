@@ -333,7 +333,7 @@ class ServerThread extends Thread {
 				outStream.writeObject("Not authorized");
 			}
 			else {
-				Boolean authorize = pep.enforce(currUser, medicalRecord, "write", context); // FIXME CONTEXT SENT
+				Boolean authorize = pep.enforce(currUser, medicalRecord, "write", context);
 				
 				if (authorize) {
 					outStream.writeObject("Authorized");
