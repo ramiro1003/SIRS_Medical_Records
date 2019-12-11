@@ -28,10 +28,10 @@ public class DoctorView extends UserView{
 		Boolean quit = false;
 		// Check context
 		if(context.equals("operationroom")) {
-			System.out.println("=================  OPERATION ROOM =================");
+			System.out.println("\n=================  OPERATION ROOM =================");
 		}
 		else if(context.equals("emergency")) {
-			System.out.println("=================  EMERGENCY =================");
+			System.out.println("\n=================  EMERGENCY =================");
 		}
 		// Welcome message
 		System.out.println("\nHello " + this.getName() + "!");
