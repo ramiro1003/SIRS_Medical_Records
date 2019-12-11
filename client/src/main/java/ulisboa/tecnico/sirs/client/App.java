@@ -1,5 +1,7 @@
 package ulisboa.tecnico.sirs.client;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -43,7 +45,7 @@ public class App
 			System.exit(0);
 		}
 		// Check if IP format is valid
-		if(input[0].matches("^(?:(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])$")) { //FIXME Regex sacado
+		if(input[0].matches("^(?:(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])\\.){3}(?:\\d|[1-9]\\d|1\\d\\d|2[0-4]\\d|25[0-5])$")) { 
 			ip = input[0];
 		}
 		else {
@@ -71,9 +73,11 @@ public class App
 			context = "default";
 		}
 		
+		String keystorePwd = getKeystoreCredentials();
+		
 		// Set system keystore
 		System.setProperty("javax.net.ssl.trustStore", KEYSTORE_PATH);
-		System.setProperty("javax.net.ssl.trustStorePassword", "sirssirs"); // FIXME change this
+		System.setProperty("javax.net.ssl.trustStorePassword", keystorePwd); // FIXME change this
 		
 		try {
 			// Instantiate scanner to get user input
@@ -93,6 +97,24 @@ public class App
 		}
 		// Run Application
 		run();
+	}
+	
+	private static String getKeystoreCredentials() {
+		// Read server keystore credentials
+		String path = "resources/clientkeystore.txt";
+		String keystorePwd = "";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String ksLine = reader.readLine();
+			reader.close();
+			
+			keystorePwd = ksLine.split("=")[1];
+			
+		} catch (IOException e) {
+			System.out.println("Exception: Could not read keystore credentials.");
+			e.printStackTrace();
+		}
+		return keystorePwd;
 	}
 
 	private static void run() {

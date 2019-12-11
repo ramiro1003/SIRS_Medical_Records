@@ -1,5 +1,7 @@
 package ulisboa.tecnico.sirs.server;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -47,8 +49,11 @@ public class ServerEntryPoint
 		
 		try {
 			//start tls
+			
+			String keystorePwd = getKeystoreCredentials();
+
 			System.setProperty("javax.net.ssl.keyStore", KEYSTORE_PATH);
-			System.setProperty("javax.net.ssl.keyStorePassword", "sirssirs");
+			System.setProperty("javax.net.ssl.keyStorePassword", keystorePwd);
 			ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
 			socket = ssf.createServerSocket(port);
 			
@@ -71,6 +76,27 @@ public class ServerEntryPoint
 			}
 		}
 	}
+
+
+	
+	private static String getKeystoreCredentials() {
+		// Read server keystore credentials
+		String path = "resources/serverkeystore.txt";
+		String keystorePwd = "";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String ksLine = reader.readLine();
+			reader.close();
+			
+			keystorePwd = ksLine.split("=")[1];
+			
+		} catch (IOException e) {
+			System.out.println("Exception: Could not read keystore credentials.");
+			e.printStackTrace();
+		}
+		return keystorePwd;
+	}
+	
 }
 
 
