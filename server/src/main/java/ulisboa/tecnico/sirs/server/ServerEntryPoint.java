@@ -71,7 +71,6 @@ public class ServerEntryPoint
 			}
 		}
 	}
-
 }
 
 
@@ -146,7 +145,7 @@ class ServerThread extends Thread {
 			String username = currUser.getName();
 			// Hash password + salt(userId)
 			MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-			String saltedPass = password + userId;
+			String saltedPass = password + userId.toString();
 			byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
 			String hashedPass = new String(hashedPassBytes);
 			// Authenticate user
@@ -158,7 +157,10 @@ class ServerThread extends Thread {
 					// Checks password strength
 					if(checkPasswordStrength(newPass, username)) {
 						outStream.writeObject("Strong password");
-						gateway.updateUserPassword(userId, newPass);
+						String saltedNewPass = newPass + userId.toString();
+						byte[] hashedNewPassBytes = sha256.digest(saltedNewPass.getBytes());
+						String hashedNewPass = new String(hashedNewPassBytes);
+						gateway.updateUserPassword(userId, hashedNewPass);
 					}
 					else {
 						outStream.writeObject("Weak password");

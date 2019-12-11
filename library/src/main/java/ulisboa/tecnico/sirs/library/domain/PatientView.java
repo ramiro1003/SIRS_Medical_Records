@@ -33,7 +33,7 @@ public class PatientView extends UserView {
 							+ "0) Quit\n"
 							+ ">> ");
 
-			userInput = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+			userInput = scanner.nextLine().split(" ")[0];
 			
 			switch(userInput) {
 			case "1":
@@ -44,12 +44,13 @@ public class PatientView extends UserView {
 				break;
 			case "0":
 				System.out.print("Sure you want to quit? (Y = Yes, N = No)\n>> ");
-				String conf = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+				String conf = scanner.nextLine().split(" ")[0];
 				switch(conf) {
 					case "Y":
 					case "y":
 					case "yes":
 					case "Yes":
+					case "YES":
 						quit = true;
 						quitClient();
 						break;
@@ -85,14 +86,14 @@ public class PatientView extends UserView {
 			outStream.writeObject("-changePassword");
 			// Get user old password so he can authenticate himself
 			System.out.print("Enter your current password:\n>> ");
-			String password = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			String password = scanner.nextLine();
 			outStream.writeObject(password);
 			if(inStream.readObject().equals("User authenticated")) {
 				// Ask user for new password and confirm it
 				System.out.print("Enter your new password:\n>> ");
-				String newPass = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+				String newPass = scanner.nextLine();
 				System.out.print("Confirm your new password by reentering it:\n>> ");
-				String confirmNewPass = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+				String confirmNewPass = scanner.nextLine();
 				if(newPass.equals(confirmNewPass)) {
 					outStream.writeObject("Password confirmed");
 					outStream.writeObject(newPass);

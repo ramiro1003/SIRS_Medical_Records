@@ -12,8 +12,6 @@ public class LoggingManager {
 	
 	public static void writeLog(String log, String username) throws IOException {
 		
-		System.out.println("EMTREIIIIIIIIIIIIIIII");
-		
 		LocalDate current = LocalDate.now();
 		
 		//check if a new file is needed

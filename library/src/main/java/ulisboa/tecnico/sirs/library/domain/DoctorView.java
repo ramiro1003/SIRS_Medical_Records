@@ -37,7 +37,7 @@ public class DoctorView extends UserView{
 							+ "0) Quit\n"
 							+ ">> ");
 
-			userInput = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+			userInput = scanner.nextLine().split(" ")[0];
 			
 			switch(userInput) {
 				case "1":
@@ -60,6 +60,7 @@ public class DoctorView extends UserView{
 						case "y":
 						case "yes":
 						case "Yes":
+						case "YES":
 							quit = true;
 							quitClient();
 							break;
@@ -95,8 +96,19 @@ public class DoctorView extends UserView{
 	private void readMedicalRecord() {
 		try {
 			outStream.writeObject("-readMD");
-			System.out.print("What's the Patient's Id?\n>> ");
-			String patientId = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			// Ask the patient Id
+			Boolean goodInput = false;
+			String patientId = "";
+			while(!goodInput) {
+				System.out.print("What's the Patient's Id?\n>> ");
+				patientId = scanner.nextLine();
+				if(!patientId.matches("^[0-9]{1,9}$")) { 
+					System.out.println("Wrong Id format! Id is a number with 9 digits maximum.");
+				}
+				else {
+					goodInput = true;
+				}
+			}
 			outStream.writeObject(patientId);
 			String access = (String) inStream.readObject();
 			if(access.equals("Authorized")) {
@@ -315,7 +327,7 @@ public class DoctorView extends UserView{
 			outStream.writeObject("-changePassword");
 			// Get user old password so he can authenticate himself
 			System.out.print("Enter your current password:\n>> ");
-			String password = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			String password = scanner.nextLine();
 			outStream.writeObject(password);
 			if(inStream.readObject().equals("User authenticated")) {
 				// Ask user for new password and confirm it

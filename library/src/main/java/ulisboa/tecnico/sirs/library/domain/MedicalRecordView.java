@@ -79,7 +79,7 @@ public class MedicalRecordView implements Serializable {
 		List<List<String>> diagnosesInfo = this.getDiagnosesInfo();
 		List<List<String>> treatmentsInfo = this.getTreatmentsInfo();
 		info += "This Medical Record belongs to " + this.getName() + " with Id " + this.getPatientId() + ".\n";
-		info += "Patient's info:\n  - Height: " + this.getHeight() + " cm\n  - Weight: " + this.getWeight() + "kg\n\n";
+		info += "Patient's info:\n  - Height: " + this.getHeight() + "cm\n  - Weight: " + this.getWeight() + "kg\n\n";
 		
 		if(diagnosesInfo.size() != 0) {
 			info += "Diagnoses:\n";

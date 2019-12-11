@@ -34,7 +34,7 @@ public class SecretaryView extends UserView {
 							+ "0) Quit\n"
 							+ ">> ");
 
-			userInput = scanner.nextLine().split(" ")[0]; // FIXME NOT SANITIZING USER INPUT
+			userInput = scanner.nextLine().split(" ")[0];
 			
 			switch(userInput) {
 			case "1":
@@ -51,6 +51,7 @@ public class SecretaryView extends UserView {
 					case "y":
 					case "yes":
 					case "Yes":
+					case "YES":
 						quit = true;
 						quitClient();
 						break;
@@ -74,7 +75,7 @@ public class SecretaryView extends UserView {
 							+ "3) Staff\n"
 							+ "4) Secretary\n"
 							+ ">> ");
-			String typeOption = scanner.nextLine().split(" ")[0]; //FIXME NOT SANITIZING USER INPUT
+			String typeOption = scanner.nextLine().split(" ")[0];
 			switch(typeOption) {
 			case "1":
 				type = "Doctor";
@@ -100,13 +101,13 @@ public class SecretaryView extends UserView {
 		Boolean goodInput = false;
 		// Ask user name
 		System.out.print("What's the user name?\n>> ");
-		String username = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+		String username = scanner.nextLine();
 		// Ask user citizen Id
 		String userId = "";
 		while(!goodInput) {
 			System.out.print("What's the user Id?\n>> ");
 			userId = scanner.nextLine();
-			if(!userId.matches("^[0-9]{1,8}$")) { 
+			if(!userId.matches("^[0-9]{1,9}$")) { 
 				System.out.println("Wrong Id format! Id is a number with 9 digits maximum.");
 			}
 			else {
@@ -199,14 +200,14 @@ public class SecretaryView extends UserView {
 			outStream.writeObject("-changePassword");
 			// Get user old password so he can authenticate himself
 			System.out.print("Enter your current password:\n>> ");
-			String password = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			String password = scanner.nextLine();
 			outStream.writeObject(password);
 			if(inStream.readObject().equals("User authenticated")) {
 				// Ask user for new password and confirm it
 				System.out.print("Enter your new password:\n>> ");
-				String newPass = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+				String newPass = scanner.nextLine();
 				System.out.print("Confirm your new password by reentering it:\n>> ");
-				String confirmNewPass = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+				String confirmNewPass = scanner.nextLine();
 				if(newPass.equals(confirmNewPass)) {
 					outStream.writeObject("Password confirmed");
 					outStream.writeObject(newPass);
