@@ -27,7 +27,6 @@ public class CriptographyManager {
 	public CriptographyManager(){
 		try {
 			String keystorePwd = getKeystoreCredentials();
-			System.out.println(keystorePwd);
 			
 			InputStream keystoreStream = new FileInputStream("resources/keystore.jck"); 
 			KeyStore keystore = KeyStore.getInstance("JCEKS"); 
