@@ -147,6 +147,9 @@ class ServerThread extends Thread {
 						case "-readMD":
 							readMD();
 							break;
+						case "-createMD":
+							createMD();
+							break;
 						case "-registerUser":
 							registerUser();
 							break;
@@ -167,6 +170,64 @@ class ServerThread extends Thread {
 		}
 	}
 	
+	private void readMD() {
+		try {
+			String patientId = (String) inStream.readObject();
+			LoggingManager.writeLog("Read medical record: " + patientId, 
+					currUser.getUserId().toString());
+			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
+			
+			if(medicalRecord ==  null) {
+				outStream.writeObject("Not authorized");
+			}
+			else {
+				Boolean authorize = pep.enforce(currUser, medicalRecord, "read", context);
+				if (authorize) {
+					outStream.writeObject("Authorized");
+					outStream.writeObject(createMedicalRecordView(medicalRecord));
+				}
+				else {
+					outStream.writeObject("Not authorized");
+				}
+			}
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void createMD() {
+		try {
+			String patientId = (String) inStream.readObject();
+			LoggingManager.writeLog("Read medical record: " + patientId, currUser.getUserId().toString());
+			LoggingManager.writeLog("Creating medical record for " + patientId, currUser.getUserId().toString());
+			String patientName = gateway.getPatientName(Integer.parseInt(patientId));
+			System.out.print(patientName);
+			// Check if patient exists
+			if(patientName == null) {
+				outStream.writeObject("Patient does not exist");
+			}
+			else {
+				// Check if medical record already exists
+				MedicalRecord record = gateway.getMedicalRecord(patientId);
+				if(record != null) {
+					outStream.writeObject("Patient already assigned");
+				}
+				// Create medical record
+				else {
+					outStream.writeObject("Create medical record");
+					String height = (String) inStream.readObject();
+					String weight = (String) inStream.readObject();
+					Integer numberOfRecords = gateway.getAllMedicalRecordsNum();
+					gateway.addMedicalRecord(numberOfRecords + 1, Integer.parseInt(patientId), currUser.getUserId(), weight, height);
+				}
+			}
+		} catch (NumberFormatException | ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void changePassword() {
 		try {
 			String password = (String) inStream.readObject();
@@ -333,32 +394,6 @@ class ServerThread extends Thread {
 		List<List<String>> diagnosesInfo = medicalRecord.getDiagnosesInfo();
 		List<List<String>> treatmentsInfo = medicalRecord.getTreatmentsInfo();
 		return new MedicalRecordView(recordId, patientId, doctorId, name, height, weight, prescriptionsInfo, diagnosesInfo, treatmentsInfo);		
-	}
-	
-	private void readMD() {
-		try {
-			String patientId = (String) inStream.readObject();
-			LoggingManager.writeLog("Read medical record: " + patientId, 
-					currUser.getUserId().toString());
-			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
-			
-			if(medicalRecord ==  null) {
-				outStream.writeObject("Not authorized");
-			}
-			else {
-				Boolean authorize = pep.enforce(currUser, medicalRecord, "read", context);
-				if (authorize) {
-					outStream.writeObject("Authorized");
-					outStream.writeObject(createMedicalRecordView(medicalRecord));
-				}
-				else {
-					outStream.writeObject("Not authorized");
-				}
-			}
-		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	private void writeMD() {

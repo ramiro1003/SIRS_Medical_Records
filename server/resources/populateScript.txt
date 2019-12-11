@@ -9,7 +9,6 @@ createUser:10:Miguel Montijo:Staff:19980904:EpaMuitaBom123
 createUser:11:Tomas Vieira:Secretary:19801005:BarreteVerdeGostoTanto11
 createMD:1:5:1:87:198
 createMD:2:6:1:75:180
-createMD:3:7:3:172:60
 createTreatment:1:Nota 20:Espetacular:20191205
 createDiagnosis:1:Noob:Sem qualquer tipo de talento:20191103
 createPrescription:1:LiveOverflow:20191104
