@@ -1,6 +1,6 @@
 Operations supported on the test file:
 createUser:<id>:<name>:<type["Patient","Doctor","Staff","Secretary"]>:<birthDate(format:YYYYMMDD)>:<password>
 createMD:<id>:<patientID>:<doctorID>:<weight>:<height>
-createMedication:<mdID>:<name>:<prescriptionDate>
+createPrescription:<mdID>:<name>:<prescriptionDate>
 createDiagnosis:<mdID>:<name>:<description><diagnosisDate>
 createTreatment:<mdID>:<name>:<description><diagnosisDate>

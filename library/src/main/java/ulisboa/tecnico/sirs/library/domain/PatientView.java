@@ -150,7 +150,7 @@ public class PatientView extends UserView {
 	}
 
 	public void printInfo() {
-		System.out.println("\t" + this.getUserId() + "\t\t\t" + this.getName());
+		System.out.println("\t" + this.getUserId() + "\t\t|\t" + this.getName());
 	}
 
 }

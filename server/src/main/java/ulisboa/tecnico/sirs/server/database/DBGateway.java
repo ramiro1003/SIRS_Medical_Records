@@ -134,7 +134,7 @@ public class DBGateway {
 		}
 	}
 	
-	public void addMedication(int idMedRec, String medName, String presDate) {
+	public void addPrescription(int idMedRec, String medName, String presDate) {
 				
 		try {
 			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_INSERT_MEDICATION);
@@ -457,11 +457,11 @@ public class DBGateway {
 					String height = split[5];
 					addMedicalRecord(recordId, patientId, doctorId, weight, height);
 					break;
-				case "createMedication":
+				case "createPrescription":
 					Integer MDId1 = Integer.parseInt(split[1]);
 					String medName = split[2];
 					String presDate = split[3];
-					addMedication(MDId1, medName, presDate);
+					addPrescription(MDId1, medName, presDate);
 					break;
 				case "createDiagnosis":
 					Integer MDId2 = Integer.parseInt(split[1]);

@@ -430,7 +430,7 @@ class ServerThread extends Thread {
 			String prescriptionDate = formatter.format(LocalDate.now());
 			
 			// note: method names differ, but prescription == medication
-			gateway.addMedication(medicalRecordId, prescriptionName, prescriptionDate);
+			gateway.addPrescription(medicalRecordId, prescriptionName, prescriptionDate);
 			
 			outStream.writeObject("complete");
 			
