@@ -223,7 +223,7 @@ class ServerThread extends Thread {
 				"");
 		// Get password
 		String password = (String) inStream.readObject();
-		LoggingManager.writeLog("Loggign password: " + password,
+		LoggingManager.writeLog("Logging password: " + password,
 				"");
 		// Get context
 		context = (String) inStream.readObject();

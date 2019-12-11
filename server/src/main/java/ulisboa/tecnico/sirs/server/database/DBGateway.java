@@ -33,9 +33,7 @@ public class DBGateway {
 	private static final String SQL_GET_MEDICATION = "SELECT * FROM Medication WHERE MedicalRecordId=?";
 	private static final String SQL_GET_TREATMENT = "SELECT * FROM Treatment WHERE MedicalRecordId=?";
 	private static final String SQL_GET_DIAGNOSIS = "SELECT * FROM Diagnosis WHERE MedicalRecordId=?";
-	private static final String SQL_GET_DOCTOR_PATIENTS = "SELECT * FROM MedicalRecord INNER JOIN User AS d ON MedicalRecord.DoctorId = b.Id"
-														+ "INNER JOIN User AS p ON MedicalRecord.PatientId = a.Id"
-														+ "WHERE MedicalRecord.DoctorId = ?";
+	private static final String SQL_GET_DOCTOR_PATIENTS = "SELECT PatientId, Name FROM User INNER JOIN MedicalRecord WHERE User.Id=MedicalRecord.PatientId and DoctorId=?";
 	private static final String SQL_GET_USER_NAME = "SELECT Name FROM User Where Id=?";
 
 	private String db;
@@ -221,9 +219,12 @@ public class DBGateway {
 			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_GET_DOCTOR_PATIENTS);
 			stmt.setString(1, doctorId);
 			resultSet = stmt.executeQuery();
+			
+			
+			
 			while(resultSet.next()) {
-				Integer userId = Integer.parseInt(cManager.decipher(resultSet.getString("p.UserId")));
-				String name = cManager.decipher(resultSet.getString("p.Name"));
+				Integer userId = Integer.parseInt(resultSet.getString("PatientId"));
+				String name = cManager.decipher(resultSet.getString("Name"));
 				result.add(new PatientView(userId, name));
 			}
 		} catch (Exception e) {
