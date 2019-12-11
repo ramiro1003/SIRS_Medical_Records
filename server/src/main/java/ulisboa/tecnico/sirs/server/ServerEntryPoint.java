@@ -454,7 +454,7 @@ class ServerThread extends Thread {
 			DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
 			String treatmentDate = formatter.format(LocalDate.now());
 			
-			gateway.addDiagnosis(medicalRecordId, treatment, treatmentDate, treatmentDescription);
+			gateway.addTreatment(medicalRecordId, treatment, treatmentDate, treatmentDescription);
 			
 			outStream.writeObject("complete");
 			

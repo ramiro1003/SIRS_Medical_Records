@@ -101,7 +101,7 @@ public class DoctorView extends UserView{
 			String access = (String) inStream.readObject();
 			if(access.equals("Authorized")) {
 				MedicalRecordView medicalRecordView = (MedicalRecordView) inStream.readObject();
-				System.out.println(medicalRecordView.getInfo());
+				System.out.print(medicalRecordView.getInfo());
 			}
 			else {
 				System.out.println("You don't have access to this Medical Record.");

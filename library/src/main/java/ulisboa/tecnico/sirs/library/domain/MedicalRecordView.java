@@ -79,31 +79,38 @@ public class MedicalRecordView implements Serializable {
 		List<List<String>> diagnosesInfo = this.getDiagnosesInfo();
 		List<List<String>> treatmentsInfo = this.getTreatmentsInfo();
 		info += "This Medical Record belongs to " + this.getName() + " with Id " + this.getPatientId() + ".\n";
-		info += "Patient's info:\n  - Height: " + this.getHeight() + " cm\n  - Weight: " + this.getWeight() + "kg\n";
+		info += "Patient's info:\n  - Height: " + this.getHeight() + " cm\n  - Weight: " + this.getWeight() + "kg\n\n";
+		
 		if(diagnosesInfo.size() != 0) {
 			info += "Diagnoses:\n";
 			for(List<String> diagnosis : diagnosesInfo) {
 				info += "  - " + diagnosis.get(0) + " diagnosed at " + diagnosis.get(1) +".\n";
 				if(diagnosis.get(2) != null) {
-					info += "   Description:\n  - " + diagnosis.get(2) + "\n";
+					info += "\tDescription: " + diagnosis.get(2) + "\n";
 				}
 			}
+			info += "\n";
 		}
+		
 		if(prescriptionsInfo.size() != 0) {
 			info += "Prescriptions:\n";
 			for(List<String> prescription : prescriptionsInfo) {
-				info += "  - " + prescription.get(0) + " prescripted at " + prescription.get(1) +".\n";
+				info += "  - " + prescription.get(0) + " prescribed at " + prescription.get(1) +".\n";
 			}
+			info += "\n";
 		}
+		
 		if(treatmentsInfo.size() != 0) {
 			info += "Treatments:\n";
-			for(List<String> treatments : diagnosesInfo) {
+			for(List<String> treatments : treatmentsInfo) {
 				info += "  - " + treatments.get(0) + " done at " + treatments.get(1) +".\n";
 				if(treatments.get(2) != null) {
-					info += "   Description:\n  - " + treatments.get(2) + "\n";
+					info += "\tDescription: " + treatments.get(2) + "\n";
 				}
 			}
+			info += "\n";
 		}
+		
 		return info;
 	}
 	
