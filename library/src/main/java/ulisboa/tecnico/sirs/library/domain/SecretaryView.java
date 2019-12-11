@@ -178,7 +178,7 @@ public class SecretaryView extends UserView {
 			if(inStream.readObject().equals("New user")) {
 				// Generate password
 				String password = generateRandomPassword();
-				System.out.println("This is the user initial password. This should be changed by the user: " + password);
+				System.out.println("This is the user's initial password. This should be changed by the user: " + password);
 				// Send username
 				outStream.writeObject(username);
 				// Send user type
@@ -190,7 +190,7 @@ public class SecretaryView extends UserView {
 				System.out.println("User successfully registered in SIRS Medical Records Systems.");
 			}
 			else {
-				System.out.println("User with such e-mail already exists");
+				System.out.println("User with such an e-mail already exists");
 			}
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
