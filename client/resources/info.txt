@@ -1,1 +1,0 @@
-client.keyStore is using password = sirssirs

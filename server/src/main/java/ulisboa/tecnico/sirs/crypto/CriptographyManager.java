@@ -9,7 +9,10 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -23,20 +26,44 @@ public class CriptographyManager {
 
 	public CriptographyManager(){
 		try {
-
+			String keystorePwd = getKeystoreCredentials();
+			System.out.println(keystorePwd);
+			
 			InputStream keystoreStream = new FileInputStream("resources/keystore.jck"); 
 			KeyStore keystore = KeyStore.getInstance("JCEKS"); 
-			keystore.load(keystoreStream, "sirssirs".toCharArray()); 
+			keystore.load(keystoreStream, keystorePwd.toCharArray()); 
+			
 			if (!keystore.containsAlias("sirsaes")) { 
 				throw new RuntimeException("Alias for key not found"); 
 			} 
-			key = keystore.getKey("sirsaes", "sirssirs".toCharArray());
+			key = keystore.getKey("sirsaes", keystorePwd.toCharArray());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
 
+	
+	private static String getKeystoreCredentials() {
+		// Read server keystore credentials
+		String path = "resources/cryptokeystore.txt";
+		String keystorePwd = "";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String ksLine = reader.readLine();
+			reader.close();
+			
+			keystorePwd = ksLine.split("=")[1];
+			
+		} catch (IOException e) {
+			System.out.println("Exception: Could not read keystore credentials.");
+			e.printStackTrace();
+		}
+		return keystorePwd;
+	}
+	
+	
+	
 	/**
 	 * Ciphers a file
 	 * @param data string to be ciphered
