@@ -42,6 +42,7 @@ public class DoctorView extends UserView{
 							+ "1) List Patients\n"
 							+ "2) Read a Medical Record\n"
 							+ "3) Edit a Medical Record\n"
+							+ "4) Create a Medical Record\n"
 							+ "9) Change Password\n"
 							+ "0) Quit\n"
 							+ ">> ");
@@ -57,6 +58,9 @@ public class DoctorView extends UserView{
 					break;
 				case "3":
 					writeMedicalRecord();
+					break;
+				case "4":
+					createMedicalRecord();
 					break;
 				case "9":
 					changePassword();
@@ -79,31 +83,6 @@ public class DoctorView extends UserView{
 				default:
 					System.out.println("Invalid instruction!");
 			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void listPatients() {
-		try {
-			outStream.writeObject("-listP");
-			String answer = (String) inStream.readObject();
-			if(answer.equals("Doctor has patients")) {
-				List<PatientView> patients = (List<PatientView>) inStream.readObject();
-				
-				System.out.println("\n---------------------------------------------------------------------------------");
-				System.out.println("\tId\t\t|\tPatient Name\t\t");
-				System.out.println("---------------------------------------------------------------------------------");
-				for(PatientView p : patients) {
-					p.printInfo();
-				}
-				System.out.println("---------------------------------------------------------------------------------");
-			}
-			else {
-				System.out.println("You have no assigned patients.");
-			}
-		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	
@@ -131,6 +110,90 @@ public class DoctorView extends UserView{
 			}
 			else {
 				System.out.println("You don't have access to this Medical Record.");
+			}
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void createMedicalRecord() {
+		try {
+			outStream.writeObject("-createMD");
+			// Ask the patient Id
+			Boolean goodInput = false;
+			String patientId = "";
+			while(!goodInput) {
+				System.out.print("What's the Patient's Id you are assigning a new Medical Record to?\n>> ");
+				patientId = scanner.nextLine();
+				if(!patientId.matches("^[0-9]{1,9}$")) { 
+					System.out.println("Wrong Id format! Id is a number with 9 digits maximum.");
+				}
+				else {
+					goodInput = true;
+				}
+			}
+			outStream.writeObject(patientId);
+			String answer = (String) inStream.readObject();
+			if(answer.equals("Patient does not exist")) {
+				System.out.println("\nPatient does not exist. Can't assign medical record to a patient that doest not exist.");
+			}
+			else if(answer.equals("\nPatient already assigned")){
+				System.out.println("Patient already has medical record, can't create another one.");
+			}
+			else {
+				goodInput = false;
+				String heightStr = "";
+				while(!goodInput) {
+					System.out.print("What is the patient's height? (centimeters) \n>> ");
+					heightStr = scanner.nextLine();
+					if(!heightStr.matches("^[0-9]{2,3}$")) { 
+						System.out.println("Wrong height format!");
+					}
+					else {
+						goodInput = true;
+					}
+				}
+				outStream.writeObject(heightStr);
+				goodInput = false;
+				String weightStr = "";
+				while(!goodInput) {
+					System.out.print("What is the patient's weight? (centimeters) \n>> ");
+					heightStr = scanner.nextLine();
+					if(!heightStr.matches("^[0-9]{1,3}$")) { 
+						System.out.println("Wrong weight format!");
+					}
+					else {
+						goodInput = true;
+					}
+				}
+				outStream.writeObject(weightStr);
+				System.out.println("Succesfully created Medical Record");
+			}
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void listPatients() {
+		try {
+			outStream.writeObject("-listP");
+			String answer = (String) inStream.readObject();
+			if(answer.equals("Doctor has patients")) {
+				List<PatientView> patients = (List<PatientView>) inStream.readObject();
+				
+				System.out.println("\n---------------------------------------------------------------------------------");
+				System.out.println("\tId\t\t|\tPatient Name\t\t");
+				System.out.println("---------------------------------------------------------------------------------");
+				for(PatientView p : patients) {
+					p.printInfo();
+				}
+				System.out.println("---------------------------------------------------------------------------------");
+			}
+			else {
+				System.out.println("You have no assigned patients.");
 			}
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
@@ -206,7 +269,7 @@ public class DoctorView extends UserView{
 		try {
 			outStream.writeObject("-changeHeight");
 			System.out.print("What is the patient's height? (centimeters) \n>> ");
-			String heightStr = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			String heightStr = scanner.nextLine();
 			
 			
 			if(!heightStr.matches("^[0-9]{2,3}$")) { 
@@ -231,7 +294,7 @@ public class DoctorView extends UserView{
 		try {
 			outStream.writeObject("-changeWeight");
 			System.out.print("What is the patient's weight? (kilograms) \n>> ");
-			String weightStr = scanner.nextLine(); //FIXME NOT SANITIZING USER INPUT
+			String weightStr = scanner.nextLine();
 			
 			if(!weightStr.matches("^[0-9]{1,3}$")) { 
 				System.out.println("Wrong weight format!");

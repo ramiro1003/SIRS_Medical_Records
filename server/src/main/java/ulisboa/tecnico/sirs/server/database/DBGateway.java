@@ -24,6 +24,7 @@ public class DBGateway {
 	private static final String SQL_INSERT_AUTH = "INSERT INTO Auth (UserId, HashedPass) VALUES (?, ?)";
 	private static final String SQL_UPDATE_AUTH = "UPDATE Auth SET HashedPass=? WHERE UserId=?";
 	private static final String SQL_GET_MEDICAL_RECORD = "SELECT * FROM MedicalRecord INNER JOIN User ON MedicalRecord.PatientId = User.Id WHERE MedicalRecord.PatientId = ?";
+	private static final String SQL_GET_ALL_MEDICAL_RECORD = "SELECT * FROM MedicalRecord";
 	private static final String SQL_INSERT_MEDICAL_RECORD = "INSERT INTO MedicalRecord (Id, PatientId, DoctorId, Weight, Height) VALUES (?,?,?,?,?)";
 	private static final String SQL_CHANGE_WEIGHT = "UPDATE MedicalRecord SET Weight=? WHERE PatientId = ?";
 	private static final String SQL_CHANGE_HEIGHT = "UPDATE MedicalRecord SET Height=? WHERE PatientId = ?";
@@ -114,7 +115,7 @@ public class DBGateway {
 		}
 	}
 	
-	public void addMedicalRecord(int id, int patientId, int doctorId, String weight, String height) {
+	public void addMedicalRecord(Integer id, Integer patientId, Integer doctorId, String weight, String height) {
 		
 		//cipher strings
 		
@@ -294,8 +295,33 @@ public class DBGateway {
 		// FIXME return null or empty
 		return null;
 	}
+	
+	public Integer getAllMedicalRecordsNum() {
+		Integer size = 0;
+		try {
+			PreparedStatement stmt = this.manager.getConnection().prepareStatement(SQL_GET_ALL_MEDICAL_RECORD);
+			ResultSet result = stmt.executeQuery();
+						
+			if (result != null) 
+			{
+			  result.last();    // moves cursor to the last row
+			  size = result.getRow(); // get row id 
+			}
+						
+		} catch (SQLException e) {
+			System.err.format("SQL State: %s\n%s", e.getSQLState(), e.getMessage());
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// FIXME return null or empty
+		return size;
+	}
 
-	private String getPatientName(int userId) {
+	public String getPatientName(Integer userId) {
 		
 		PreparedStatement stmt;
 		String name = null;
