@@ -221,7 +221,7 @@ class ServerThread extends Thread {
 		LoggingManager.writeLog("Logging: " + userId.toString(),
 				"");
 		String password = (String) inStream.readObject();
-		LoggingManager.writeLog("Loggign password: " + password,
+		LoggingManager.writeLog("Logging password: " + password,
 				"");
 		// First checks if user exists
 		List<User> users = gateway.getUsers(); 

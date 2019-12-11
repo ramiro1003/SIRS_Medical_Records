@@ -80,9 +80,14 @@ public class DoctorView extends UserView{
 			String answer = (String) inStream.readObject();
 			if(answer.equals("Doctor has patients")) {
 				List<PatientView> patients = (List<PatientView>) inStream.readObject();
+				
+				System.out.println("\n---------------------------------------------------------------------------------");
+				System.out.println("\tId\t\t|\tPatient Name\t\t");
+				System.out.println("---------------------------------------------------------------------------------");
 				for(PatientView p : patients) {
 					p.printInfo();
 				}
+				System.out.println("---------------------------------------------------------------------------------");
 			}
 			else {
 				System.out.println("You have no assigned patients.");
