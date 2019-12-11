@@ -158,7 +158,7 @@ public class DoctorView extends UserView{
 				goodInput = false;
 				String weightStr = "";
 				while(!goodInput) {
-					System.out.print("What is the patient's weight? (centimeters) \n>> ");
+					System.out.print("What is the patient's weight? (kilograms) \n>> ");
 					heightStr = scanner.nextLine();
 					if(!heightStr.matches("^[0-9]{1,3}$")) { 
 						System.out.println("Wrong weight format!");
