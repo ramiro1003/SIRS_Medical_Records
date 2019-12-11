@@ -27,12 +27,18 @@ public class StaffView extends UserView {
 		// Check context
 		if(context.equals("operationroom")) {
 			System.out.println("\n=================  OPERATION ROOM =================");
+			// Welcome message
+			System.out.println("\nHello " + this.getName() + "!");
 		}
 		else if(context.equals("emergency")) {
-			System.out.println("\n=================  EMERGENCY =================");
+			System.out.println("\nYou can't login from an Emergency Context. Security will be informed of this behaviour.");
+			quit = true;
+			quitClient();
 		}
-		// Welcome message
-		System.out.println("\nHello " + this.getName() + "!");
+		else {
+			// Welcome message
+			System.out.println("\nHello " + this.getName() + "!");
+		}
 		// Variable used to store user input
 		String userInput;
 		while(!quit) {

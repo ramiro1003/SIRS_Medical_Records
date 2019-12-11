@@ -57,11 +57,6 @@
 			<version>2.1.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ow2.authzforce</groupId>
-			<artifactId>authzforce-ce-core-pdp-engine</artifactId>
-			<version>14.0.0</version>
-		</dependency>
-		<dependency>
 			<groupId>org.mybatis</groupId>
 			<artifactId>mybatis</artifactId>
 			<version>3.4.5</version>

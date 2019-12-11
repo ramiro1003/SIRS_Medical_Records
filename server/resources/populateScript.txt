@@ -6,7 +6,7 @@ createUser:5:Miguel Grilo:Patient:19980419:BomNatalMae1990
 createUser:6:Guilherme Rosa:Patient:19980520:BomNatalMae1990
 createUser:7:Ana Nogueira:Patient:19960515:SpotifyBateBueBr0
 createUser:10:Miguel Montijo:Staff:19980904:EpaMuitaBom123
-createUser:11:Olga:Secretary:19801005:BarreteVerdeGostoTanto11
+createUser:11:Tomas Vieira:Secretary:19801005:BarreteVerdeGostoTanto11
 createMD:1:5:1:87:198
 createMD:2:6:1:75:180
 createMD:3:7:3:172:60

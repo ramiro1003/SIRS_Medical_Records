@@ -104,6 +104,9 @@ class ServerThread extends Thread {
 			try {
 				while(!quit) {
 					cmd = (String) inStream.readObject();
+					if(!cmd.equals("-loginUser")) {
+						LoggingManager.writeLog(cmd, currUser.getUserId().toString());
+					}
 					switch(cmd) {
 						case "-changePassword":
 							changePassword();
@@ -112,6 +115,7 @@ class ServerThread extends Thread {
 							listDoctorPatients();
 							break;
 						case "-loginUser":
+							LoggingManager.writeLog(cmd, "");
 							loginUser();
 							break;
 						case "-readMD":
@@ -128,7 +132,6 @@ class ServerThread extends Thread {
 							quit = true;
 							break;
 					}
-					LoggingManager.writeLog(cmd, currUser.getUserId().toString());
 				}
 			}catch (Exception e) {
 				e.printStackTrace();
@@ -219,14 +222,12 @@ class ServerThread extends Thread {
 	private void loginUser() throws ClassNotFoundException, IOException {
 		// Get userId
 		Integer userId = (Integer) inStream.readObject();
-		LoggingManager.writeLog("Logging: " + userId.toString(),
-				"");
+		LoggingManager.writeLog("Logging: " + userId.toString(),"");
 		// Get password
 		String password = (String) inStream.readObject();
-		LoggingManager.writeLog("Logging password: " + password,
-				"");
 		// Get context
 		context = (String) inStream.readObject();
+		LoggingManager.writeLog("Context of log: " + context,"");
 		// First checks if user exists
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
@@ -248,6 +249,17 @@ class ServerThread extends Thread {
 				if(hashedPass.equals(gateway.getHashedPassword(userId))) {
 					outStream.writeObject("User logged in");
 					outStream.writeObject(createUserView());
+					if(currUser.getType().equals("Patient") || currUser.getType().equals("Secretary")) {
+						if(context.equals("operationroom") || context.equals("emergency")) {
+							LoggingManager.writeLog("-loginUser !!!!!! ALERT !!!!! Patient logging from an " + context + " machine", currUser.getUserId().toString());
+						}
+						else {
+							LoggingManager.writeLog("-loginUser", currUser.getUserId().toString());
+						}
+					}
+					else {
+						LoggingManager.writeLog("-loginUser", currUser.getUserId().toString());
+					}			
 				}
 				else {
 					outStream.writeObject("Bad login");
@@ -308,7 +320,6 @@ class ServerThread extends Thread {
 				outStream.writeObject("Not authorized");
 			}
 			else {
-				System.out.println("Fui ao pep com os seguintes argumentos: " + currUser.getName() + " " + medicalRecord.getPatientId() + " read " + context);
 				Boolean authorize = pep.enforce(currUser, medicalRecord, "read", context);
 				if (authorize) {
 					outStream.writeObject("Authorized");
