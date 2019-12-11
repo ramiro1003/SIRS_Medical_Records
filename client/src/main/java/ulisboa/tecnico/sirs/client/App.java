@@ -119,8 +119,7 @@ public class App
 		try {
 			// Check login result
 			if(loginRequest(Integer.parseInt(userId), password)) {
-				System.out.println("\nHello " + user.getName() + "!");
-				user.runApp(inStream, outStream, scanner);
+				user.runApp(inStream, outStream, scanner, context);
 			} else {
 				System.out.println("Wrong credentials.");
 				quitClient();
@@ -138,6 +137,8 @@ public class App
 		outStream.writeObject(userId);
 		// Send hash of password + salt(email)
 		outStream.writeObject(password);
+		// Send current context
+		outStream.writeObject(context);
 		// Check login result
 		String loginResult = (String) inStream.readObject();
 		if(loginResult.equals("User logged in")) {

@@ -24,6 +24,6 @@ public abstract class UserView implements Serializable {
 		return name;
 	}
 	
-	public abstract void runApp(ObjectInputStream appInStream, ObjectOutputStream appOutStream, Scanner appScanner);
+	public abstract void runApp(ObjectInputStream appInStream, ObjectOutputStream appOutStream, Scanner appScanner, String context);
 	
 }

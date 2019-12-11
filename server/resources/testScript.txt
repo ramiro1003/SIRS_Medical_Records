@@ -1,10 +1,13 @@
-createUser:1:House:Doctor:19600809:1
-createUser:2:Mario:Patient:19800809:Password123
-createMD:1:2:1:80:190
-createUser:3:Maria:Patient:19500809:anotherPassworksdskfn23
-createMD:2:3:1:50:150
-createUser:123:Carlos Silva:Secretary:19980412:CristoAleluia123
-createMedication:1:Vicodin:20181109
-createMedication:2:Vicodin:20151021
-createDiagnosis:1:HepatiteA:Epa esta um bocado amarelo:20190809
-createTreatment:1:Conjunto de medicacao:varios remedios:20190809
+createUser:1:Nuno Sabino:Doctor:19950428:TooCoolForSchool123
+createUser:2:Pedro Adao:Doctor:19900125:SSOF{H4CK3R}
+createUser:3:Ricardo Chaves:Doctor:15000710:AuthenticityFactorSha1Sucks
+createUser:4:Miguel Pardal:Doctor:12000815:CanariesAreAwesomeDude1990
+createUser:5:Miguel Grilo:Patient:19980419:BomNatalMae1990
+createUser:6:Guilherme Rosa:Patient:19980520:BomNatalMae1990
+createUser:7:Ana Nogueira:Patient:19960515:SpotifyBateBueBr0
+createUser:10:Miguel Montijo:Staff:19980904:EpaMuitaBom123
+createUser:11:Olga:Secretary:19801005:BarreteVerdeGostoTanto11
+createMD:1:5:1:87:198
+createMD:2:6:1:75:180
+createMD:3:7:3:172:60
+createTreatment:1:Nota 20:Espetacular:20191205

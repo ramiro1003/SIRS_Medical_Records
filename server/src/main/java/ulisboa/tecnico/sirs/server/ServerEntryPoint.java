@@ -83,7 +83,7 @@ class ServerThread extends Thread {
 	private User currUser;
 	private DBGateway gateway;
 	private PolicyEnforcementPoint pep;
-	private String context = "default";
+	private String context;
 	//private LoggingManager logMan;
 
 	public ServerThread(Socket clientSocket, DBGateway gateway) throws IOException {
@@ -217,12 +217,16 @@ class ServerThread extends Thread {
 	}
 
 	private void loginUser() throws ClassNotFoundException, IOException {
+		// Get userId
 		Integer userId = (Integer) inStream.readObject();
 		LoggingManager.writeLog("Logging: " + userId.toString(),
 				"");
+		// Get password
 		String password = (String) inStream.readObject();
 		LoggingManager.writeLog("Logging password: " + password,
 				"");
+		// Get context
+		context = (String) inStream.readObject();
 		// First checks if user exists
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;

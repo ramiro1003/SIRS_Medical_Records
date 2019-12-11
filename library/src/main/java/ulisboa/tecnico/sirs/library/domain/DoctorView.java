@@ -19,15 +19,24 @@ public class DoctorView extends UserView{
 	}
 	
 	@Override
-	public void runApp(ObjectInputStream appInStream, ObjectOutputStream appOutStream, Scanner appScanner) {
+	public void runApp(ObjectInputStream appInStream, ObjectOutputStream appOutStream, Scanner appScanner, String context) {
 		// Get socket from 'main App'
 		inStream = appInStream;
 		outStream = appOutStream;
 		scanner = appScanner;
-		// Variable used to store user input
-		String userInput;
 		// User logged in, now running application
 		Boolean quit = false;
+		// Check context
+		if(context.equals("operationroom")) {
+			System.out.println("\n=================  OPERATION ROOM =================");
+		}
+		else if(context.equals("emergency")) {
+			System.out.println("\n=================  EMERGENCY =================");
+		}
+		// Welcome message
+		System.out.println("\nHello " + this.getName() + "!");
+		// Variable used to store user input
+		String userInput;
 		while(!quit) {
 			System.out.print("\nPlease choose the number of what you want to perform and press enter:\n"
 							+ "1) List Patients\n"
