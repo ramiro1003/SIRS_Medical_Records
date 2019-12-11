@@ -77,6 +77,7 @@ public class MedicalRecord {
 			List<String> prescription = new ArrayList<>();
 			prescription.add(p.getName());
 			prescription.add( p.getPrescriptionDate().toString());
+			info.add(prescription);
 		}
 		return info;
 	}
@@ -88,6 +89,7 @@ public class MedicalRecord {
 			diagnosis.add(d.getName());
 			diagnosis.add(d.getDiagnosisDate().toString());
 			diagnosis.add(d.getDescription());
+			info.add(diagnosis);
 		}
 		return info;
 	}
@@ -99,6 +101,7 @@ public class MedicalRecord {
 			treatment.add(t.getName());
 			treatment.add(t.getTreatmentDate().toString());
 			treatment.add(t.getDescription());
+			info.add(treatment);
 		}
 		return info;
 	}
