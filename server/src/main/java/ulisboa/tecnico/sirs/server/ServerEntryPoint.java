@@ -9,7 +9,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -19,6 +18,7 @@ import ulisboa.tecnico.sirs.domain.MedicalRecord;
 import ulisboa.tecnico.sirs.domain.User;
 import ulisboa.tecnico.sirs.library.domain.*;
 import ulisboa.tecnico.sirs.server.database.DBGateway;
+import ulisboa.tecnico.sirs.server.logging.LoggingManager;
 import ulisboa.tecnico.sirs.server.pep.PolicyEnforcementPoint;
 
 public class ServerEntryPoint 
@@ -90,7 +90,6 @@ class ServerThread extends Thread {
 	public ServerThread(Socket clientSocket, DBGateway gateway) throws IOException {
 		this.socket = clientSocket;
 		this.gateway = gateway;
-		//this.logMan = new LoggingManager();
 	}
 
 	public void run() {
@@ -106,7 +105,6 @@ class ServerThread extends Thread {
 			try {
 				while(!quit) {
 					cmd = (String) inStream.readObject();
-					//logMan.writeLog(cmd, currUser);
 					switch(cmd) {
 						case "-changePassword":
 							changePassword();
@@ -131,6 +129,7 @@ class ServerThread extends Thread {
 							quit = true;
 							break;
 					}
+					LoggingManager.writeLog(cmd, currUser.getUserId().toString());
 				}
 			}catch (Exception e) {
 				e.printStackTrace();
@@ -217,9 +216,11 @@ class ServerThread extends Thread {
 
 	private void loginUser() throws ClassNotFoundException, IOException {
 		Integer userId = (Integer) inStream.readObject();
-		//logMan.writeLog(userId, currUser);
+		LoggingManager.writeLog("Logging: " + userId.toString(),
+				"");
 		String password = (String) inStream.readObject();
-		//logMan.writeLog(hashedPass, currUser);
+		LoggingManager.writeLog("Loggign password: " + password,
+				"");
 		// First checks if user exists
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
@@ -293,6 +294,8 @@ class ServerThread extends Thread {
 	private void readMD() {
 		try {
 			String patientId = (String) inStream.readObject();
+			LoggingManager.writeLog("Read medical record: " + patientId, 
+					currUser.getUserId().toString());
 			MedicalRecord medicalRecord = gateway.getMedicalRecord(patientId);
 			
 			if(medicalRecord ==  null) {
@@ -335,7 +338,8 @@ class ServerThread extends Thread {
 					try {
 						while(!writeQuit) {
 							writeCmd = (String) inStream.readObject();
-							//logMan.writeLog(writeCmd, currUser);
+							LoggingManager.writeLog(writeCmd,
+									currUser.getUserId().toString());
 							switch(writeCmd) {
 								case "-changeHeight":
 									changeHeight(patientIdInt);
@@ -382,7 +386,8 @@ class ServerThread extends Thread {
 		String height;
 		try {
 			height = (String) inStream.readObject();
-			
+			LoggingManager.writeLog("Change height: " + height, 
+					currUser.getUserId().toString());
 			gateway.changeHeight(patientId, height);
 			outStream.writeObject("complete");
 			
@@ -396,7 +401,8 @@ class ServerThread extends Thread {
 	private void changeWeight(Integer patientId) {
 		try {
 			String weight = (String) inStream.readObject();
-			
+			LoggingManager.writeLog("Change height: " + weight, 
+					currUser.getUserId().toString());
 			gateway.changeWeight(patientId, weight);
 			
 			outStream.writeObject("complete");
@@ -411,7 +417,8 @@ class ServerThread extends Thread {
 	private void addPrescription(Integer patientId, Integer medicalRecordId) {
 		try {
 			String prescriptionName = (String) inStream.readObject();
-			
+			LoggingManager.writeLog("Add prescription name: " + prescriptionName, 
+					currUser.getUserId().toString());
 			DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
 			String prescriptionDate = formatter.format(LocalDate.now());
 			
@@ -430,8 +437,11 @@ class ServerThread extends Thread {
 	private void addDiagnosis(Integer patientId, Integer medicalRecordId) {
 		try {
 			String diagnosis = (String) inStream.readObject();
+			LoggingManager.writeLog("Add diagnosis name: " + diagnosis, 
+					currUser.getUserId().toString());
 			String diagnosisDescription = (String) inStream.readObject();
-			
+			LoggingManager.writeLog("Add diagnosis description: " + diagnosisDescription, 
+					currUser.getUserId().toString());
 			DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
 			String diagnosisDate = formatter.format(LocalDate.now());
 			
@@ -449,8 +459,11 @@ class ServerThread extends Thread {
 	private void addTreatment(Integer patientId, Integer medicalRecordId) {
 		try {
 			String treatment = (String) inStream.readObject();
+			LoggingManager.writeLog("Add treatment name: " + treatment, 
+					currUser.getUserId().toString());
 			String treatmentDescription = (String) inStream.readObject();
-			
+			LoggingManager.writeLog("Add treatment description: " + treatmentDescription, 
+					currUser.getUserId().toString());
 			DateTimeFormatter formatter = DateTimeFormatter.BASIC_ISO_DATE;
 			String treatmentDate = formatter.format(LocalDate.now());
 			
@@ -470,7 +483,8 @@ class ServerThread extends Thread {
 	private void registerUser() throws ClassNotFoundException, IOException {
 		// Checks if user already exists
 		Integer userId = Integer.parseInt((String) inStream.readObject());
-		//logMan.writeLog(userId, currUser);
+		LoggingManager.writeLog("Register user: " + userId,
+				currUser.getUserId().toString());
 		List<User> users = gateway.getUsers(); 
 		boolean found = false;
 		for(User user : users) {
@@ -483,21 +497,25 @@ class ServerThread extends Thread {
 		if(!found) {
 			outStream.writeObject("New user");
 			String name = (String) inStream.readObject();
-			//logMan.writeLog(name, currUser);
+			LoggingManager.writeLog("Create user: " + name, 
+					currUser.getUserId().toString());
 			String type = (String) inStream.readObject();
+			LoggingManager.writeLog("Create type: " + type, 
+					currUser.getUserId().toString());
 			String birthDate = (String) inStream.readObject();
-			//logMan.writeLog(type, currUser);
+			LoggingManager.writeLog("Create birthdate: " + birthDate, 
+					currUser.getUserId().toString());
 			String password = (String) inStream.readObject();
+			LoggingManager.writeLog("Create password: " + password, 
+					currUser.getUserId().toString());
 			// Hash password + salt(userId)
 			try {
 				MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
 				String saltedPass = password + userId.toString();
 				byte[] hashedPassBytes = sha256.digest(saltedPass.getBytes());
 				String hashedPass = new String(hashedPassBytes);
-				//logMan.writeLog(hashedPass, currUser);
 				gateway.registerUser(userId, name, type, birthDate, hashedPass);
 			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} 
@@ -507,7 +525,12 @@ class ServerThread extends Thread {
 	}
 	
 	private void quitUser() {
-		//logMan.writeLog(user, currUser);
+		try {
+			LoggingManager.writeLog("Quit", 
+					currUser.getUserId().toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
 		System.out.println(currUser.getType() + " " + currUser.getName() + " disconnected.");
 	}
 }

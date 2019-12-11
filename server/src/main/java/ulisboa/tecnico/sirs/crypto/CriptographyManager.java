@@ -2,10 +2,12 @@ package ulisboa.tecnico.sirs.crypto;
 
 import java.security.Key;
 import java.security.KeyStore;
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
+import java.util.Base64;
 
-import com.google.common.io.BaseEncoding;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -18,7 +20,7 @@ import java.io.InputStream;
 public class CriptographyManager {
 
 	private static Key key;
-	
+
 	public CriptographyManager(){
 		try {
 
@@ -26,10 +28,9 @@ public class CriptographyManager {
 			KeyStore keystore = KeyStore.getInstance("JCEKS"); 
 			keystore.load(keystoreStream, "sirssirs".toCharArray()); 
 			if (!keystore.containsAlias("sirsaes")) { 
-			 throw new RuntimeException("Alias for key not found"); 
+				throw new RuntimeException("Alias for key not found"); 
 			} 
 			key = keystore.getKey("sirsaes", "sirssirs".toCharArray());
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -43,21 +44,31 @@ public class CriptographyManager {
 	 */
 	public String cipher(String data) throws Exception  {
 
-        try
-        {
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            SecretKeySpec secretKeySpecification = new SecretKeySpec(key.getEncoded(), "AES");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpecification);
-            byte[] encryptedMessageInBytes = cipher.doFinal(data.getBytes("UTF-8"));
-            String encMsg = BaseEncoding.base64().encode(encryptedMessageInBytes);
-            return encMsg;
-        } 
-        catch (Exception e) 
-        {
-            System.out.println("Error while encrypting: " + e.toString());
-        }
-        return null;
+		try
+		{
+			//get iv
+			IvParameterSpec iv = genInitializeVector();
 
+			//cipher the string
+			SecretKeySpec secretKeySpec = new SecretKeySpec(key.getEncoded(), "AES");
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, iv);
+			byte[] encryptedMessageInBytes = cipher.doFinal(data.getBytes());
+
+			//join iv with encrypted message
+			byte[] encryptedIVAndText = new byte[16 + encryptedMessageInBytes.length];
+			System.arraycopy(iv.getIV(), 0, encryptedIVAndText, 0, 16);
+			System.arraycopy(encryptedMessageInBytes, 0, encryptedIVAndText, 16, encryptedMessageInBytes.length);
+
+			//get the final string
+			String encMsg = Base64.getEncoder().encodeToString(encryptedIVAndText);
+			return encMsg;
+		} 
+		catch (Exception e) 
+		{
+			System.out.println("Error while encrypting: " + e.toString());
+		}
+		return null;
 	}
 
 	/**
@@ -67,21 +78,39 @@ public class CriptographyManager {
 	 */
 	public String decipher(String data) throws Exception {
 
-        try
-        {
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            SecretKeySpec secretKeySpecification = new SecretKeySpec(key.getEncoded(), "AES"); 
-            cipher.init(Cipher.DECRYPT_MODE, secretKeySpecification);
-            byte[] encryptedTextBytes = BaseEncoding.base64().decode(data); 
-            byte[] decryptedTextBytes = cipher.doFinal(encryptedTextBytes); 
-            String origMessage = new String(decryptedTextBytes); 
-            return origMessage;
-        } 
-        catch (Exception e) 
-        {
-            System.out.println("Error while decrypting: " + e.toString());
-        }
-        return null;
+		try
+		{
+			byte[] cleanData = Base64.getDecoder().decode(data);
+			// Extract IV.
+			byte[] iv = new byte[16];
+			System.arraycopy(cleanData, 0, iv, 0, iv.length);
+			IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+			// Extract encrypted part.
+			int encryptedSize = cleanData.length - 16;
+			byte[] encryptedBytes = new byte[encryptedSize];
+			System.arraycopy(cleanData, 16, encryptedBytes, 0, encryptedSize);
+
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			SecretKeySpec secretKeySpecification = new SecretKeySpec(key.getEncoded(), "AES"); 
+			cipher.init(Cipher.DECRYPT_MODE, secretKeySpecification, ivParameterSpec);
+	        byte[] decrypted = cipher.doFinal(encryptedBytes);
+			String origMessage = new String(decrypted); 
+			return origMessage;
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private IvParameterSpec  genInitializeVector() {
+		int ivSize = 16;
+		byte[] iv = new byte[ivSize];
+		SecureRandom random = new SecureRandom();
+		random.nextBytes(iv);
+		return new IvParameterSpec(iv);
 	}
 
 }
